@@ -1,8 +1,8 @@
-package com.pojul.fastIM.message.login;
+package com.pojul.fastIM.message.request;
 
-import com.pojul.objectsocket.message.BaseMessage;
+import com.pojul.objectsocket.message.RequestMessage;
 
-public class LoginMessage extends BaseMessage{
+public class LoginMessage extends RequestMessage{
 
 	private String userName;
 	private String PassWd;
@@ -19,6 +19,7 @@ public class LoginMessage extends BaseMessage{
 	}
 	public void setUserName(String userName) {
 		this.userName = userName;
+		setFrom(userName);
 	}
 	public String getPassWd() {
 		return PassWd;

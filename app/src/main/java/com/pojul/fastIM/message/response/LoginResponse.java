@@ -1,11 +1,13 @@
 package com.pojul.fastIM.message.response;
 
-public class LoginResponse extends Response{
+import com.pojul.objectsocket.message.ResponseMessage;
+
+public class LoginResponse extends ResponseMessage{
 
 	private String chatId;
 	
-	public LoginResponse(int code, String message, String chatId) {
-		super(code, message);
+	public LoginResponse(int code, String message, String chatId, String messageUid) {
+		super(code, message, messageUid);
 		// TODO Auto-generated constructor stub
 		this.chatId = chatId;
 	}
@@ -21,7 +23,8 @@ public class LoginResponse extends Response{
 	@Override
 	public String toString() {
 		return "LoginResponse [chatId=" + chatId + ", code=" + code + ", message=" + message + ", from=" + from
-				+ ", to=" + to + ", sendTime=" + sendTime + ", receiveTime=" + receiveTime + "]";
+				+ ", to=" + to + ", sendTime=" + sendTime + ", receiveTime=" + receiveTime + ", MessageUid="
+				+ MessageUid + "]";
 	}
 
 }

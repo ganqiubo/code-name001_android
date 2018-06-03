@@ -6,6 +6,7 @@ import java.net.Socket;
 import java.util.LinkedList;
 
 import com.pojul.objectsocket.message.BaseMessage;
+import com.pojul.objectsocket.message.ResponseMessage;
 import com.pojul.objectsocket.parser.SocketEntityParser;
 import com.pojul.objectsocket.parser.interfacer.ISocketEntityParser;
 import com.pojul.objectsocket.utils.LogUtil;
@@ -67,12 +68,13 @@ public class SocketSender{
 							//e.printStackTrace();
 							stopSend = true;
 							if(mSocketEntityParser != null) {
-								mSocketEntityParser.stopSend = true;
+								mSocketEntityParser.stop();
 							}
-							if(senderListener != null) {
-								senderListener.onSendError(e);
-							}
+
+							onSendError(mMessage, e);
+
 							LogUtil.i(TAG, e.toString());
+							LogUtil.dStackTrace(e);
 						}
 					}
 					try {
@@ -80,13 +82,28 @@ public class SocketSender{
 					} catch (InterruptedException e1) {
 						// TODO Auto-generated catch block
 						LogUtil.i(TAG, e1.toString());
+						LogUtil.dStackTrace(e1);
 					}
 				}
 			}
 		});
 		socketSendThread.start();
 	}
-	
+
+	protected void onSendError(BaseMessage mMessage, Exception e) {
+		if(RequestTimeOut.getInstance().isRequestMessage(mMessage.getMessageUid())){
+			RequestTimeOut.getInstance().onRequestError((ResponseMessage) mMessage, e);
+		}else if(senderListener != null) {
+			senderListener.onSendError(e);
+		}
+	}
+
+	protected void onSendFinish(BaseMessage mMessage) {
+		if(senderListener != null) {
+			senderListener.onSendFinish(mMessage);
+		}
+	}
+
 	public void sendMessage(BaseMessage mBaseMessage) {
 		putMessage(mBaseMessage);
 	}
@@ -137,18 +154,16 @@ public class SocketSender{
 				@Override
 				public void onParserFinish(BaseMessage message) throws IOException {
 					// TODO Auto-generated method stub
-					if(senderListener != null) {
-						senderListener.onSendFinish(message);
-					}
+					onSendFinish(message);
 					if(closeConnWhenFinish) {
 						clientSocket.closeConn();
 					}
 				}
 
 				@Override
-				public void onParserError() {
+				public void onParserError(BaseMessage message, Exception e) {
 					// TODO Auto-generated method stub
-					//System.out.println(TAG + "：" + e);
+					onSendError(message, e);
 				}
 			});
 		}

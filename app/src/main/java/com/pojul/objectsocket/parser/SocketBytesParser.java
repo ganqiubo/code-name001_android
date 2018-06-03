@@ -50,7 +50,7 @@ public class SocketBytesParser{
 		while(!stopRec) {
 			try {
 				parseHead();
-			} catch (IOException | JsonSyntaxException | ClassNotFoundException e) {
+			} catch (Exception e) {
 				// TODO Auto-generated catch block
 				stopRec = true;
 				mISocketBytesParser.onError(e);
@@ -61,7 +61,7 @@ public class SocketBytesParser{
 		}
 	}
 	
-	protected void parseHead() throws IOException, JsonSyntaxException, ClassNotFoundException {
+	protected void parseHead() throws Exception {
 		byte[] b;
 		b = ReadUtil.recvBytes(is, 4);
 		int entityLength = BytesUtil.byteArrayToInt(b);
@@ -74,7 +74,7 @@ public class SocketBytesParser{
 		parseEntity(entityLength);
 	}
 	
-	protected void parseEntity(int entityLength) throws IOException, JsonSyntaxException, ClassNotFoundException {
+	protected void parseEntity(int entityLength) throws Exception {
 		byte[] b;
 		b = ReadUtil.recvBytes(is, entityLength);
 		String str = new String(b,"UTF-8");
@@ -94,7 +94,7 @@ public class SocketBytesParser{
 		parseFile(entityString);
 	}
 	
-	protected void parseFile(String entityString) throws IOException, JsonSyntaxException, ClassNotFoundException {
+	protected void parseFile(String entityString) throws Exception {
 		
 		while(!stopRec) {
 			byte[] hasFile = ReadUtil.recvBytes(is, 1);

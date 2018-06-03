@@ -1,11 +1,10 @@
 package com.pojul.objectsocket.socket;
 
-import com.pojul.objectsocket.message.BaseMessage;
-
 import java.io.IOException;
-import java.net.InetSocketAddress;
 import java.net.Socket;
-import java.net.SocketAddress;
+import java.net.UnknownHostException;
+import com.pojul.objectsocket.message.BaseMessage;
+import com.pojul.objectsocket.utils.LogUtil;
 
 public class ClientSocket {
 
@@ -31,12 +30,10 @@ public class ClientSocket {
 		this.deviceType = deviceType;
 	}
 
-	public ClientSocket(String host, int port) throws IOException  {
+	public ClientSocket(String host, int port) throws UnknownHostException, IOException  {
 		super();
 		// TODO Auto-generated constructor stub
-		mSocket = new Socket();
-		SocketAddress remoteAddr = new InetSocketAddress(host, port);
-		mSocket.connect(remoteAddr, 20000);
+		mSocket = new Socket(host, port);
 		mSocketSender = new SocketSender(mSocket, this);
 		mSocketReceiver = new SocketReceiver(mSocket, this);
 	}
@@ -86,9 +83,6 @@ public class ClientSocket {
 	
 	public void closeConn() {
 		if(mSocket != null) {
-			if(mOnStatusChangedListener != null) {
-				mOnStatusChangedListener.onConnClosed();
-			}
 			try {
 				stopRec();
 				stopSend();
@@ -99,6 +93,11 @@ public class ClientSocket {
 				// TODO Auto-generated catch block
 				if(recListener != null) {
 					recListener.onError(e);
+				}
+			}finally {
+				LogUtil.d(getClass().getName(), "closeConn");
+				if(mOnStatusChangedListener != null) {
+					mOnStatusChangedListener.onConnClosed();
 				}
 			}
 			mSocket = null;

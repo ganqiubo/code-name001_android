@@ -3,12 +3,15 @@ package com.pojul.objectsocket.message;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
+import com.pojul.objectsocket.socket.UidUtil;
+
 public class BaseMessage {
 	
 	protected String from;
 	protected String to;
 	protected String sendTime;
 	protected String receiveTime;
+	protected String MessageUid;
 	
 	public BaseMessage() {
 		super();
@@ -22,6 +25,7 @@ public class BaseMessage {
 	}
 	public void setFrom(String from) {
 		this.from = from;
+		this.MessageUid = UidUtil.getMessageUid(from);
 	}
 	public String getTo() {
 		return to;
@@ -40,5 +44,13 @@ public class BaseMessage {
 	}
 	public void setReceiveTime(String receiveTime) {
 		this.receiveTime = receiveTime;
+	}
+
+	public String getMessageUid() {
+		return MessageUid;
+	}
+
+	public void setMessageUid(String messageUid) {
+		MessageUid = messageUid;
 	}
 }

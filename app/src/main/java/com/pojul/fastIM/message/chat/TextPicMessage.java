@@ -29,8 +29,8 @@ public class TextPicMessage extends ChatMessage{
 	}
 	@Override
 	public String toString() {
-		return "TextPicMessage [text=" + text + ", pic=" + pic + ", chatType=" + chatType + ", chatUid=" + chatUid
-				+ ", from=" + from + ", to=" + to + ", sendTime=" + sendTime + ", receiveTime=" + receiveTime + "]";
+		return "TextPicMessage [text=" + text + ", pic=" + pic + ", chatType=" + chatType + ", from=" + from + ", to="
+				+ to + ", sendTime=" + sendTime + ", receiveTime=" + receiveTime + ", MessageUid=" + MessageUid + "]";
 	}
 	
 }

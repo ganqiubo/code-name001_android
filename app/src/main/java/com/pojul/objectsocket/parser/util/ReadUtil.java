@@ -1,11 +1,10 @@
 package com.pojul.objectsocket.parser.util;
 
-import java.io.IOException;
 import java.io.InputStream;
 
 public class ReadUtil {
 
-	public static byte[] recvBytes(InputStream is, int tempReadLength) throws IOException {
+	public static byte[] recvBytes(InputStream is, int tempReadLength) throws Exception {
 		int tmpLength = 512; // 每次读取最大缓冲区大小
 		//System.out.println("recvBytes length：" + tempReadLength);
 		byte[] ret = new byte[tempReadLength];
@@ -17,6 +16,8 @@ public class ReadUtil {
 				if (readed == -1)
 					break;
 				System.arraycopy(bs, 0, ret, offset, readed);
+			}catch(Exception e) {
+				throw(e);
 			} finally {
 				offset += readed;
 				left -= readed;

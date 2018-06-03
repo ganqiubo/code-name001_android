@@ -9,5 +9,5 @@ public interface ISocketEntityParser {
 	
 	public void onParserFinish(BaseMessage message) throws IOException ;
 
-	public void onParserError();
+	public void onParserError(BaseMessage message, Exception e);
 }

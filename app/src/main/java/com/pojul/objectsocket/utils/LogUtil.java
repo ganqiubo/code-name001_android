@@ -71,6 +71,12 @@ public class LogUtil {
         		content;
         System.out.println(message);
     }
-    
-    
+
+    public static void dStackTrace(Exception e) {
+        if (!allowD) {
+            return;
+        }
+        e.printStackTrace();
+    }
+
 }

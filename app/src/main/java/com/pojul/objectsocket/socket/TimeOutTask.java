@@ -1,6 +1,4 @@
-package tl.pojul.com.fastim.net.Entity;
-
-import tl.pojul.com.fastim.net.SocketRequest;
+package com.pojul.objectsocket.socket;
 
 /**
  * Created by gqb on 2018/5/31.

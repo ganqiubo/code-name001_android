@@ -9,6 +9,7 @@ import com.pojul.objectsocket.message.StringFile;
 import com.pojul.objectsocket.socket.ClientSocket;
 import com.pojul.objectsocket.socket.SocketReceiver;
 import com.pojul.objectsocket.socket.SocketSender;
+import com.pojul.objectsocket.utils.Constant;
 
 /**
  * Created by gqb on 2018/5/30.
@@ -27,6 +28,20 @@ public class MyApplication extends Application {
     public void onCreate() {
         super.onCreate();
         myApplication = this;
+        showLongToas("onCreate");
+        Constant.STORAGE_TYPE = 0;
+    }
+
+    @Override
+    public void onTerminate() {
+        super.onTerminate();
+        closeConn();
+    }
+
+    public void closeConn(){
+        if(ClientSocket != null && ClientSocket.getmSocket() != null){
+            ClientSocket.closeConn();
+        }
     }
 
     public void registerSocketRecListerer(){

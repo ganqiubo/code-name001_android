@@ -1,21 +1,15 @@
-package com.pojul.fastIM.message.response;
+package com.pojul.objectsocket.message;
 
-import com.pojul.objectsocket.message.BaseMessage;
-
-public class Response extends BaseMessage{
+public class ResponseMessage extends BaseMessage{
 
 	protected int code;
 	protected String message;
-	
-	public Response() {
-		super();
-		// TODO Auto-generated constructor stub
-	}
 
-	public Response(int code, String message) {
+	public ResponseMessage(int code, String message, String messageUid) {
 		super();
 		this.code = code;
 		this.message = message;
+		super.MessageUid = messageUid;
 	}
 
 	public int getCode() {
@@ -37,7 +31,7 @@ public class Response extends BaseMessage{
 	@Override
 	public String toString() {
 		return "Response [code=" + code + ", message=" + message + ", from=" + from + ", to=" + to + ", sendTime="
-				+ sendTime + "]";
+				+ sendTime + ", receiveTime=" + receiveTime + ", MessageUid=" + MessageUid + "]";
 	}
 	
 }

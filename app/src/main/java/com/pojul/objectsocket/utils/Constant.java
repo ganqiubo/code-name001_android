@@ -7,4 +7,7 @@ public class Constant {
 	
 	/*0: local; 1: server*/
 	public static int STORAGE_TYPE = 1;
+	
+	public final static String HOST = "192.168.0.108";
+    public final static int PORT = 57142;
 }

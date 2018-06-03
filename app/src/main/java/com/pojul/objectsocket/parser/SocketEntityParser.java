@@ -7,7 +7,6 @@ import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import java.util.zip.ZipInputStream;
 
 import com.google.gson.Gson;
 import com.pojul.objectsocket.message.BaseMessage;
@@ -16,7 +15,6 @@ import com.pojul.objectsocket.message.StringFile;
 import com.pojul.objectsocket.parser.interfacer.ISocketEntityParser;
 import com.pojul.objectsocket.utils.BytesUtil;
 import com.pojul.objectsocket.utils.LogUtil;
-import com.sun.prism.paint.Stop;
 
 public class SocketEntityParser {
 	
@@ -56,7 +54,7 @@ public class SocketEntityParser {
 		}
 		if(mBaseMessage == null) {
 			LogUtil.i(TAG, "error: parser mesage is null");
-			mISocketEntityParser.onParserError();
+			mISocketEntityParser.onParserError(mBaseMessage, new Exception("error: parser mesage is null"));
 			return;
 		}
 		

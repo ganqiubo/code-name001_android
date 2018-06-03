@@ -1,4 +1,4 @@
-package com.pojul.fastIM.utils;
+package com.pojul.objectsocket.socket;
 
 public class UidUtil {
 

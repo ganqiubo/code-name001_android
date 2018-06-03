@@ -4,6 +4,7 @@ import java.net.Socket;
 
 import com.pojul.objectsocket.message.BaseMessage;
 import com.pojul.objectsocket.message.MessageHeader;
+import com.pojul.objectsocket.message.ResponseMessage;
 import com.pojul.objectsocket.message.StringFile;
 import com.pojul.objectsocket.parser.SocketBytesParser;
 import com.pojul.objectsocket.parser.interfacer.ISocketBytesParser;
@@ -74,9 +75,7 @@ public class SocketReceiver {
 						@Override
 						public void onReadEntity(BaseMessage message) {
 							// TODO Auto-generated method stub
-							if(receiverListener != null) {
-								receiverListener.onReadEntity(message);
-							}
+							onReceiveMessage(message);
 							LogUtil.d(TAG, message.toString());
 						}
 
@@ -87,9 +86,7 @@ public class SocketReceiver {
 							if(receiverListener != null) {
 								receiverListener.onError(e);
 							}
-							if(LogUtil.allowD) {
-								e.printStackTrace();
-							}
+							LogUtil.dStackTrace(e);
 							LogUtil.e(TAG, e.toString());
 						}
 					}, recOnce);
@@ -98,7 +95,15 @@ public class SocketReceiver {
 		});
 		socketRecThread.start();
 	}
-	
+
+	private void onReceiveMessage(BaseMessage message) {
+		if(RequestTimeOut.getInstance().isRequestMessage(message.getMessageUid())){
+			RequestTimeOut.getInstance().onRequestFinish((ResponseMessage) message);
+		}else if(receiverListener != null) {
+			receiverListener.onReadEntity(message);
+		}
+	}
+
 	public interface ISocketReceiver{
 		public void onReadHead(MessageHeader header);
 		
