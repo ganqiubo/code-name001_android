@@ -1,4 +1,4 @@
-package tl.pojul.com.fastim.View;
+package tl.pojul.com.fastim.View.widget;
 
 import android.app.Dialog;
 import android.content.Context;

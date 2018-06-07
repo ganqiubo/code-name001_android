@@ -1,4 +1,4 @@
-package tl.pojul.com.fastim.activity;
+package tl.pojul.com.fastim.View.activity;
 
 import android.content.Intent;
 import android.os.Bundle;

@@ -1,4 +1,4 @@
-package tl.pojul.com.fastim.activity;
+package tl.pojul.com.fastim.View.activity;
 
 import android.content.Intent;
 import android.os.Bundle;
@@ -24,7 +24,7 @@ import tl.pojul.com.fastim.R;
 import tl.pojul.com.fastim.util.Constant;
 import tl.pojul.com.fastim.util.DialogUtil;
 
-public class LoginActivity extends BaseActivity{
+public class LoginActivity extends BaseActivity {
 
 
     @BindView(R.id.login_account)
@@ -50,9 +50,6 @@ public class LoginActivity extends BaseActivity{
         setContentView(R.layout.activity_login);
         ButterKnife.bind(this);
 
-        /*loginAccount = findViewById(R.id.activity_login_account);
-        loginPasswd = findViewById(R.id.activity_login_passwd);
-        loginSubmit = findViewById(R.id.activity_login_submit);*/
     }
 
     private void conn() {

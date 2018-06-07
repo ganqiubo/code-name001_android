@@ -2,7 +2,7 @@ package tl.pojul.com.fastim.util;
 
 import android.content.Context;
 
-import tl.pojul.com.fastim.View.LoadingDialog;
+import tl.pojul.com.fastim.View.widget.LoadingDialog;
 
 /**
  * Created by gqb on 2018/5/30.

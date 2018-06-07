@@ -1,10 +1,12 @@
 package com.pojul.objectsocket.socket;
 
-import java.io.IOException;
-import java.net.Socket;
-import java.net.UnknownHostException;
 import com.pojul.objectsocket.message.BaseMessage;
 import com.pojul.objectsocket.utils.LogUtil;
+
+import java.io.IOException;
+import java.net.InetSocketAddress;
+import java.net.Socket;
+import java.net.UnknownHostException;
 
 public class ClientSocket {
 
@@ -17,6 +19,7 @@ public class ClientSocket {
 	//chatId为用户名
 	protected String chatId;
 	protected String deviceType;
+	protected int connTimeOut = 15000;
 
 	public void setmOnStatusChangedListener(OnStatusChangedListener mOnStatusChangedListener) {
 		this.mOnStatusChangedListener = mOnStatusChangedListener;
@@ -30,10 +33,19 @@ public class ClientSocket {
 		this.deviceType = deviceType;
 	}
 
+	public int getConnTimeOut() {
+		return connTimeOut;
+	}
+
+	public void setConnTimeOut(int connTimeOut) {
+		this.connTimeOut = connTimeOut;
+	}
+
 	public ClientSocket(String host, int port) throws UnknownHostException, IOException  {
 		super();
 		// TODO Auto-generated constructor stub
-		mSocket = new Socket(host, port);
+		mSocket = new Socket();
+		mSocket.connect(new InetSocketAddress(host, port), connTimeOut);
 		mSocketSender = new SocketSender(mSocket, this);
 		mSocketReceiver = new SocketReceiver(mSocket, this);
 	}
@@ -89,7 +101,7 @@ public class ClientSocket {
 				mSocket.shutdownInput();
 				mSocket.shutdownOutput();
 				mSocket.close();
-			} catch (IOException e) {
+			} catch (Exception e) {
 				// TODO Auto-generated catch block
 				if(recListener != null) {
 					recListener.onError(e);
