@@ -5,6 +5,11 @@ public class ResponseMessage extends BaseMessage{
 	protected int code;
 	protected String message;
 
+	public ResponseMessage() {
+		super();
+		// TODO Auto-generated constructor stub
+	}
+
 	public ResponseMessage(int code, String message, String messageUid) {
 		super();
 		this.code = code;

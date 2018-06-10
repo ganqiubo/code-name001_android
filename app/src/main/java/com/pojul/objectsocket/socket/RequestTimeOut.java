@@ -41,6 +41,9 @@ public class RequestTimeOut{
     }
     
     public void stopMonitor() {
+    	synchronized (requestQuenes) {
+    		requestQuenes.notifyAll();
+		}
     	stop = true;
     }
     

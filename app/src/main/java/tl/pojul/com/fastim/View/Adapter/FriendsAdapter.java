@@ -8,6 +8,10 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.bumptech.glide.Glide;
+import com.pojul.fastIM.entity.Friend;
+import com.pojul.objectsocket.message.BaseMessage;
+
 import java.util.List;
 
 import butterknife.BindView;
@@ -17,9 +21,9 @@ import tl.pojul.com.fastim.R;
 public class FriendsAdapter extends RecyclerView.Adapter<FriendsAdapter.MyViewHolder> {
 
     private Context mContext;
-    private List mList;
+    private List<Friend> mList;
 
-    public FriendsAdapter(Context mContext, List<String> mList) {
+    public FriendsAdapter(Context mContext, List<Friend> mList) {
         this.mContext = mContext;
         this.mList = mList;
     }
@@ -32,7 +36,20 @@ public class FriendsAdapter extends RecyclerView.Adapter<FriendsAdapter.MyViewHo
 
     @Override
     public void onBindViewHolder(MyViewHolder holder, int position) {
-
+        Friend friend = mList.get(position);
+        holder.friendNickname.setText(friend.getNickName());
+        holder.friendAutograph.setText(friend.getAutograph() == null ? "" : friend.getAutograph());
+        if (friend.getPhoto() != null) {
+            Glide.with(mContext).load(friend.getPhoto()).into(holder.friendPhoto);
+        } else {
+            Glide.with(mContext).load(R.drawable.photo_default).into(holder.friendPhoto);
+        }
+        if (friend.getUnreadMessage() > 0) {
+            holder.unreadMessage.setVisibility(View.VISIBLE);
+            holder.unreadMessage.setText(("" + friend.getUnreadMessage()));
+        } else {
+            holder.unreadMessage.setVisibility(View.GONE);
+        }
     }
 
     @Override
@@ -48,10 +65,27 @@ public class FriendsAdapter extends RecyclerView.Adapter<FriendsAdapter.MyViewHo
         TextView friendNickname;
         @BindView(R.id.friend_autograph)
         TextView friendAutograph;
+        @BindView(R.id.unread_message)
+        TextView unreadMessage;
 
         public MyViewHolder(View itemView) {
             super(itemView);
             ButterKnife.bind(this, itemView);
         }
     }
+
+    public void receiveMessage(BaseMessage message){
+        if(mList == null){
+            return;
+        }
+        for(int i = 0; i< mList.size(); i ++ ){
+            Friend friend = mList.get(i);
+            if(friend.getUserName().equals(message.getFrom())){
+                friend.setUnreadMessage(friend.getUnreadMessage() + 1);
+                this.notifyDataSetChanged();
+                break;
+            }
+        }
+    }
+
 }

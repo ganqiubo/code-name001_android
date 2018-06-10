@@ -4,7 +4,6 @@ import java.io.DataOutputStream;
 import java.io.IOException;
 import java.net.Socket;
 import java.util.LinkedList;
-
 import com.pojul.objectsocket.message.BaseMessage;
 import com.pojul.objectsocket.message.ResponseMessage;
 import com.pojul.objectsocket.parser.SocketEntityParser;
@@ -28,6 +27,7 @@ public class SocketSender{
 	protected boolean stopSend = false;
 	protected boolean closeConnWhenFinish = false; 
 	protected long messageCheckInterval = 500;
+	private boolean isWait = false;
 	
 	public SocketSender(Socket mSocket, ClientSocket clientSocket) {
 		super();
@@ -58,6 +58,29 @@ public class SocketSender{
 		socketSendThread = new Thread(new Runnable() {
 			public void run() {
 				while(!stopSend) {
+					try {
+						Thread.sleep(messageCheckInterval);
+					} catch (InterruptedException e1) {
+						// TODO Auto-generated catch block
+						LogUtil.i(TAG, e1.toString());
+						LogUtil.dStackTrace(e1);
+					}
+					synchronized (mMessageQuene) {
+						if(mMessageQuene.size() <= 0) {
+							try {
+								isWait = true;
+								mMessageQuene.wait();
+							} catch (InterruptedException e) {
+								// TODO Auto-generated catch block
+								LogUtil.d(getClass().getName(), e.toString());
+								LogUtil.dStackTrace(e);
+							}
+						}
+					}
+					isWait = false;
+					if(stopSend) {
+						return;
+					}
 					BaseMessage mMessage = getTopAndRemoveMessage();
 					if(mMessage != null) {
 						LogUtil.d("senddata", mMessage.toString());
@@ -70,19 +93,10 @@ public class SocketSender{
 							if(mSocketEntityParser != null) {
 								mSocketEntityParser.stop();
 							}
-
 							onSendError(mMessage, e);
-
 							LogUtil.i(TAG, e.toString());
 							LogUtil.dStackTrace(e);
 						}
-					}
-					try {
-						Thread.sleep(messageCheckInterval);
-					} catch (InterruptedException e1) {
-						// TODO Auto-generated catch block
-						LogUtil.i(TAG, e1.toString());
-						LogUtil.dStackTrace(e1);
 					}
 				}
 			}
@@ -112,8 +126,13 @@ public class SocketSender{
 		synchronized (mMessageQuene) {
 			if(mBaseMessage != null) {
 				mMessageQuene.addLast(mBaseMessage);
+				if(isWait && mMessageQuene.size() > 0) {
+					mMessageQuene.notifyAll();
+				}
 			}
+			
 		}
+		
 	}
 	
 	protected BaseMessage getTopAndRemoveMessage(){
@@ -182,6 +201,9 @@ public class SocketSender{
 	
 	public void stopSend(){
 		stopSend = true;
+		synchronized (mMessageQuene) {
+			mMessageQuene.notifyAll();
+		}
 		if(mSocketEntityParser != null) {
 			mSocketEntityParser.stop();
 		}

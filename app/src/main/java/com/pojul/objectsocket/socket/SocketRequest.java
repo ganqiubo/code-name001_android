@@ -1,6 +1,7 @@
 package com.pojul.objectsocket.socket;
 
 import com.pojul.objectsocket.message.BaseMessage;
+import com.pojul.objectsocket.message.RequestMessage;
 import com.pojul.objectsocket.message.ResponseMessage;
 import com.pojul.objectsocket.utils.LogUtil;
 
@@ -12,19 +13,7 @@ import java.io.IOException;
 
 public class SocketRequest {
 
-    protected long defaultTimeOut = 30000;
-    private static SocketRequest mSocketRequest;
-
-    public static SocketRequest getInstance() {
-        if(mSocketRequest == null) {
-            synchronized (SocketRequest.class) {
-                if(mSocketRequest == null) {
-                    mSocketRequest = new SocketRequest();
-                }
-            }
-        }
-        return mSocketRequest;
-    }
+    protected long defaultTimeOut = 25000;
 
     public long getDefaultTimeOut() {
         return defaultTimeOut;
@@ -48,11 +37,16 @@ public class SocketRequest {
         }).start();
     }
 
-    public void resuest(ClientSocket mClientSocket, BaseMessage message, final IRequest mIRequest){
+    /**
+     * @param mClientSocket
+     *@param message
+     * message mIRequest
+     */
+    public void resuest(ClientSocket mClientSocket, RequestMessage message, final IRequest mIRequest){
         resuest(mClientSocket, message, mIRequest, defaultTimeOut);
     }
 
-    public void resuest(ClientSocket mClientSocket, BaseMessage message, final IRequest mIRequest, long timeout){
+    public void resuest(ClientSocket mClientSocket, RequestMessage message, final IRequest mIRequest, long timeout){
         if(mClientSocket == null || mClientSocket.getmSocket() == null){
             LogUtil.i(getClass().getName(), "ClientSocket is not conneted");
             mIRequest.onError("与服务器连接已断开");

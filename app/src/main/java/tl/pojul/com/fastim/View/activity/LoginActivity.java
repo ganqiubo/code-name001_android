@@ -23,6 +23,7 @@ import tl.pojul.com.fastim.MyApplication;
 import tl.pojul.com.fastim.R;
 import tl.pojul.com.fastim.util.Constant;
 import tl.pojul.com.fastim.util.DialogUtil;
+import tl.pojul.com.fastim.util.SPUtil;
 
 public class LoginActivity extends BaseActivity {
 
@@ -72,6 +73,9 @@ public class LoginActivity extends BaseActivity {
                         return;
                     }
                     MyApplication.ClientSocket = clientSocket;
+                    MyApplication.getApplication().registerSocketRecListerer();
+                    MyApplication.getApplication().registerSocketSendListerer();
+                    MyApplication.getApplication().registerSocketStatusListerer();
                     login();
                 });
             }
@@ -89,7 +93,7 @@ public class LoginActivity extends BaseActivity {
             public void onError(String msg) {
                 runOnUiThread(() -> {
                     DialogUtil.getInstance().dimissLoadingDialog();
-                    showLongToas("网络连接失败");
+                    showShortToas("网络连接失败");
                 });
             }
 
@@ -98,8 +102,9 @@ public class LoginActivity extends BaseActivity {
                 runOnUiThread(() -> {
                     DialogUtil.getInstance().dimissLoadingDialog();
                     LoginResponse loginResponse = (LoginResponse) mResponse;
-                    showLongToas(mResponse.getMessage());
+                    showShortToas(mResponse.getMessage());
                     if (loginResponse.getCode() == 200) {
+                        SPUtil.getInstance().putUser(loginResponse.getUser());
                         startActivity(new Intent(LoginActivity.this, MainActivity.class));
                         finish();
                     }

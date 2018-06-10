@@ -1,28 +1,45 @@
 package tl.pojul.com.fastim.View.fragment;
 
+import android.graphics.Color;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
-import android.support.v4.app.Fragment;
 import android.support.v7.widget.LinearLayoutManager;
-import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
-import java.util.ArrayList;
-import java.util.List;
+import com.pojul.fastIM.message.request.GetFriendsRequest;
+import com.pojul.fastIM.message.response.GetFriendsResponse;
+import com.pojul.objectsocket.message.BaseMessage;
+import com.pojul.objectsocket.message.ResponseMessage;
+import com.pojul.objectsocket.socket.SocketRequest;
+import com.scwang.smartrefresh.layout.SmartRefreshLayout;
+import com.scwang.smartrefresh.layout.api.RefreshLayout;
+import com.scwang.smartrefresh.layout.listener.OnRefreshListener;
+import com.yanzhenjie.recyclerview.swipe.SwipeMenu;
+import com.yanzhenjie.recyclerview.swipe.SwipeMenuBridge;
+import com.yanzhenjie.recyclerview.swipe.SwipeMenuCreator;
+import com.yanzhenjie.recyclerview.swipe.SwipeMenuItem;
+import com.yanzhenjie.recyclerview.swipe.SwipeMenuItemClickListener;
+import com.yanzhenjie.recyclerview.swipe.SwipeMenuRecyclerView;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.Unbinder;
+import tl.pojul.com.fastim.MyApplication;
 import tl.pojul.com.fastim.R;
 import tl.pojul.com.fastim.View.Adapter.FriendsAdapter;
+import tl.pojul.com.fastim.util.DialogUtil;
+import tl.pojul.com.fastim.util.SPUtil;
 
-public class FriendsFragment extends Fragment {
+public class FriendsFragment extends BaseFragment {
 
     @BindView(R.id.friends_list)
-    RecyclerView friendsList;
+    SwipeMenuRecyclerView friendsList;
+    @BindView(R.id.smart_refresh)
+    SmartRefreshLayout smartRefresh;
     private Unbinder unbinder;
+    private FriendsAdapter friendsAdapter;
 
     public FriendsFragment() {
         // Required empty public constructor
@@ -39,27 +56,131 @@ public class FriendsFragment extends Fragment {
     @Override
     public void onActivityCreated(@Nullable Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
-        getFriends();
-    }
-
-    private void getFriends() {
-        List list = new ArrayList(){{
-            add(1);
-            add(1);
-            add(1);
-            add(1);
-        }};
-        FriendsAdapter friendsAdapter = new FriendsAdapter(getActivity(), list);
-        friendsList.setAdapter(friendsAdapter);
         LinearLayoutManager layoutmanager = new LinearLayoutManager(getActivity());
         friendsList.setLayoutManager(layoutmanager);
-        friendsAdapter.notifyDataSetChanged();
+
+        friendsList.setSwipeMenuCreator(swipeMenuCreator);
+        friendsList.setSwipeMenuItemClickListener(mMenuItemClickListener);
+
+        smartRefresh.setOnRefreshListener(new OnRefreshListener() {
+            @Override
+            public void onRefresh(RefreshLayout refreshlayout) {
+                getFriends(false);
+            }
+        });
+
+        MyApplication.getApplication().registerReceiveMessage(iReceiveMessage);
+        getFriends(true);
     }
+
+    private void getFriends(boolean showDialog) {
+        if (!MyApplication.getApplication().isConnected()) {
+            //重新连接服务器，暂不做处理
+            showShortToas("请重新连接服务器");
+            return;
+        }
+        GetFriendsRequest getFriendsRequest = new GetFriendsRequest();
+        getFriendsRequest.setRequestUrl("GetFriends");
+        getFriendsRequest.setUserName(SPUtil.getInstance().getUser().getUserName());
+        if(showDialog){
+            DialogUtil.getInstance().showLoadingDialog(getActivity(), "加载中...");
+        }
+        new SocketRequest().resuest(MyApplication.ClientSocket, getFriendsRequest, new SocketRequest.IRequest() {
+            @Override
+            public void onError(String msg) {
+                getActivity().runOnUiThread(() -> {
+                    DialogUtil.getInstance().dimissLoadingDialog();
+                    smartRefresh.finishRefresh(false);
+                    showShortToas(msg);
+                });
+            }
+
+            @Override
+            public void onFinished(ResponseMessage mResponse) {
+                getActivity().runOnUiThread(() -> {
+                    DialogUtil.getInstance().dimissLoadingDialog();
+                    smartRefresh.finishRefresh(true);
+                    GetFriendsResponse getFriendsResponse = (GetFriendsResponse) mResponse;
+                    if (mResponse.getCode() == 200) {
+                        if (getFriendsResponse.getFriends() != null && getFriendsResponse.getFriends().size() > 0) {
+                            friendsAdapter = new FriendsAdapter(getActivity(), getFriendsResponse.getFriends());
+                            friendsList.setAdapter(friendsAdapter);
+                        } else {
+                            showShortToas("未查询到数据");
+                        }
+                    } else {
+                        showShortToas(mResponse.getMessage());
+                    }
+
+                });
+            }
+        });
+    }
+
+    private MyApplication.IReceiveMessage iReceiveMessage = new MyApplication.IReceiveMessage() {
+        @Override
+        public void receiveMessage(BaseMessage message) {
+            if(friendsAdapter != null){
+                friendsAdapter.receiveMessage(message);
+            }
+        }
+    };
+
+
+    /**
+     * 菜单创建器。在Item要创建菜单的时候调用。
+     */
+    private SwipeMenuCreator swipeMenuCreator = new SwipeMenuCreator() {
+        @Override
+        public void onCreateMenu(SwipeMenu swipeLeftMenu, SwipeMenu swipeRightMenu, int viewType) {
+
+            int width = getResources().getDimensionPixelSize(R.dimen.dp_100);
+            int height = ViewGroup.LayoutParams.MATCH_PARENT;
+
+            SwipeMenuItem deleteItem = new SwipeMenuItem(getActivity())
+                    .setBackground(R.drawable.selector_red)
+                    .setImage(R.drawable.ic_action_delete) // 图标。
+                    .setText("删除") // 文字。
+                    .setTextColor(Color.WHITE) // 文字颜色。
+                    .setTextSize(16) // 文字大小。
+                    .setWidth(width)
+                    .setHeight(height);
+            swipeRightMenu.addMenuItem(deleteItem);// 添加一个按钮到右侧侧菜单。.
+
+            SwipeMenuItem closeItem = new SwipeMenuItem(getContext())
+                    .setBackground(R.drawable.selector_yellow)
+                    .setImage(R.drawable.ic_action_close)
+                    .setWidth((int)(width * 0.95f))
+                    .setHeight(height);
+            swipeRightMenu.addMenuItem(closeItem); // 添加菜单到右侧。
+            // 上面的菜单哪边不要菜单就不要添加。
+        }
+    };
+
+    /**
+     * RecyclerView的Item中的Menu点击监听。
+     */
+    private SwipeMenuItemClickListener mMenuItemClickListener = new SwipeMenuItemClickListener() {
+        @Override
+        public void onItemClick(SwipeMenuBridge menuBridge) {
+            menuBridge.closeMenu();
+
+            int direction = menuBridge.getDirection(); // 左侧还是右侧菜单。
+            int adapterPosition = menuBridge.getAdapterPosition(); // RecyclerView的Item的position。
+            int menuPosition = menuBridge.getPosition(); // 菜单在RecyclerView的Item中的Position。
+
+            if (direction == SwipeMenuRecyclerView.RIGHT_DIRECTION) {
+                //Toast.makeText(getContext(), "list第" + adapterPosition + "; 右侧菜单第" + menuPosition, Toast.LENGTH_SHORT).show();
+                showLongToas("list第" + adapterPosition + "; 右侧菜单第" + menuPosition);
+            }
+        }
+    };
 
     @Override
     public void onDestroyView() {
         super.onDestroyView();
         unbinder.unbind();
+        MyApplication.getApplication().unRegisterReceiveMessage(iReceiveMessage);
     }
 
 }

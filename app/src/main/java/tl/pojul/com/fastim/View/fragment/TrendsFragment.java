@@ -8,7 +8,7 @@ import android.view.ViewGroup;
 
 import tl.pojul.com.fastim.R;
 
-public class TrendsFragment extends Fragment {
+public class TrendsFragment extends BaseFragment {
 
     public TrendsFragment() {
         // Required empty public constructor

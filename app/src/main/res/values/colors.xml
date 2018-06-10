@@ -19,4 +19,9 @@
     <color name="color_select_text_gridv2">#89c8c5</color>
     <color name="color_select_text_gridv3">#fea57a</color>
     <color name="back">#333333</color>
+
+    <color name="red_normal">#EE0000</color>
+    <color name="red_pressed">#AA0000</color>
+    <color name="yellow_normal">#ff9933</color>
+    <color name="yellow_pressed">#dd7711</color>
 </resources>

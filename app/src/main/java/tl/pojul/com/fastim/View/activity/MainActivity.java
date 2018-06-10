@@ -15,6 +15,10 @@ import android.view.WindowManager;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.pojul.fastIM.entity.BaseEntity;
+import com.pojul.fastIM.entity.Conversation;
+import com.pojul.objectsocket.message.BaseMessage;
+
 import java.util.ArrayList;
 
 import tl.pojul.com.fastim.MyApplication;
@@ -22,15 +26,17 @@ import tl.pojul.com.fastim.R;
 import tl.pojul.com.fastim.View.fragment.ConversationFragment;
 import tl.pojul.com.fastim.View.fragment.FriendsFragment;
 import tl.pojul.com.fastim.View.fragment.TrendsFragment;
+import tl.pojul.com.fastim.View.widget.MyViewPager;
 
 public class MainActivity extends BaseActivity {
 
     private long firstBackTime = 0;
 
     private SectionsPagerAdapter mSectionsPagerAdapter;
-    private ViewPager mViewPager;
+    private MyViewPager mViewPager;
     private ArrayList<Fragment> fragments = new ArrayList<>();
     private TabLayout tabLayout;
+    private TextView unreadMessage;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -60,6 +66,7 @@ public class MainActivity extends BaseActivity {
         View tab1 = LayoutInflater.from(this).inflate(R.layout.tab_main, null);
         ImageView tab1Icon = tab1.findViewById(R.id.iv);
         TextView tab1Name = tab1.findViewById(R.id.tv);
+        unreadMessage =  tab1.findViewById(R.id.unread_message);
         tabLayout.getTabAt(0).setCustomView(tab1);
         tab1Name.setText("会话");
         tab1Icon.setImageResource(R.drawable.selector_conversation_icon);
@@ -79,7 +86,7 @@ public class MainActivity extends BaseActivity {
         tab2Icon.setImageResource(R.drawable.selector_trends_icon);
 
         mViewPager.setHorizontalScrollBarEnabled(false);
-        mViewPager.setCurrentItem(0);
+        mViewPager.setCurrentItem(1);
 
         mViewPager.addOnPageChangeListener(new ViewPager.OnPageChangeListener() {
 
@@ -95,6 +102,8 @@ public class MainActivity extends BaseActivity {
             public void onPageScrollStateChanged(int state) {
             }
         });
+
+        MyApplication.getApplication().registerReceiveMessage(iReceiveMessage);
 
     }
 
@@ -144,4 +153,23 @@ public class MainActivity extends BaseActivity {
         return super.onKeyUp(keyCode, event);
     }
 
+    private MyApplication.IReceiveMessage iReceiveMessage = new MyApplication.IReceiveMessage() {
+        @Override
+        public void receiveMessage(BaseMessage message) {
+            try{
+                int unReadNum = Integer.parseInt(unreadMessage.getText().toString());
+                unReadNum = unReadNum +1;
+                unreadMessage.setText((unReadNum + ""));
+            }catch (Exception e){
+                unreadMessage.setText((1 + ""));
+            }
+            unreadMessage.setVisibility(View.VISIBLE);
+        }
+    };
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        MyApplication.getApplication().unRegisterReceiveMessage(iReceiveMessage);
+    }
 }

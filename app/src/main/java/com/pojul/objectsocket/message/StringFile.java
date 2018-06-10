@@ -1,5 +1,7 @@
 package com.pojul.objectsocket.message;
 
+import com.pojul.objectsocket.utils.StorageType;
+
 public class StringFile {
 	
 	public final static String pathBorderStart = "^#";
@@ -9,11 +11,6 @@ public class StringFile {
 	public final static String regexStr = "\\^\\#.*?\\#\\^";
 	public final static String regexServerStr1 = "\\{.*?\\^0\\#\\#0\\^.*?\\}";
 	public final static String regexServerStr2 = "\\^0\\#\\#0\\^";
-	
-	//本地类型
-	public final static int STORAGE_TYPE_LOCAL = 0;
-	//可访问服务器类型
-	public final static int STORAGE_TYPE_SERVER = 1;
 	
 	protected String fileType;
 	protected String fileName;
@@ -37,7 +34,7 @@ public class StringFile {
 		this.fileName = fileName;
 	}
 	public String getFilePath() {
-		if(storageType == STORAGE_TYPE_LOCAL) {
+		if(storageType == StorageType.LOCAL) {
 			return filePath.replace(pathBorderStart, "").replace(pathBorderEnd, "");
 		}else {
 			return filePath;
@@ -45,7 +42,7 @@ public class StringFile {
 		
 	}
 	public void setFilePath(String filePath) {
-		if(storageType == STORAGE_TYPE_LOCAL) {
+		if(storageType == StorageType.LOCAL) {
 			this.filePath = pathBorderStart + 
 					filePath.replace(pathBorderStart, "").replace(pathBorderEnd, "")
 					+ pathBorderEnd;
