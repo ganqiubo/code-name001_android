@@ -1,8 +1,8 @@
 package com.pojul.fastIM.entity;
 
-import java.sql.ResultSet;
-
 import com.pojul.objectsocket.message.StringFile;
+
+import java.sql.ResultSet;
 
 public class User extends BaseEntity{
 
@@ -63,7 +63,11 @@ public class User extends BaseEntity{
 	}
 	
 	public String getPhoto() {
-		return photo.getFilePath();
+		if(photo != null){
+			return photo.getFilePath();
+		}else{
+			return null;
+		}
 	}
 
 	public void setPhoto(StringFile photo) {

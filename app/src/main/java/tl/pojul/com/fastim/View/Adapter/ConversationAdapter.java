@@ -4,10 +4,10 @@ import android.content.Context;
 import android.os.Handler;
 import android.os.Looper;
 import android.support.v7.widget.RecyclerView;
-import android.text.format.DateUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
@@ -20,12 +20,15 @@ import com.pojul.objectsocket.message.BaseMessage;
 import com.pojul.objectsocket.message.ResponseMessage;
 import com.pojul.objectsocket.socket.SocketRequest;
 
+import java.util.HashMap;
 import java.util.List;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import tl.pojul.com.fastim.MyApplication;
 import tl.pojul.com.fastim.R;
+import tl.pojul.com.fastim.View.activity.MainActivity;
+import tl.pojul.com.fastim.View.fragment.FriendsFragment;
 import tl.pojul.com.fastim.View.widget.PolygonImage.view.PolygonImageView;
 import tl.pojul.com.fastim.dao.ConversationDao;
 import tl.pojul.com.fastim.util.DateUtil;
@@ -35,6 +38,9 @@ public class ConversationAdapter extends RecyclerView.Adapter<ConversationAdapte
 
     private Context mContext;
     private List<Conversation> mList;
+    public int totalUnreadUum = 0;
+    public HashMap<String, Integer> each = new HashMap<>();
+    private OnItemClickListener mOnItemClickListener;
 
     public ConversationAdapter(Context mContext, List<Conversation> mList) {
         this.mContext = mContext;
@@ -49,9 +55,18 @@ public class ConversationAdapter extends RecyclerView.Adapter<ConversationAdapte
 
     @Override
     public void onBindViewHolder(MyViewHolder holder, int position) {
+        if (mOnItemClickListener != null) {
+            holder.itemRl.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    mOnItemClickListener.onClick(position);
+                }
+            });
+        }
         Conversation conversation = mList.get(position);
 
-        if (conversation.getConversationPhoto() != null) {
+        if (conversation.getConversationPhoto() != null && !"".equals(conversation.getConversationPhoto())
+                && !"null".equals(conversation.getConversationPhoto())) {
             Glide.with(mContext).load(conversation.getConversationPhoto()).into(holder.conversationPhoto);
         } else {
             Glide.with(mContext).load(R.drawable.photo_default).into(holder.conversationPhoto);
@@ -84,6 +99,8 @@ public class ConversationAdapter extends RecyclerView.Adapter<ConversationAdapte
         TextView conversationLastChattime;
         @BindView(R.id.unread_message)
         TextView unreadMessage;
+        @BindView(R.id.item_rl)
+        RelativeLayout itemRl;
 
         public MyViewHolder(View itemView) {
             super(itemView);
@@ -91,18 +108,18 @@ public class ConversationAdapter extends RecyclerView.Adapter<ConversationAdapte
         }
     }
 
-    public void receiveMessage(BaseMessage message){
-        if(mList == null){
+    public void receiveMessage(BaseMessage message) {
+        if (mList == null) {
             return;
         }
         boolean containConversation = false;
-        for(int i = 0; i< mList.size(); i ++ ){
+        for (int i = 0; i < mList.size(); i++) {
             Conversation conversation = mList.get(i);
-            if(conversation.getConversationFrom().equals(message.getFrom())){
+            if (conversation.getConversationFrom().equals(message.getFrom())) {
                 conversation.setUnreadMessage(conversation.getUnreadMessage() + 1);
-                if(message instanceof TextChatMessage){
-                    conversation.setConversationLastChat(((TextChatMessage)message).getText());
-                }else{
+                if (message instanceof TextChatMessage) {
+                    conversation.setConversationLastChat(((TextChatMessage) message).getText());
+                } else {
                     conversation.setConversationLastChat("非文字消息");
                 }
                 conversation.setConversationLastChattime(message.getSendTime());
@@ -112,10 +129,10 @@ public class ConversationAdapter extends RecyclerView.Adapter<ConversationAdapte
                 break;
             }
         }
-        if(!containConversation){
-            if(message instanceof ChatMessage){
-                requestConversationInfo((ChatMessage)message);
-            }else{
+        if (!containConversation) {
+            if (message instanceof ChatMessage) {
+                requestConversationInfo((ChatMessage) message);
+            } else {
             }
         }
     }
@@ -125,9 +142,9 @@ public class ConversationAdapter extends RecyclerView.Adapter<ConversationAdapte
         Conversation conversation = new Conversation();
         conversation.setUnreadMessage(1);
         conversation.setConversationFrom(message.getFrom());
-        if(message instanceof TextChatMessage){
-            conversation.setConversationLastChat(((TextChatMessage)message).getText());
-        }else{
+        if (message instanceof TextChatMessage) {
+            conversation.setConversationLastChat(((TextChatMessage) message).getText());
+        } else {
             conversation.setConversationLastChat("非文字消息");
         }
         conversation.setConversationLastChattime(message.getSendTime());
@@ -146,14 +163,14 @@ public class ConversationAdapter extends RecyclerView.Adapter<ConversationAdapte
 
             @Override
             public void onFinished(ResponseMessage mResponse) {
-                new Handler(Looper.getMainLooper()).post(()->{
+                new Handler(Looper.getMainLooper()).post(() -> {
                     GetConversionInfoResponse response = (GetConversionInfoResponse) mResponse;
                     if (response.getCode() == 200) {
                         updatePhotoName(conversation,
                                 response.getConversation().getConversationPhoto(),
                                 response.getConversation().getConversationName());
 
-                    }else{
+                    } else {
                         updatePhotoName(conversation, null, "?不存在?");
                     }
                 });
@@ -161,12 +178,41 @@ public class ConversationAdapter extends RecyclerView.Adapter<ConversationAdapte
         });
     }
 
-    public void updatePhotoName(Conversation conversation, String photo, String name){
+    public void updatePhotoName(Conversation conversation, String photo, String name) {
         conversation.setConversationPhoto(photo);
         conversation.setConversationName(name);
         new ConversationDao().insertConversation(conversation);
         mList.add(conversation);
         ConversationAdapter.this.notifyDataSetChanged();
+        notifyUnReadNum();
     }
+
+    public void notifyUnReadNum() {
+        if (mContext != null && mList != null) {
+            totalUnreadUum = 0;
+            for (int i = 0; i < mList.size(); i++) {
+                if (mList.get(i) == null) {
+                    continue;
+                }
+                totalUnreadUum = totalUnreadUum + mList.get(i).getUnreadMessage();
+                each.put(mList.get(i).getConversationFrom(), mList.get(i).getUnreadMessage());
+            }
+            MainActivity mainActivity = ((MainActivity) mContext);
+            FriendsFragment friendsFragment = (FriendsFragment) mainActivity.fragments.get(1);
+            if (friendsFragment != null && friendsFragment.friendsAdapter != null) {
+                friendsFragment.friendsAdapter.unreadUnmChanged(each);
+            }
+            mainActivity.unreadUnmChanged(totalUnreadUum);
+        }
+    }
+
+    public interface OnItemClickListener {
+        void onClick(int position);
+    }
+
+    public void setOnItemClickListener(OnItemClickListener onItemClickListener) {
+        this.mOnItemClickListener = onItemClickListener;
+    }
+
 
 }

@@ -28,8 +28,9 @@ public class ConversationDao {
         return DaoUtil.executeUpdate(sql);
     }
 
-    public int deleteConversation(String from){
-        String sql = "delete from conversation where conversation_from = '" + from + "'";
+    public int deleteConversation(String from, String owner){
+        String sql = "delete from conversation where conversation_from = '" + from + "'" +
+                "and conversation_owner = '" + owner + "'";
         return DaoUtil.executeUpdate(sql);
     }
 
@@ -38,7 +39,8 @@ public class ConversationDao {
                 "conversation_last_chat = '"+ conversation.getConversationLastChat() + "', " +
                 "conversation_last_chattime = '"+ conversation.getConversationLastChattime() + "'," +
                 "unread_message = '"+ conversation.getUnreadMessage() + "'" +
-                " where conversation_from = '" + conversation.getConversationFrom() + "'";
+                " where conversation_from = '" + conversation.getConversationFrom() + "'" +
+                "and conversation_owner = '" + conversation.getConversationOwner() + "'";
         return DaoUtil.executeUpdate(sql);
     }
 

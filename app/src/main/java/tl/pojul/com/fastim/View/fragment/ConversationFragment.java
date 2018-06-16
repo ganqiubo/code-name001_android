@@ -1,6 +1,6 @@
 package tl.pojul.com.fastim.View.fragment;
 
-import android.app.Application;
+import android.content.Intent;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
@@ -26,6 +26,7 @@ import butterknife.Unbinder;
 import tl.pojul.com.fastim.MyApplication;
 import tl.pojul.com.fastim.R;
 import tl.pojul.com.fastim.View.Adapter.ConversationAdapter;
+import tl.pojul.com.fastim.View.activity.ChatRoomActivity;
 import tl.pojul.com.fastim.dao.ConversationDao;
 import tl.pojul.com.fastim.util.SPUtil;
 
@@ -37,7 +38,7 @@ public class ConversationFragment extends BaseFragment {
     SmartRefreshLayout smartRefresh;
     Unbinder unbinder;
 
-    private ConversationAdapter conversationAdapter;
+    public ConversationAdapter conversationAdapter;
 
     public ConversationFragment() {
         // Required empty public constructor
@@ -63,6 +64,7 @@ public class ConversationFragment extends BaseFragment {
 
         conversationAdapter = new ConversationAdapter(getActivity(),
                 new ConversationDao().getConversations(SPUtil.getInstance().getUser().getUserName()));
+        conversationAdapter.setOnItemClickListener(new ItemClickListener());
         conversationList.setAdapter(conversationAdapter);
 
         smartRefresh.setOnRefreshListener(new OnRefreshListener() {
@@ -71,6 +73,8 @@ public class ConversationFragment extends BaseFragment {
                 conversationAdapter = new ConversationAdapter(getActivity(),
                         new ConversationDao().getConversations(SPUtil.getInstance().getUser().getUserName()));
                 conversationList.setAdapter(conversationAdapter);
+                conversationAdapter.notifyUnReadNum();
+                conversationAdapter.setOnItemClickListener(new ItemClickListener());
                 smartRefresh.finishRefresh();
             }
         });
@@ -78,6 +82,14 @@ public class ConversationFragment extends BaseFragment {
         MyApplication.getApplication().registerReceiveMessage(iReceiveMessage);
 
     }
+
+    class ItemClickListener implements ConversationAdapter.OnItemClickListener {
+        @Override
+        public void onClick(int position) {
+            Intent intent = new Intent(getActivity(), ChatRoomActivity.class);
+            startActivity(intent);
+        }
+    };
 
     /**
      * 菜单创建器。在Item要创建菜单的时候调用。
@@ -131,6 +143,7 @@ public class ConversationFragment extends BaseFragment {
     private MyApplication.IReceiveMessage iReceiveMessage = new MyApplication.IReceiveMessage() {
         @Override
         public void receiveMessage(BaseMessage message) {
+            showLongToas("iReceiveMessage--->" + message.getFrom());
             if(conversationAdapter != null){
                 conversationAdapter.receiveMessage(message);
             }

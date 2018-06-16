@@ -3,10 +3,8 @@ package tl.pojul.com.fastim.View.activity;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;
-import android.util.Log;
 import android.view.Window;
 import android.view.WindowManager;
-import android.widget.RelativeLayout;
 import android.widget.Toast;
 
 public class BaseActivity extends FragmentActivity {

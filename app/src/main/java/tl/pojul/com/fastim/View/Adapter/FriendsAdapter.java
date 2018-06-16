@@ -10,8 +10,8 @@ import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
 import com.pojul.fastIM.entity.Friend;
-import com.pojul.objectsocket.message.BaseMessage;
 
+import java.util.HashMap;
 import java.util.List;
 
 import butterknife.BindView;
@@ -74,18 +74,17 @@ public class FriendsAdapter extends RecyclerView.Adapter<FriendsAdapter.MyViewHo
         }
     }
 
-    public void receiveMessage(BaseMessage message){
+    public void unreadUnmChanged(HashMap<String, Integer> each){
         if(mList == null){
             return;
         }
         for(int i = 0; i< mList.size(); i ++ ){
             Friend friend = mList.get(i);
-            if(friend.getUserName().equals(message.getFrom())){
-                friend.setUnreadMessage(friend.getUnreadMessage() + 1);
-                this.notifyDataSetChanged();
-                break;
+            if(each.get(friend.getUserName()) != null){
+                friend.setUnreadMessage(each.get(friend.getUserName()));
             }
         }
+        this.notifyDataSetChanged();
     }
 
 }

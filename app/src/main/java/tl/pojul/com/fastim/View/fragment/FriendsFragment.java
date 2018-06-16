@@ -10,7 +10,6 @@ import android.view.ViewGroup;
 
 import com.pojul.fastIM.message.request.GetFriendsRequest;
 import com.pojul.fastIM.message.response.GetFriendsResponse;
-import com.pojul.objectsocket.message.BaseMessage;
 import com.pojul.objectsocket.message.ResponseMessage;
 import com.pojul.objectsocket.socket.SocketRequest;
 import com.scwang.smartrefresh.layout.SmartRefreshLayout;
@@ -29,6 +28,7 @@ import butterknife.Unbinder;
 import tl.pojul.com.fastim.MyApplication;
 import tl.pojul.com.fastim.R;
 import tl.pojul.com.fastim.View.Adapter.FriendsAdapter;
+import tl.pojul.com.fastim.View.activity.MainActivity;
 import tl.pojul.com.fastim.util.DialogUtil;
 import tl.pojul.com.fastim.util.SPUtil;
 
@@ -39,7 +39,7 @@ public class FriendsFragment extends BaseFragment {
     @BindView(R.id.smart_refresh)
     SmartRefreshLayout smartRefresh;
     private Unbinder unbinder;
-    private FriendsAdapter friendsAdapter;
+    public FriendsAdapter friendsAdapter;
 
     public FriendsFragment() {
         // Required empty public constructor
@@ -68,8 +68,6 @@ public class FriendsFragment extends BaseFragment {
                 getFriends(false);
             }
         });
-
-        MyApplication.getApplication().registerReceiveMessage(iReceiveMessage);
         getFriends(true);
     }
 
@@ -105,6 +103,7 @@ public class FriendsFragment extends BaseFragment {
                         if (getFriendsResponse.getFriends() != null && getFriendsResponse.getFriends().size() > 0) {
                             friendsAdapter = new FriendsAdapter(getActivity(), getFriendsResponse.getFriends());
                             friendsList.setAdapter(friendsAdapter);
+                            refreshUnreadNum();
                         } else {
                             showShortToas("未查询到数据");
                         }
@@ -117,14 +116,13 @@ public class FriendsFragment extends BaseFragment {
         });
     }
 
-    private MyApplication.IReceiveMessage iReceiveMessage = new MyApplication.IReceiveMessage() {
-        @Override
-        public void receiveMessage(BaseMessage message) {
-            if(friendsAdapter != null){
-                friendsAdapter.receiveMessage(message);
-            }
+    private void refreshUnreadNum(){
+        MainActivity mainActivity = (MainActivity)getActivity();
+        ConversationFragment conversationFragment = (ConversationFragment)mainActivity.fragments.get(0);
+        if(conversationFragment != null && conversationFragment.conversationAdapter != null){
+            conversationFragment.conversationAdapter.notifyUnReadNum();
         }
-    };
+    }
 
 
     /**
@@ -180,7 +178,6 @@ public class FriendsFragment extends BaseFragment {
     public void onDestroyView() {
         super.onDestroyView();
         unbinder.unbind();
-        MyApplication.getApplication().unRegisterReceiveMessage(iReceiveMessage);
     }
 
 }

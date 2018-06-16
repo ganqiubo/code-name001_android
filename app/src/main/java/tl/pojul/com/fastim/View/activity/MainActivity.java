@@ -15,10 +15,6 @@ import android.view.WindowManager;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import com.pojul.fastIM.entity.BaseEntity;
-import com.pojul.fastIM.entity.Conversation;
-import com.pojul.objectsocket.message.BaseMessage;
-
 import java.util.ArrayList;
 
 import tl.pojul.com.fastim.MyApplication;
@@ -34,7 +30,7 @@ public class MainActivity extends BaseActivity {
 
     private SectionsPagerAdapter mSectionsPagerAdapter;
     private MyViewPager mViewPager;
-    private ArrayList<Fragment> fragments = new ArrayList<>();
+    public ArrayList<Fragment> fragments = new ArrayList<>();
     private TabLayout tabLayout;
     private TextView unreadMessage;
 
@@ -103,8 +99,6 @@ public class MainActivity extends BaseActivity {
             }
         });
 
-        MyApplication.getApplication().registerReceiveMessage(iReceiveMessage);
-
     }
 
     public class SectionsPagerAdapter extends FragmentPagerAdapter {
@@ -153,7 +147,7 @@ public class MainActivity extends BaseActivity {
         return super.onKeyUp(keyCode, event);
     }
 
-    private MyApplication.IReceiveMessage iReceiveMessage = new MyApplication.IReceiveMessage() {
+    /*private MyApplication.IReceiveMessage iReceiveMessage = new MyApplication.IReceiveMessage() {
         @Override
         public void receiveMessage(BaseMessage message) {
             try{
@@ -165,11 +159,21 @@ public class MainActivity extends BaseActivity {
             }
             unreadMessage.setVisibility(View.VISIBLE);
         }
-    };
+    };*/
+
+    public void unreadUnmChanged(int total){
+        int unReadNum;
+        unReadNum = total;
+        unreadMessage.setText((unReadNum + ""));
+        if(unReadNum > 0){
+            unreadMessage.setVisibility(View.VISIBLE);
+        }else{
+            unreadMessage.setVisibility(View.GONE);
+        }
+    }
 
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        MyApplication.getApplication().unRegisterReceiveMessage(iReceiveMessage);
     }
 }
