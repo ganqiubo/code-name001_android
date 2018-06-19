@@ -14,8 +14,9 @@ public class TextChatMessage extends ChatMessage{
 
 	@Override
 	public String toString() {
-		return "TextChatMessage [text=" + text + ", chatType=" + chatType + ", from=" + from + ", to=" + to
-				+ ", sendTime=" + sendTime + ", receiveTime=" + receiveTime + ", MessageUid=" + MessageUid + "]";
+		return "TextChatMessage [text=" + text + ", chatType=" + chatType + ", isSend=" + isSend + ", isRead=" + isRead
+				+ ", from=" + from + ", to=" + to + ", sendTime=" + sendTime + ", receiveTime=" + receiveTime
+				+ ", MessageUid=" + MessageUid + "]";
 	}
 	
 }

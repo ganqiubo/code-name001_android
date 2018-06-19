@@ -12,6 +12,7 @@ public class BaseMessage {
 	protected String sendTime;
 	protected String receiveTime;
 	protected String MessageUid;
+	protected int isSend;
 	
 	public BaseMessage() {
 		super();
@@ -52,5 +53,11 @@ public class BaseMessage {
 
 	public void setMessageUid(String messageUid) {
 		MessageUid = messageUid;
+	}
+	public int getIsSend() {
+		return isSend;
+	}
+	public void setIsSend(int isSend) {
+		this.isSend = isSend;
 	}
 }

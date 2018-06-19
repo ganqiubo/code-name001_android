@@ -6,6 +6,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
@@ -21,7 +22,17 @@ import tl.pojul.com.fastim.R;
 public class FriendsAdapter extends RecyclerView.Adapter<FriendsAdapter.MyViewHolder> {
 
     private Context mContext;
+
+    public List<Friend> getmList() {
+        return mList;
+    }
+
+    public void setmList(List<Friend> mList) {
+        this.mList = mList;
+    }
+
     private List<Friend> mList;
+    private FriendsAdapter.OnItemClickListener mOnItemClickListener;
 
     public FriendsAdapter(Context mContext, List<Friend> mList) {
         this.mContext = mContext;
@@ -36,6 +47,14 @@ public class FriendsAdapter extends RecyclerView.Adapter<FriendsAdapter.MyViewHo
 
     @Override
     public void onBindViewHolder(MyViewHolder holder, int position) {
+        if (mOnItemClickListener != null) {
+            holder.itemRl.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    mOnItemClickListener.onClick(position);
+                }
+            });
+        }
         Friend friend = mList.get(position);
         holder.friendNickname.setText(friend.getNickName());
         holder.friendAutograph.setText(friend.getAutograph() == null ? "" : friend.getAutograph());
@@ -67,6 +86,8 @@ public class FriendsAdapter extends RecyclerView.Adapter<FriendsAdapter.MyViewHo
         TextView friendAutograph;
         @BindView(R.id.unread_message)
         TextView unreadMessage;
+        @BindView(R.id.item_rl)
+        RelativeLayout itemRl;
 
         public MyViewHolder(View itemView) {
             super(itemView);
@@ -74,17 +95,25 @@ public class FriendsAdapter extends RecyclerView.Adapter<FriendsAdapter.MyViewHo
         }
     }
 
-    public void unreadUnmChanged(HashMap<String, Integer> each){
-        if(mList == null){
+    public void unreadUnmChanged(HashMap<String, Integer> each) {
+        if (mList == null) {
             return;
         }
-        for(int i = 0; i< mList.size(); i ++ ){
+        for (int i = 0; i < mList.size(); i++) {
             Friend friend = mList.get(i);
-            if(each.get(friend.getUserName()) != null){
+            if (each.get(friend.getUserName()) != null) {
                 friend.setUnreadMessage(each.get(friend.getUserName()));
             }
         }
         this.notifyDataSetChanged();
+    }
+
+    public interface OnItemClickListener {
+        void onClick(int position);
+    }
+
+    public void setOnItemClickListener(FriendsAdapter.OnItemClickListener onItemClickListener) {
+        this.mOnItemClickListener = onItemClickListener;
     }
 
 }

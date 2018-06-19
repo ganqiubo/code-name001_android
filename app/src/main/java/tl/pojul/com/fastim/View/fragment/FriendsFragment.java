@@ -1,5 +1,6 @@
 package tl.pojul.com.fastim.View.fragment;
 
+import android.content.Intent;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
@@ -8,6 +9,8 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
+import com.google.gson.Gson;
+import com.pojul.fastIM.entity.Friend;
 import com.pojul.fastIM.message.request.GetFriendsRequest;
 import com.pojul.fastIM.message.response.GetFriendsResponse;
 import com.pojul.objectsocket.message.ResponseMessage;
@@ -28,6 +31,7 @@ import butterknife.Unbinder;
 import tl.pojul.com.fastim.MyApplication;
 import tl.pojul.com.fastim.R;
 import tl.pojul.com.fastim.View.Adapter.FriendsAdapter;
+import tl.pojul.com.fastim.View.activity.SingleChatRoomActivity;
 import tl.pojul.com.fastim.View.activity.MainActivity;
 import tl.pojul.com.fastim.util.DialogUtil;
 import tl.pojul.com.fastim.util.SPUtil;
@@ -102,6 +106,7 @@ public class FriendsFragment extends BaseFragment {
                     if (mResponse.getCode() == 200) {
                         if (getFriendsResponse.getFriends() != null && getFriendsResponse.getFriends().size() > 0) {
                             friendsAdapter = new FriendsAdapter(getActivity(), getFriendsResponse.getFriends());
+                            friendsAdapter.setOnItemClickListener(new ItemClickListener());
                             friendsList.setAdapter(friendsAdapter);
                             refreshUnreadNum();
                         } else {
@@ -124,6 +129,22 @@ public class FriendsFragment extends BaseFragment {
         }
     }
 
+    class ItemClickListener implements FriendsAdapter.OnItemClickListener {
+        @Override
+        public void onClick(int position) {
+            if (friendsAdapter == null || friendsAdapter.getmList() == null){
+                return;
+            }
+            Intent intent = new Intent(getActivity(), SingleChatRoomActivity.class);
+            Bundle bundle=new Bundle();
+            bundle.putInt("chat_room_type", 1);
+            bundle.putString("chat_room_name", friendsAdapter.getmList().get(position).getNickName());
+            Friend friend = friendsAdapter.getmList().get(position);
+            bundle.putString("friend", new Gson().toJson(friend));
+            intent.putExtras(bundle);
+            startActivity(intent);
+        }
+    };
 
     /**
      * 菜单创建器。在Item要创建菜单的时候调用。

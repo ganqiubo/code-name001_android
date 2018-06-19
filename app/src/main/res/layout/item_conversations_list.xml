@@ -48,10 +48,13 @@
                 android:id="@+id/conversation_last_chat"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:maxWidth="180dp"
                 android:layout_alignParentBottom="true"
                 android:text="个性签名"
                 android:textSize="15sp"
                 android:layout_marginBottom="15dp"
+                android:ellipsize="end"
+                android:lines="1"
                 android:textColor="#666666"
                 />
 

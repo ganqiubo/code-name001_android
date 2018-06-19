@@ -32,7 +32,7 @@
         android:layout_below="@+id/header"
         android:background="#eeeeee">
         <com.yanzhenjie.recyclerview.swipe.SwipeMenuRecyclerView
-            android:id="@+id/chat_message_list"
+            android:id="@+id/friends_list"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:background="#eeeeee"
@@ -47,7 +47,7 @@
         android:layout_alignParentBottom="true"
         android:background="#ffffff"
         android:orientation="horizontal">
-        
+
         <View
             android:layout_width="match_parent"
             android:layout_height="1px"

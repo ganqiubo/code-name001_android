@@ -9,7 +9,7 @@
         android:id="@+id/ll_text_message"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="5dp"
+        android:layout_marginTop="8dp"
         android:orientation="horizontal">
 
         <tl.pojul.com.fastim.View.widget.PolygonImage.view.PolygonImageView
@@ -25,24 +25,41 @@
             app:poly_rotation_angle="10"
             app:poly_shadow_color="#ff000000"
             app:poly_shadow="true"
+            android:layout_marginRight="5dp"
             app:poly_vertices="0" />
 
-        <TextView
-            android:id="@+id/text"
+        <LinearLayout
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="hello"
-            android:textSize="16sp"
-            android:textColorHint="#666666"
-            android:layout_marginRight="10dp"
-            android:layout_marginLeft="10dp"
-            android:typeface="serif"
-            android:paddingBottom="15dp"
-            android:paddingTop="15dp"
-            android:paddingLeft="20dp"
-            android:paddingRight="20dp"
             android:background="@drawable/corners_message_text"
-            />
+            android:orientation="horizontal">
+
+            <ProgressBar
+                android:id="@+id/progressBar1"
+                android:layout_width="20dp"
+                android:layout_height="20dp"
+                android:layout_gravity="center"
+                android:indeterminateBehavior="repeat"
+                android:indeterminateDrawable="@drawable/dialog_loading"
+                android:layout_marginLeft="10dp"
+                android:indeterminateOnly="true"
+                />
+
+            <TextView
+                android:id="@+id/text"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:maxWidth="180dp"
+                android:text="hello"
+                android:textSize="15sp"
+                android:textColorHint="#666666"
+                android:typeface="serif"
+                android:paddingBottom="15dp"
+                android:paddingTop="15dp"
+                android:paddingRight="10dp"
+                android:paddingLeft="10dp"
+                />
+        </LinearLayout>
 
         <tl.pojul.com.fastim.View.widget.PolygonImage.view.PolygonImageView
             android:id="@+id/my_photo"

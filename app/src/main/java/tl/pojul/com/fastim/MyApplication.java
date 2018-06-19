@@ -41,6 +41,7 @@ public class MyApplication extends Application {
     public static ClientSocket ClientSocket;
 
     protected List<IReceiveMessage> IReceiveMessages = new ArrayList<>();
+    protected List<ISendMessage> ISendMessage = new ArrayList<>();
 
     static {//static 代码段可以防止内存泄露
         //设置全局的Header构建器
@@ -50,14 +51,6 @@ public class MyApplication extends Application {
                 return new ClassicsHeader(context).setSpinnerStyle(SpinnerStyle.Translate);//指定为经典Header，默认是 贝塞尔雷达Header
             }
         });
-        //设置全局的Footer构建器
-        /*SmartRefreshLayout.setDefaultRefreshFooterCreater(new DefaultRefreshFooterCreater() {
-            @Override
-            public RefreshFooter createRefreshFooter(Context context, RefreshLayout layout) {
-                //指定为经典Footer，默认是 BallPulseFooter
-                return new ClassicsFooter(context).setSpinnerStyle(SpinnerStyle.Translate);
-            }
-        });*/
     }
 
     public static MyApplication getApplication() {
@@ -111,6 +104,7 @@ public class MyApplication extends Application {
             @Override
             public void onReadEntity(BaseMessage message) {
                 new Handler(Looper.getMainLooper()).post(()->{
+                    message.setIsSend(1);
                     for(int i = 0; i< IReceiveMessages.size(); i++){
                         IReceiveMessage iReceiveMessage = IReceiveMessages.get(i);
                         if(iReceiveMessage != null){
@@ -139,12 +133,26 @@ public class MyApplication extends Application {
         ClientSocket.setSenderListener(new SocketSender.ISocketSender() {
             @Override
             public void onSendFinish(BaseMessage mBaseMessage) {
-
+                new Handler(Looper.getMainLooper()).post(()->{
+                    for(int i = 0; i< ISendMessage.size(); i++){
+                        ISendMessage iSendMessage = ISendMessage.get(i);
+                        if(iSendMessage != null){
+                            iSendMessage.onSendFinish(mBaseMessage);
+                        }
+                    }
+                });
             }
 
             @Override
             public void onSendFail(BaseMessage mBaseMessage) {
-
+                new Handler(Looper.getMainLooper()).post(()->{
+                    for(int i = 0; i< ISendMessage.size(); i++){
+                        ISendMessage iSendMessage = ISendMessage.get(i);
+                        if(iSendMessage != null){
+                            iSendMessage.onSendFail(mBaseMessage);
+                        }
+                    }
+                });
             }
 
             @Override
@@ -185,6 +193,27 @@ public class MyApplication extends Application {
                 IReceiveMessages.remove(iReceiveMessage);
             }
         }
+    }
+
+    public void registerSendMessage(ISendMessage iSendMessage){
+        synchronized (ISendMessage){
+            if(iSendMessage != null){
+                ISendMessage.add(iSendMessage);
+            }
+        }
+    }
+
+    public void unRegisterSendMessage(ISendMessage iSendMessage){
+        synchronized (ISendMessage){
+            if(iSendMessage != null){
+                ISendMessage.remove(iSendMessage);
+            }
+        }
+    }
+
+    public interface ISendMessage{
+        public void onSendFinish(BaseMessage message);
+        public void onSendFail(BaseMessage message);
     }
 
     public interface IReceiveMessage{

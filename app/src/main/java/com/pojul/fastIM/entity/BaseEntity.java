@@ -2,6 +2,7 @@ package com.pojul.fastIM.entity;
 
 import android.database.Cursor;
 
+import java.io.Serializable;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 

@@ -26,7 +26,7 @@ import butterknife.Unbinder;
 import tl.pojul.com.fastim.MyApplication;
 import tl.pojul.com.fastim.R;
 import tl.pojul.com.fastim.View.Adapter.ConversationAdapter;
-import tl.pojul.com.fastim.View.activity.ChatRoomActivity;
+import tl.pojul.com.fastim.View.activity.SingleChatRoomActivity;
 import tl.pojul.com.fastim.dao.ConversationDao;
 import tl.pojul.com.fastim.util.SPUtil;
 
@@ -86,7 +86,7 @@ public class ConversationFragment extends BaseFragment {
     class ItemClickListener implements ConversationAdapter.OnItemClickListener {
         @Override
         public void onClick(int position) {
-            Intent intent = new Intent(getActivity(), ChatRoomActivity.class);
+            Intent intent = new Intent(getActivity(), SingleChatRoomActivity.class);
             startActivity(intent);
         }
     };

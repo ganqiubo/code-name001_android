@@ -28,8 +28,10 @@
             android:name=".View.activity.BaseActivity"
             android:label="@string/title_activity_base"
             android:theme="@style/AppTheme.NoActionBar" />
-        <activity android:name=".View.activity.ChatRoomActivity"
-            android:theme="@style/AppTheme.NoActionBar"/>
+        <activity
+            android:name=".View.activity.SingleChatRoomActivity"
+            android:theme="@style/AppTheme.NoActionBar" />
+        <activity android:name=".View.activity.MultipleChatRoomActivity"></activity>
     </application>
 
 </manifest>
