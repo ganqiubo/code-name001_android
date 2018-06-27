@@ -1,11 +1,9 @@
 package com.pojul.objectsocket.socket;
 
 import java.io.IOException;
+import java.net.InetSocketAddress;
 import java.net.Socket;
 import java.net.UnknownHostException;
-import java.util.ArrayList;
-import java.util.List;
-
 import com.pojul.objectsocket.message.BaseMessage;
 import com.pojul.objectsocket.utils.LogUtil;
 
@@ -20,6 +18,7 @@ public class ClientSocket {
 	//chatId为用户名
 	protected String chatId;
 	protected String deviceType;
+	protected int connTimeOut = 8000;
 
 	public void setmOnStatusChangedListener(OnStatusChangedListener mOnStatusChangedListener) {
 		this.mOnStatusChangedListener = mOnStatusChangedListener;
@@ -36,7 +35,9 @@ public class ClientSocket {
 	public ClientSocket(String host, int port) throws UnknownHostException, IOException  {
 		super();
 		// TODO Auto-generated constructor stub
-		mSocket = new Socket(host, port);
+		//mSocket = new Socket(host, port);
+		mSocket = new Socket();
+		mSocket.connect(new InetSocketAddress(host, port), connTimeOut);
 		mSocketSender = new SocketSender(mSocket, this);
 		mSocketReceiver = new SocketReceiver(mSocket, this);
 	}
@@ -106,7 +107,7 @@ public class ClientSocket {
 			mSocket = null;
 		}
 	}
-
+	
 	public void stopRec() {
 		if(mSocketReceiver != null) {
 			mSocketReceiver.stopReceive();
@@ -128,5 +129,5 @@ public class ClientSocket {
 	public interface OnStatusChangedListener{
 		public void onConnClosed();
 	}
-
+	
 }

@@ -7,9 +7,11 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.EditText;
+import android.widget.ImageView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
+import com.bumptech.glide.Glide;
 import com.pojul.fastIM.message.request.LoginMessage;
 import com.pojul.fastIM.message.response.LoginResponse;
 import com.pojul.objectsocket.message.ResponseMessage;
@@ -44,13 +46,14 @@ public class LoginActivity extends BaseActivity {
     TextView loginRegister;
     @BindView(R.id.activity_login)
     RelativeLayout activityLogin;
+    @BindView(R.id.login_bg)
+    ImageView loginBg;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
         ButterKnife.bind(this);
-
     }
 
     private void conn() {
@@ -128,10 +131,10 @@ public class LoginActivity extends BaseActivity {
                 conn();
                 break;
             case R.id.login_passwd_visiable:
-                if(loginPasswdVisiable.isChecked()){
+                if (loginPasswdVisiable.isChecked()) {
                     loginPasswd.setInputType(InputType.TYPE_CLASS_TEXT);
-                }else{
-                    loginPasswd.setInputType(InputType.TYPE_CLASS_TEXT|InputType.TYPE_TEXT_VARIATION_PASSWORD);
+                } else {
+                    loginPasswd.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_PASSWORD);
                 }
                 break;
         }

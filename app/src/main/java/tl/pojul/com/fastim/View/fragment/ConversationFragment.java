@@ -8,6 +8,7 @@ import android.support.v7.widget.LinearLayoutManager;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Toast;
 
 import com.pojul.objectsocket.message.BaseMessage;
 import com.scwang.smartrefresh.layout.SmartRefreshLayout;
@@ -70,11 +71,7 @@ public class ConversationFragment extends BaseFragment {
         smartRefresh.setOnRefreshListener(new OnRefreshListener() {
             @Override
             public void onRefresh(RefreshLayout refreshlayout) {
-                conversationAdapter = new ConversationAdapter(getActivity(),
-                        new ConversationDao().getConversations(SPUtil.getInstance().getUser().getUserName()));
-                conversationList.setAdapter(conversationAdapter);
-                conversationAdapter.notifyUnReadNum();
-                conversationAdapter.setOnItemClickListener(new ItemClickListener());
+                refreshList();
                 smartRefresh.finishRefresh();
             }
         });
@@ -149,6 +146,26 @@ public class ConversationFragment extends BaseFragment {
             }
         }
     };
+
+    public void refreshList(){
+        conversationAdapter = new ConversationAdapter(getActivity(),
+                new ConversationDao().getConversations(SPUtil.getInstance().getUser().getUserName()));
+        conversationList.setAdapter(conversationAdapter);
+        conversationAdapter.notifyUnReadNum();
+    }
+
+    @Override
+    public void setUserVisibleHint(boolean isVisibleToUser) {
+        super.setUserVisibleHint(isVisibleToUser);
+        //showShortToas("isVisibleToUser: " + isVisibleToUser);
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        //showShortToas("onResume");
+        refreshList();
+    }
 
     @Override
     public void onDestroyView() {

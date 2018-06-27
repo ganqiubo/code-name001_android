@@ -13,13 +13,18 @@ import android.widget.TextView;
 import com.bumptech.glide.Glide;
 import com.pojul.fastIM.entity.Conversation;
 import com.pojul.fastIM.message.chat.ChatMessage;
+import com.pojul.fastIM.message.chat.PicMessage;
 import com.pojul.fastIM.message.chat.TextChatMessage;
 import com.pojul.fastIM.message.request.GetConversionInfoRequest;
 import com.pojul.fastIM.message.response.GetConversionInfoResponse;
 import com.pojul.objectsocket.message.BaseMessage;
 import com.pojul.objectsocket.message.ResponseMessage;
+import com.pojul.objectsocket.message.StringFile;
 import com.pojul.objectsocket.socket.SocketRequest;
+import com.pojul.objectsocket.socket.UidUtil;
 
+import java.lang.reflect.Array;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
@@ -31,6 +36,7 @@ import tl.pojul.com.fastim.View.activity.MainActivity;
 import tl.pojul.com.fastim.View.fragment.FriendsFragment;
 import tl.pojul.com.fastim.View.widget.PolygonImage.view.PolygonImageView;
 import tl.pojul.com.fastim.dao.ConversationDao;
+import tl.pojul.com.fastim.dao.Util.DaoUtil;
 import tl.pojul.com.fastim.util.DateUtil;
 import tl.pojul.com.fastim.util.SPUtil;
 
@@ -41,6 +47,8 @@ public class ConversationAdapter extends RecyclerView.Adapter<ConversationAdapte
     public int totalUnreadUum = 0;
     public HashMap<String, Integer> each = new HashMap<>();
     private OnItemClickListener mOnItemClickListener;
+    public static HashMap<String, List<ChatMessage>> unReadMessage = new HashMap<>();
+    public static HashMap<String, List<ChatMessage>> chatRoomMessages = new HashMap<>();
 
     public ConversationAdapter(Context mContext, List<Conversation> mList) {
         this.mContext = mContext;
@@ -109,31 +117,42 @@ public class ConversationAdapter extends RecyclerView.Adapter<ConversationAdapte
     }
 
     public void receiveMessage(BaseMessage message) {
-        if (mList == null) {
-            return;
-        }
-        boolean containConversation = false;
-        for (int i = 0; i < mList.size(); i++) {
-            Conversation conversation = mList.get(i);
-            if (conversation.getConversationFrom().equals(message.getFrom())) {
-                conversation.setUnreadMessage(conversation.getUnreadMessage() + 1);
-                if (message instanceof TextChatMessage) {
-                    conversation.setConversationLastChat(((TextChatMessage) message).getText());
-                } else {
-                    conversation.setConversationLastChat("非文字消息");
+        synchronized (mList){
+            if (mList == null) {
+                return;
+            }
+            boolean containConversation = false;
+            for (int i = 0; i < mList.size(); i++) {
+                Conversation conversation = mList.get(i);
+                if (conversation.getConversationFrom().equals(message.getFrom())) {
+                    int unReadUum = new ConversationDao().getUnreadNum(message.getFrom(), SPUtil.getInstance().getUser().getUserName());
+                    conversation.setUnreadMessage(unReadUum + 1);
+                    if (message instanceof TextChatMessage) {
+                        conversation.setConversationLastChat(((TextChatMessage) message).getText());
+                    } else if (message instanceof PicMessage){
+                        conversation.setConversationLastChat("图片");
+                    } else {
+                        conversation.setConversationLastChat("非文字消息");
+                    }
+                    conversation.setConversationLastChattime(message.getSendTime());
+                    new ConversationDao().updateConversationChat(conversation);
+                    this.notifyDataSetChanged();
+                    containConversation = true;
+                    notifyUnReadNum();
+                    break;
                 }
-                conversation.setConversationLastChattime(message.getSendTime());
-                new ConversationDao().updateConversationChat(conversation);
-                this.notifyDataSetChanged();
-                containConversation = true;
-                break;
+            }
+
+            if (!containConversation) {
+                if (message instanceof ChatMessage) {
+                    requestConversationInfo((ChatMessage) message);
+                } else {
+                }
             }
         }
-        if (!containConversation) {
-            if (message instanceof ChatMessage) {
-                requestConversationInfo((ChatMessage) message);
-            } else {
-            }
+
+        if(message instanceof ChatMessage){
+            putUnReadMessage((ChatMessage)message);
         }
     }
 
@@ -144,6 +163,8 @@ public class ConversationAdapter extends RecyclerView.Adapter<ConversationAdapte
         conversation.setConversationFrom(message.getFrom());
         if (message instanceof TextChatMessage) {
             conversation.setConversationLastChat(((TextChatMessage) message).getText());
+        } else if (message instanceof PicMessage){
+            conversation.setConversationLastChat("图片");
         } else {
             conversation.setConversationLastChat("非文字消息");
         }
@@ -169,7 +190,6 @@ public class ConversationAdapter extends RecyclerView.Adapter<ConversationAdapte
                         updatePhotoName(conversation,
                                 response.getConversation().getConversationPhoto(),
                                 response.getConversation().getConversationName());
-
                     } else {
                         updatePhotoName(conversation, null, "?不存在?");
                     }
@@ -206,6 +226,65 @@ public class ConversationAdapter extends RecyclerView.Adapter<ConversationAdapte
         }
     }
 
+    public static void putUnReadMessage(ChatMessage message){
+        synchronized (unReadMessage){
+            String chatRoomUid = UidUtil.getChatRoomUid(message);
+            if(!unReadMessage.containsKey(chatRoomUid)){
+                unReadMessage.put(chatRoomUid, new ArrayList<ChatMessage>(){{
+                    add(message);
+                }});
+            }else{
+                unReadMessage.get(chatRoomUid).add(message);
+            }
+        }
+    }
+
+    public static void removeUnReadMessage(ChatMessage message){
+        String chatRoomUid = UidUtil.getChatRoomUid(message);
+        synchronized (unReadMessage){
+            if(!unReadMessage.containsKey(chatRoomUid)){
+                return;
+            }
+            unReadMessage.get(chatRoomUid).remove(message);
+            ConversationDao conversationDao = new ConversationDao();
+            int unRead = conversationDao.getUnreadNum(message.getFrom(), message.getTo());
+            if(unRead > 0){
+                conversationDao.updateUnreadNum(message.getFrom(), SPUtil.getInstance().getUser().getUserName() ,(unRead - 1));
+            }
+        }
+    }
+
+    public static void clearUnReadMessage(String chatRoomUid, String from){
+        synchronized (unReadMessage){
+            if(!unReadMessage.containsKey(chatRoomUid)){
+                return;
+            }
+            unReadMessage.remove(chatRoomUid);
+            new ConversationDao().updateUnreadNum(from, SPUtil.getInstance().getUser().getUserName() ,0);
+        }
+    }
+
+    public static List getChatRoomMessages(String chatRoomUid){
+        synchronized (chatRoomMessages){
+            if(!chatRoomMessages.containsKey(chatRoomUid)){
+                chatRoomMessages.put(chatRoomUid, new ArrayList<>());
+            }
+            return chatRoomMessages.get(chatRoomUid);
+        }
+    }
+
+    public static void addAndRemoveUnReadMessage(String chatRoomUid, String from){
+        synchronized (chatRoomMessages){
+            if(!chatRoomMessages.containsKey(chatRoomUid)){
+                chatRoomMessages.put(chatRoomUid, new ArrayList<>());
+            }
+            if(unReadMessage.get(chatRoomUid) != null){
+                chatRoomMessages.get(chatRoomUid).addAll(unReadMessage.get(chatRoomUid));
+            }
+        }
+        clearUnReadMessage(chatRoomUid, from);
+    }
+
     public interface OnItemClickListener {
         void onClick(int position);
     }
@@ -213,6 +292,5 @@ public class ConversationAdapter extends RecyclerView.Adapter<ConversationAdapte
     public void setOnItemClickListener(OnItemClickListener onItemClickListener) {
         this.mOnItemClickListener = onItemClickListener;
     }
-
 
 }

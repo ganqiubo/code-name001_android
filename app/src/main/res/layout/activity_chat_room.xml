@@ -47,41 +47,67 @@
         android:layout_alignParentBottom="true"
         android:background="#ffffff"
         android:orientation="horizontal">
-        
+
         <View
             android:layout_width="match_parent"
             android:layout_height="1px"
             android:background="#dedede"/>
 
-        <EditText
-            android:id="@+id/input"
+        <RelativeLayout
+            android:id="@+id/input1_rl"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:paddingTop="5dp"
-            android:paddingBottom="5dp"
-            android:layout_marginLeft="10dp"
-            android:background="@drawable/shape_et"
-            android:layout_toLeftOf="@+id/send"
-            android:layout_centerVertical="true"
-            android:textSize="16sp"
-            android:textColorHint="#888888"
-            android:textColor="#666666"
-            android:hint="请输入..."/>
+            android:paddingTop="15dp"
+            android:paddingBottom="15dp">
 
-        <Button
-            android:id="@+id/send"
-            android:layout_width="56dp"
-            android:layout_height="30dp"
-            android:text="发送"
-            android:background="@drawable/selector_shap_bt"
-            android:layout_marginLeft="10dp"
-            android:layout_marginRight="10dp"
-            android:layout_marginTop="15dp"
-            android:layout_marginBottom="15dp"
-            android:textColor="#ffffff"
-            android:layout_alignParentRight="true"
+            <ImageView
+                android:id="@+id/add"
+                android:layout_width="30dp"
+                android:layout_height="30dp"
+                android:padding="1dp"
+                android:layout_centerVertical="true"
+                android:src="@drawable/add_normal"
+                android:layout_marginLeft="8dp"
+                />
+
+            <EditText
+                android:id="@+id/input"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:paddingTop="5dp"
+                android:paddingBottom="5dp"
+                android:layout_marginLeft="8dp"
+                android:background="@drawable/shape_et"
+                android:layout_toLeftOf="@+id/send"
+                android:layout_centerVertical="true"
+                android:textSize="16sp"
+                android:textColorHint="#888888"
+                android:textColor="#666666"
+                android:layout_toRightOf="@+id/add"
+                android:hint="请输入..."/>
+
+            <Button
+                android:id="@+id/send"
+                android:layout_width="56dp"
+                android:layout_height="30dp"
+                android:text="发送"
+                android:background="@drawable/selector_shap_bt"
+                android:layout_marginLeft="10dp"
+                android:layout_marginRight="10dp"
+                android:textColor="#ffffff"
+                android:layout_alignParentRight="true"
+                android:layout_centerVertical="true"
+                />
+        </RelativeLayout>
+
+        <android.support.v7.widget.RecyclerView
+            android:visibility="gone"
+            android:id="@+id/more_message"
+            android:layout_width="match_parent"
+            android:layout_height="140dp"
+            android:layout_below="@+id/input1_rl"
+            android:background="#fafafa"
             />
-
     </RelativeLayout>
 
 </RelativeLayout>

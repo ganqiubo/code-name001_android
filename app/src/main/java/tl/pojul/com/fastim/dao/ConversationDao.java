@@ -44,4 +44,24 @@ public class ConversationDao {
         return DaoUtil.executeUpdate(sql);
     }
 
+    public int updateUnreadNum(String from, String to, int num){
+        String sql = "update conversation set " +
+                "unread_message = '"+ num + "'" +
+                " where conversation_from = '" + from + "'" +
+                "and conversation_owner = '" + to + "'";
+        return DaoUtil.executeUpdate(sql);
+    }
+
+    public int getUnreadNum(String from, String to){
+        String sql = "select * from conversation" +
+                " where conversation_from = '" + from + "'" +
+                "and conversation_owner = '" + to + "'";
+        List<Conversation> conversations = DaoUtil.executeQuery(sql, Conversation.class);
+        if(conversations.size() > 0){
+            return conversations.get(0).getUnreadMessage();
+        }else{
+            return 0;
+        }
+    }
+
 }

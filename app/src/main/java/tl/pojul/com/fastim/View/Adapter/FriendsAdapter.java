@@ -47,14 +47,12 @@ public class FriendsAdapter extends RecyclerView.Adapter<FriendsAdapter.MyViewHo
 
     @Override
     public void onBindViewHolder(MyViewHolder holder, int position) {
-        if (mOnItemClickListener != null) {
-            holder.itemRl.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    mOnItemClickListener.onClick(position);
-                }
-            });
-        }
+
+        holder.itemRl.setOnClickListener(v -> {
+            if (mOnItemClickListener != null) {
+                mOnItemClickListener.onClick(position);
+            }
+        });
         Friend friend = mList.get(position);
         holder.friendNickname.setText(friend.getNickName());
         holder.friendAutograph.setText(friend.getAutograph() == null ? "" : friend.getAutograph());

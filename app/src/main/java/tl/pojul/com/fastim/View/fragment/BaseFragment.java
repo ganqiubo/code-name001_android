@@ -10,11 +10,17 @@ public class BaseFragment extends Fragment {
     }
 
     public void showShortToas(String msg){
-        Toast.makeText(getActivity(), msg, Toast.LENGTH_SHORT).show();
+        try{
+            Toast.makeText(getActivity(), msg, Toast.LENGTH_SHORT).show();
+        }catch(Exception e){
+        }
     }
 
     public void showLongToas(String msg){
-        Toast.makeText(getActivity(), msg, Toast.LENGTH_LONG).show();
+        try{
+            Toast.makeText(getActivity(), msg, Toast.LENGTH_LONG).show();
+        }catch(Exception e){
+        }
     }
 
 }
