@@ -3,8 +3,11 @@
     package="tl.pojul.com.fastim">
 
     <uses-permission android:name="android.permission.INTERNET" />
-    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE"/>
-    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.RECORD_AUDIO" />
+    <uses-permission android:name="android.permission.VIBRATE" />
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
 
     <application
         android:name=".MyApplication"
@@ -23,6 +26,7 @@
             android:theme="@style/AppTheme.NoActionBar">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
+
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
@@ -33,7 +37,11 @@
         <activity
             android:name=".View.activity.SingleChatRoomActivity"
             android:theme="@style/AppTheme.NoActionBar" />
-        <activity android:name=".View.activity.MultipleChatRoomActivity"></activity>
+        <activity android:name=".View.activity.MultipleChatRoomActivity" />
+        <activity android:name=".View.activity.ChatRoomActivity" />
+        <activity
+            android:name=".View.activity.ChatFileDownloadActivity"
+            android:theme="@style/AppTheme.NoActionBar"/>
     </application>
 
 </manifest>

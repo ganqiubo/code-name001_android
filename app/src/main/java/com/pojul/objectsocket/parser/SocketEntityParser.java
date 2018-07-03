@@ -16,6 +16,9 @@ import com.pojul.objectsocket.parser.interfacer.ISocketEntityParser;
 import com.pojul.objectsocket.utils.BytesUtil;
 import com.pojul.objectsocket.utils.LogUtil;
 
+/**
+ * 将对象转换成二进制
+ * .*/
 public class SocketEntityParser {
 	
 	protected ISocketEntityParser mISocketEntityParser;

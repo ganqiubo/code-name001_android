@@ -1,4 +1,4 @@
-package com.pojul.objectsocket.utils;
+package com.pojul.objectsocket.constant;
 
 public class StorageType {
 

@@ -31,7 +31,7 @@
         <LinearLayout
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:background="@drawable/corners_message_text"
+            android:background="@drawable/ripple_corner"
             android:orientation="horizontal">
 
             <ProgressBar

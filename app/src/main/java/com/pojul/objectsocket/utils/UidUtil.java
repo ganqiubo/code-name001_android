@@ -1,4 +1,4 @@
-package com.pojul.objectsocket.socket;
+package com.pojul.objectsocket.utils;
 
 import com.pojul.fastIM.message.chat.ChatMessage;
 import com.pojul.fastIM.utils.ServerConstant;

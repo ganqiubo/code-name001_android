@@ -2,55 +2,53 @@ package tl.pojul.com.fastim.View.activity;
 
 import android.animation.Animator;
 import android.animation.AnimatorInflater;
-import android.annotation.SuppressLint;
 import android.content.Intent;
-import android.database.Cursor;
-import android.media.Image;
-import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
-import android.provider.MediaStore;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.support.v7.widget.StaggeredGridLayoutManager;
+import android.view.KeyEvent;
 import android.view.View;
-import android.view.animation.Animation;
-import android.view.animation.AnimationUtils;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
+import com.bumptech.glide.Glide;
 import com.google.gson.Gson;
 import com.pojul.fastIM.entity.Friend;
 import com.pojul.fastIM.entity.User;
+import com.pojul.fastIM.message.chat.AudioMessage;
 import com.pojul.fastIM.message.chat.ChatMessage;
+import com.pojul.fastIM.message.chat.FileMessage;
+import com.pojul.fastIM.message.chat.NetPicMessage;
 import com.pojul.fastIM.message.chat.PicMessage;
 import com.pojul.fastIM.message.chat.TextChatMessage;
 import com.pojul.objectsocket.message.BaseMessage;
-import com.pojul.objectsocket.message.StringFile;
-import com.pojul.objectsocket.socket.UidUtil;
-import com.pojul.objectsocket.utils.StorageType;
+import com.pojul.objectsocket.utils.UidUtil;
 import com.scwang.smartrefresh.layout.SmartRefreshLayout;
 import com.yanzhenjie.recyclerview.swipe.SwipeMenuRecyclerView;
 
-import java.io.File;
 import java.util.ArrayList;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
+import tl.pojul.com.fastim.Audio.AudioManager;
 import tl.pojul.com.fastim.MyApplication;
 import tl.pojul.com.fastim.R;
 import tl.pojul.com.fastim.View.Adapter.ConversationAdapter;
 import tl.pojul.com.fastim.View.Adapter.MessageAdapter;
 import tl.pojul.com.fastim.View.Adapter.MoreMessageAdapter;
-import tl.pojul.com.fastim.dao.ConversationDao;
+import tl.pojul.com.fastim.View.Adapter.SearchPicAdapter;
+import tl.pojul.com.fastim.util.ArrayUtil;
 import tl.pojul.com.fastim.util.SPUtil;
 
-public class SingleChatRoomActivity extends BaseActivity {
+public class SingleChatRoomActivity extends ChatRoomActivity {
 
     @BindView(R.id.header)
     RelativeLayout header;
@@ -72,6 +70,18 @@ public class SingleChatRoomActivity extends BaseActivity {
     RelativeLayout input1Rl;
     @BindView(R.id.more_message)
     RecyclerView moreMessage;
+    @BindView(R.id.search_content)
+    EditText searchContent;
+    @BindView(R.id.search_submit)
+    TextView searchSubmit;
+    @BindView(R.id.search_engine)
+    TextView searchEngine;
+    @BindView(R.id.search_pic_title)
+    RelativeLayout searchPicTitle;
+    @BindView(R.id.search_pics)
+    RecyclerView searchPics;
+    @BindView(R.id.rl_search_pic)
+    RelativeLayout rlSearchPic;
     private Friend friend;
     private int chatRoomType;
     private String chatRoomName;
@@ -79,7 +89,9 @@ public class SingleChatRoomActivity extends BaseActivity {
     private User user;
     private MessageAdapter messageAdapter;
     private MoreMessageAdapter moreMessageAdapter;
-    private int REQUEST_CODE_IMAGE = 1;
+    private SearchPicAdapter searchPicAdapter;
+
+    private String searchPicWord = "";
 
     private int REMOVE_UNREAD_MESSAGE = 1001;
 
@@ -117,14 +129,45 @@ public class SingleChatRoomActivity extends BaseActivity {
         chatMessageList.setAdapter(messageAdapter);
         chatMessageList.scrollToPosition(messageAdapter.getItemCount() - 1);
 
-        moreMessageAdapter = new MoreMessageAdapter(this);
-        moreMessageAdapter.setOnItemClickListener(moreMessageItemClick);
-        GridLayoutManager layoutManager = new GridLayoutManager(this,4);
+        moreMessageAdapter = new MoreMessageAdapter(this, 1);
+        GridLayoutManager layoutManager = new GridLayoutManager(this, 4);
         layoutManager.setOrientation(LinearLayoutManager.VERTICAL);
         moreMessage.setLayoutManager(layoutManager);
+
+        StaggeredGridLayoutManager staggeredGridLayoutManager = new StaggeredGridLayoutManager(3, StaggeredGridLayoutManager.VERTICAL);
+        searchPics.setLayoutManager(staggeredGridLayoutManager);
+        searchPicAdapter = new SearchPicAdapter(this, new ArrayList<>());
+        staggeredGridLayoutManager.setGapStrategy(StaggeredGridLayoutManager.GAP_HANDLING_NONE);
+        searchPics.setAdapter(searchPicAdapter);
+        searchPics.addOnScrollListener(new RecyclerView.OnScrollListener() {
+            @Override
+            public void onScrollStateChanged(RecyclerView recyclerView, int newState) {
+                super.onScrollStateChanged(recyclerView, newState);
+                switch (newState){
+                    case RecyclerView.SCROLL_STATE_IDLE:
+                        Glide.with(SingleChatRoomActivity.this).resumeRequests();
+                        int[] lastPositions = new int[staggeredGridLayoutManager.getSpanCount()];
+                        staggeredGridLayoutManager.findLastVisibleItemPositions(lastPositions);
+                        int lastPosition = ArrayUtil.findMax(lastPositions);
+                        if(lastPosition >= (staggeredGridLayoutManager.getItemCount() - 1)){
+                            if(!"".equals(searchPicWord)){
+                                searchPicAdapter.searchNetPic(searchPicWord);
+                            }
+                        }
+                        break;
+                    case RecyclerView.SCROLL_STATE_DRAGGING:
+                        //Glide.with(SingleChatRoomActivity.this).pauseRequests();
+                        break;
+                    case RecyclerView.SCROLL_STATE_SETTLING:
+                        //Glide.with(SingleChatRoomActivity.this).pauseRequests();
+                        break;
+                }
+            }
+        });
+
     }
 
-    @OnClick({R.id.send, R.id.add})
+    @OnClick({R.id.send, R.id.add, R.id.search_submit, R.id.search_engine})
     public void onClick(View v) {
         switch (v.getId()) {
             case R.id.send:
@@ -134,47 +177,38 @@ public class SingleChatRoomActivity extends BaseActivity {
                 sendTextChatMessage();
                 break;
             case R.id.add:
-                if(add.isSelected()){
+                if (add.isSelected()) {
+                    if(rlSearchPic.getVisibility() == View.VISIBLE){
+                        hideSearchPic();
+                        return;
+                    }
                     hideMoreMessage();
-                }else{
+                } else {
                     showMoreMessage();
                 }
                 break;
+            case R.id.search_submit:
+                searchPicWord = searchContent.getText().toString();
+                if ("".equals(searchPicWord)) {
+                    showShortToas("搜索内容不能为空");
+                    return;
+                }
+                searchPicAdapter.clearData();
+                searchPicAdapter.searchNetPic(searchPicWord);
+                break;
+            case R.id.search_engine:
+                break;
         }
-    }
-
-    private MoreMessageAdapter.OnItemClickListener moreMessageItemClick = new MoreMessageAdapter.OnItemClickListener(){
-        @Override
-        public void onItemClick(int position) {
-            switch (position) {
-                case 0:
-                    startPicPicker();
-                    break;
-                case 1:
-                    break;
-            }
-        }
-    };
-
-    private void startPicPicker() {
-        Intent intent = new Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
-        startActivityForResult(intent, REQUEST_CODE_IMAGE);
     }
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-        if (requestCode == REQUEST_CODE_IMAGE && resultCode == RESULT_OK) {
-            Uri uri = data.getData();
-            Cursor cursor = getContentResolver().query(uri, null, null, null,null);
-            if (cursor != null && cursor.moveToFirst()) {
-                String path = cursor.getString(cursor.getColumnIndexOrThrow(MediaStore.Images.Media.DATA));
-                sendPicMessage(path);
-            }
-        }
+        hideMoreMessage();
+        moreMessageAdapter.onActivityResult(requestCode, resultCode, data);
     }
 
-    private void showMoreMessage() {
+    public void showMoreMessage() {
         moreMessage.setAdapter(moreMessageAdapter);
         moreMessage.setVisibility(View.VISIBLE);
         Animator anim = AnimatorInflater.loadAnimator(SingleChatRoomActivity.this, R.animator.add_rotate);
@@ -184,7 +218,7 @@ public class SingleChatRoomActivity extends BaseActivity {
         add.setSelected(true);
     }
 
-    private void hideMoreMessage() {
+    public void hideMoreMessage() {
         moreMessage.setVisibility(View.GONE);
         Animator anim = AnimatorInflater.loadAnimator(SingleChatRoomActivity.this, R.animator.close_rotate);
         anim.setStartDelay(180);
@@ -193,8 +227,18 @@ public class SingleChatRoomActivity extends BaseActivity {
         add.setSelected(false);
     }
 
+    @Override
+    public void showSearchPic() {
+        rlSearchPic.setVisibility(View.VISIBLE);
+    }
+
+    public void hideSearchPic() {
+        rlSearchPic.setVisibility(View.GONE);
+    }
+
     private void sendTextChatMessage() {
         if (!MyApplication.getApplication().isConnected()) {
+            showShortToas("与服务器已断开连接");
             return;
         }
         TextChatMessage message = new TextChatMessage();
@@ -208,29 +252,44 @@ public class SingleChatRoomActivity extends BaseActivity {
         chatMessageList.scrollToPosition(messageAdapter.getItemCount() - 1);
     }
 
-    private void sendPicMessage(String path){
-        File file = new File(path);
-        if(!file.exists()){
-            showShortToas("图片不存在");
+    private void sendChatMessage(ChatMessage chatMessage) {
+        if (!MyApplication.getApplication().isConnected()) {
+            showShortToas("与服务器已断开连接");
             return;
         }
-        PicMessage picMessage = new PicMessage();
+        MyApplication.ClientSocket.sendData(chatMessage);
+        messageAdapter.addMessage(chatMessage);
+        chatMessageList.scrollToPosition(messageAdapter.getItemCount() - 1);
+    }
+
+    @Override
+    public void sendPicMessage(PicMessage picMessage) {
         picMessage.setFrom(user.getUserName());
         picMessage.setTo(friend.getUserName());
-        picMessage.setChatType(1);
-        StringFile stringFile = new StringFile(StorageType.LOCAL);
-        stringFile.setFilePath(path);
-        stringFile.setFileType("img");
-        int index = path.lastIndexOf("/");
-        if(index == -1){
-            index = 0;
-        }
-        stringFile.setFileName(path.substring((index + 1) , path.length() ));
-        picMessage.setPic(stringFile);
-        MyApplication.ClientSocket.sendData(picMessage);
-        messageAdapter.addMessage(picMessage);
-        chatMessageList.scrollToPosition(messageAdapter.getItemCount() - 1);
-        hideMoreMessage();
+        sendChatMessage(picMessage);
+    }
+
+    @Override
+    public void sendAudioMessage(AudioMessage audioMessage) {
+        audioMessage.setFrom(user.getUserName());
+        audioMessage.setTo(friend.getUserName());
+        sendChatMessage(audioMessage);
+    }
+
+    @Override
+    public void sendNetPicMessage(NetPicMessage netPicMessage) {
+        netPicMessage.setChatType(1);
+        netPicMessage.setFrom(user.getUserName());
+        netPicMessage.setTo(friend.getUserName());
+        sendChatMessage(netPicMessage);
+    }
+
+    @Override
+    public void sendSmallFileMessage(FileMessage fileMessage) {
+        fileMessage.setChatType(1);
+        fileMessage.setFrom(user.getUserName());
+        fileMessage.setTo(friend.getUserName());
+        sendChatMessage(fileMessage);
     }
 
     private MyApplication.IReceiveMessage iReceiveMessage = new MyApplication.IReceiveMessage() {
@@ -266,9 +325,9 @@ public class SingleChatRoomActivity extends BaseActivity {
         @Override
         public void handleMessage(Message msg) {
             super.handleMessage(msg);
-            switch (msg.what){
+            switch (msg.what) {
                 case 1001:
-                    ConversationAdapter.removeUnReadMessage((ChatMessage)msg.obj);
+                    ConversationAdapter.removeUnReadMessage((ChatMessage) msg.obj);
                     break;
             }
         }
@@ -280,5 +339,21 @@ public class SingleChatRoomActivity extends BaseActivity {
         MyApplication.getApplication().unRegisterReceiveMessage(iReceiveMessage);
         MyApplication.getApplication().unRegisterSendMessage(iSendMessage);
         mHandler.removeCallbacksAndMessages(null);
+        AudioManager.getInstance().stopPlaySound();
     }
+
+    @Override
+    public boolean onKeyUp(int keyCode, KeyEvent event) {
+        if (keyCode == KeyEvent.KEYCODE_BACK && event.getAction() == KeyEvent.ACTION_UP) {
+            if(rlSearchPic.getVisibility() == View.VISIBLE){
+                hideSearchPic();
+                return true;
+            }else if (moreMessage.getVisibility() == View.VISIBLE) {
+                hideMoreMessage();
+                return true;
+            }
+        }
+        return super.onKeyUp(keyCode, event);
+    }
+
 }

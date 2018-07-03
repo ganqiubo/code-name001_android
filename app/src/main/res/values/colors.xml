@@ -13,6 +13,7 @@
     <color name="gray1">#999999</color>
     <color name="gray2">#F5F5F5</color>
     <color name="blue">#007AFF</color>
+    <color name="blue1">#6699ff</color>
     <color name="text_gray">#a0a0a0</color>
     <color name="transparent">#00000000</color>
     <color name="color_select_text_gridv1">#ecc449</color>
@@ -24,4 +25,8 @@
     <color name="red_pressed">#AA0000</color>
     <color name="yellow_normal">#ff9933</color>
     <color name="yellow_pressed">#dd7711</color>
+
+    <color name="green">#88bb88</color>
+
+    <color name="green_dark">#669966</color>
 </resources>

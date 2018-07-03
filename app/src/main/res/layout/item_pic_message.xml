@@ -40,8 +40,9 @@ android:orientation="horizontal"
             android:layout_height="match_parent"
             android:src="@drawable/login_bg"
             android:adjustViewBounds="true"
-            app:round_radius="10dp"
+            app:round_radius="8dp"
             app:shape_mode="round_rect"
+            android:clickable="true"
             android:minWidth="50dp"/>
 
         <ProgressBar

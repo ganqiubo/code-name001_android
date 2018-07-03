@@ -28,6 +28,8 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
+import tl.pojul.com.fastim.Audio.AudioManager;
+import tl.pojul.com.fastim.Audio.VibrateManager;
 import tl.pojul.com.fastim.View.activity.MainActivity;
 import tl.pojul.com.fastim.dao.MySQLiteHelper;
 import tl.pojul.com.fastim.util.SPUtil;
@@ -37,6 +39,11 @@ import tl.pojul.com.fastim.util.SPUtil;
  */
 
 public class MyApplication extends Application {
+
+    public static int SCREEN_WIDTH;
+
+    public static int SCREEN_HEIGHT;
+
     private static MyApplication myApplication = null;
 
     public static ClientSocket ClientSocket;
@@ -66,6 +73,9 @@ public class MyApplication extends Application {
         Constant.STORAGE_TYPE = 0;
         SPUtil.Instance(getApplicationContext());
         MySQLiteHelper.Instance(getApplicationContext());
+        AudioManager.Instance(getApplicationContext());
+        VibrateManager.Instance(getApplicationContext());
+
     }
 
     @Override

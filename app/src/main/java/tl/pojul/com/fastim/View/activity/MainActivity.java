@@ -1,5 +1,7 @@
 package tl.pojul.com.fastim.View.activity;
 
+import android.Manifest;
+import android.app.Activity;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.design.widget.TabLayout;
@@ -7,6 +9,8 @@ import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.view.ViewPager;
+import android.util.DisplayMetrics;
+import android.util.Log;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -15,8 +19,12 @@ import android.view.WindowManager;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.tbruyelle.rxpermissions2.Permission;
+import com.tbruyelle.rxpermissions2.RxPermissions;
+
 import java.util.ArrayList;
 
+import io.reactivex.functions.Consumer;
 import tl.pojul.com.fastim.MyApplication;
 import tl.pojul.com.fastim.R;
 import tl.pojul.com.fastim.View.fragment.ConversationFragment;
@@ -43,7 +51,23 @@ public class MainActivity extends BaseActivity {
         }
         setContentView(R.layout.activity_main);
 
+        applyPermission();
+
         initView();
+    }
+
+    private void applyPermission() {
+        new RxPermissions(this).requestEach(Manifest.permission.RECORD_AUDIO)
+                .subscribe(new Consumer<Permission>() {
+                    @Override
+                    public void accept(Permission permission) throws Exception {
+                        if(!permission.granted){
+                            showLongToas("无法获取文件读写权限");
+                            MyApplication.getApplication().closeConn();
+                            System.exit(0);
+                        }
+                    }
+                });
     }
 
     private void initView() {
@@ -99,6 +123,12 @@ public class MainActivity extends BaseActivity {
             }
         });
 
+
+        DisplayMetrics dm = new DisplayMetrics();
+        getWindowManager().getDefaultDisplay().getMetrics(dm);
+        MyApplication.SCREEN_WIDTH = dm.widthPixels;
+        MyApplication.SCREEN_HEIGHT = dm.heightPixels;
+
     }
 
     public class SectionsPagerAdapter extends FragmentPagerAdapter {
@@ -109,14 +139,11 @@ public class MainActivity extends BaseActivity {
 
         @Override
         public Fragment getItem(int position) {
-            // getItem is called to instantiate the fragment for the given page.
-            // Return a PlaceholderFragment (defined as a static inner class below).
             return fragments.get(position);
         }
 
         @Override
         public int getCount() {
-            // Show 3 total pages.
             return fragments.size();
         }
 
@@ -146,20 +173,6 @@ public class MainActivity extends BaseActivity {
         }
         return super.onKeyUp(keyCode, event);
     }
-
-    /*private MyApplication.IReceiveMessage iReceiveMessage = new MyApplication.IReceiveMessage() {
-        @Override
-        public void receiveMessage(BaseMessage message) {
-            try{
-                int unReadNum = Integer.parseInt(unreadMessage.getText().toString());
-                unReadNum = unReadNum +1;
-                unreadMessage.setText((unReadNum + ""));
-            }catch (Exception e){
-                unreadMessage.setText((1 + ""));
-            }
-            unreadMessage.setVisibility(View.VISIBLE);
-        }
-    };*/
 
     public void unreadUnmChanged(int total){
         int unReadNum;

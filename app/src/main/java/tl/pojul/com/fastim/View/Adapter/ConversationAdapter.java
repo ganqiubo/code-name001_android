@@ -12,18 +12,19 @@ import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
 import com.pojul.fastIM.entity.Conversation;
+import com.pojul.fastIM.message.chat.AudioMessage;
 import com.pojul.fastIM.message.chat.ChatMessage;
+import com.pojul.fastIM.message.chat.FileMessage;
+import com.pojul.fastIM.message.chat.NetPicMessage;
 import com.pojul.fastIM.message.chat.PicMessage;
 import com.pojul.fastIM.message.chat.TextChatMessage;
 import com.pojul.fastIM.message.request.GetConversionInfoRequest;
 import com.pojul.fastIM.message.response.GetConversionInfoResponse;
 import com.pojul.objectsocket.message.BaseMessage;
 import com.pojul.objectsocket.message.ResponseMessage;
-import com.pojul.objectsocket.message.StringFile;
 import com.pojul.objectsocket.socket.SocketRequest;
-import com.pojul.objectsocket.socket.UidUtil;
+import com.pojul.objectsocket.utils.UidUtil;
 
-import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -36,7 +37,6 @@ import tl.pojul.com.fastim.View.activity.MainActivity;
 import tl.pojul.com.fastim.View.fragment.FriendsFragment;
 import tl.pojul.com.fastim.View.widget.PolygonImage.view.PolygonImageView;
 import tl.pojul.com.fastim.dao.ConversationDao;
-import tl.pojul.com.fastim.dao.Util.DaoUtil;
 import tl.pojul.com.fastim.util.DateUtil;
 import tl.pojul.com.fastim.util.SPUtil;
 
@@ -127,13 +127,7 @@ public class ConversationAdapter extends RecyclerView.Adapter<ConversationAdapte
                 if (conversation.getConversationFrom().equals(message.getFrom())) {
                     int unReadUum = new ConversationDao().getUnreadNum(message.getFrom(), SPUtil.getInstance().getUser().getUserName());
                     conversation.setUnreadMessage(unReadUum + 1);
-                    if (message instanceof TextChatMessage) {
-                        conversation.setConversationLastChat(((TextChatMessage) message).getText());
-                    } else if (message instanceof PicMessage){
-                        conversation.setConversationLastChat("图片");
-                    } else {
-                        conversation.setConversationLastChat("非文字消息");
-                    }
+                    setNoteText(message, conversation);
                     conversation.setConversationLastChattime(message.getSendTime());
                     new ConversationDao().updateConversationChat(conversation);
                     this.notifyDataSetChanged();
@@ -157,17 +151,10 @@ public class ConversationAdapter extends RecyclerView.Adapter<ConversationAdapte
     }
 
     private void requestConversationInfo(ChatMessage message) {
-
         Conversation conversation = new Conversation();
         conversation.setUnreadMessage(1);
         conversation.setConversationFrom(message.getFrom());
-        if (message instanceof TextChatMessage) {
-            conversation.setConversationLastChat(((TextChatMessage) message).getText());
-        } else if (message instanceof PicMessage){
-            conversation.setConversationLastChat("图片");
-        } else {
-            conversation.setConversationLastChat("非文字消息");
-        }
+        setNoteText(message, conversation);
         conversation.setConversationLastChattime(message.getSendTime());
         conversation.setConversationOwner(SPUtil.getInstance().getUser().getUserName());
 
@@ -196,6 +183,20 @@ public class ConversationAdapter extends RecyclerView.Adapter<ConversationAdapte
                 });
             }
         });
+    }
+
+    private void setNoteText(BaseMessage message, Conversation conversation) {
+        if (message instanceof TextChatMessage) {
+            conversation.setConversationLastChat(((TextChatMessage) message).getText());
+        } else if (message instanceof PicMessage || message instanceof NetPicMessage){
+            conversation.setConversationLastChat("图片");
+        } else if (message instanceof AudioMessage){
+            conversation.setConversationLastChat("语音");
+        } else if (message instanceof FileMessage){
+            conversation.setConversationLastChat("文件");
+        } else {
+            conversation.setConversationLastChat("非文字消息");
+        }
     }
 
     public void updatePhotoName(Conversation conversation, String photo, String name) {

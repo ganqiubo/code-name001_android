@@ -19,7 +19,9 @@ import com.pojul.objectsocket.utils.BytesUtil;
 import com.pojul.objectsocket.utils.Constant;
 import com.pojul.objectsocket.utils.LogUtil;
 
-
+/**
+ * 将二进制转换成对象
+ * .*/
 public class SocketBytesParser{
 	
 	protected Socket mSocket;

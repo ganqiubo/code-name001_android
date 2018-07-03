@@ -1,3 +1,4 @@
+<?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
@@ -108,6 +109,66 @@
             android:layout_below="@+id/input1_rl"
             android:background="#fafafa"
             />
+
+        <RelativeLayout
+            android:visibility="gone"
+            android:id="@+id/rl_search_pic"
+            android:layout_width="match_parent"
+            android:layout_height="300dp"
+            android:background="#efefef"
+            android:layout_below="@+id/input1_rl">
+
+            <RelativeLayout
+                android:id="@+id/search_pic_title"
+                android:layout_width="250dp"
+                android:layout_height="32dp"
+                android:layout_centerHorizontal="true"
+                android:layout_marginTop="5dp">
+
+                <EditText
+                    android:id="@+id/search_content"
+                    android:layout_width="180dp"
+                    android:layout_height="28dp"
+                    android:background="@drawable/shape_search_edit"
+                    android:hint=" 搜索"
+                    android:textSize="12sp"
+                    android:textColor="#454545"
+                    android:paddingLeft="4dp"
+                    />
+
+                <TextView
+                    android:id="@+id/search_submit"
+                    android:layout_width="66dp"
+                    android:layout_height="28dp"
+                    android:text="百度搜索"
+                    android:textColor="#ffffff"
+                    android:textSize="12sp"
+                    android:gravity="center"
+                    android:clickable="true"
+                    android:layout_toRightOf="@+id/search_content"
+                    android:background="@drawable/selector_search_button"/>
+
+                <TextView
+                    android:id="@+id/search_engine"
+                    android:layout_width="20dp"
+                    android:layout_height="20dp"
+                    android:background="@drawable/selector_search_engine"
+                    android:clickable="true"
+                    android:layout_alignParentBottom="true"
+                    android:layout_alignParentRight="true">
+                </TextView>
+
+            </RelativeLayout>
+
+            <android.support.v7.widget.RecyclerView
+                android:id="@+id/search_pics"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:background="#efefef"
+                android:layout_below="@+id/search_pic_title"
+                />
+
+        </RelativeLayout>
     </RelativeLayout>
 
 </RelativeLayout>

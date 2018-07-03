@@ -1,4 +1,4 @@
-package tl.pojul.com.fastim.impl;
+package tl.pojul.com.fastim.http.converter;
 
 import com.pojul.objectsocket.message.BaseMessage;
 

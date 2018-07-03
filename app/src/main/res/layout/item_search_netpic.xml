@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_margin="2dp"
+    android:background="@drawable/corners_item_search_netpic">
+
+    <ImageView
+        android:id="@+id/pic"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"/>
+
+    <LinearLayout
+        android:id="@+id/rl_operation"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:weightSum="2"
+        android:layout_below="@+id/pic"
+        >
+
+        <ImageView
+            android:id="@+id/view"
+            android:layout_width="wrap_content"
+            android:layout_height="26dp"
+            android:layout_weight="1"
+            android:padding="2dp"
+            android:src="@drawable/selector_search_pic_view"
+            android:clickable="true"
+            android:background="@drawable/ripple_normal"
+            />
+
+        <View
+            android:layout_width="2px"
+            android:layout_height="14dp"
+            android:layout_gravity="center"
+            android:background="#cdcdcd"/>
+
+        <ImageView
+            android:id="@+id/send"
+            android:layout_width="wrap_content"
+            android:layout_height="26dp"
+            android:layout_weight="1"
+            android:padding="4dp"
+            android:src="@drawable/selector_search_pic_send"
+            android:clickable="true"
+            android:background="@drawable/ripple_normal"
+            />
+
+    </LinearLayout>
+
+</RelativeLayout>

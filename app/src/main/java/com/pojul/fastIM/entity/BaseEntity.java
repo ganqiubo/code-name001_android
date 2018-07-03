@@ -2,13 +2,12 @@ package com.pojul.fastIM.entity;
 
 import android.database.Cursor;
 
-import java.io.Serializable;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
 import com.pojul.objectsocket.message.StringFile;
 import com.pojul.objectsocket.utils.LogUtil;
-import com.pojul.objectsocket.utils.StorageType;
+import com.pojul.objectsocket.constant.StorageType;
 
 public class BaseEntity{
 	

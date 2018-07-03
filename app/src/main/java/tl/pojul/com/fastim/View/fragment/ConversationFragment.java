@@ -150,6 +150,7 @@ public class ConversationFragment extends BaseFragment {
     public void refreshList(){
         conversationAdapter = new ConversationAdapter(getActivity(),
                 new ConversationDao().getConversations(SPUtil.getInstance().getUser().getUserName()));
+        conversationAdapter.setOnItemClickListener(new ItemClickListener());
         conversationList.setAdapter(conversationAdapter);
         conversationAdapter.notifyUnReadNum();
     }

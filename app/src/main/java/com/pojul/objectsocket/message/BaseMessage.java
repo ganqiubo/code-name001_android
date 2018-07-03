@@ -3,7 +3,7 @@ package com.pojul.objectsocket.message;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
-import com.pojul.objectsocket.socket.UidUtil;
+import com.pojul.objectsocket.utils.UidUtil;
 
 public class BaseMessage {
 	

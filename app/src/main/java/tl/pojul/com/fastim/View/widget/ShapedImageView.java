@@ -19,6 +19,7 @@ import android.support.annotation.Nullable;
 import android.support.v4.graphics.drawable.RoundedBitmapDrawable;
 import android.support.v4.graphics.drawable.RoundedBitmapDrawableFactory;
 import android.util.AttributeSet;
+import android.util.Log;
 
 import tl.pojul.com.fastim.R;
 
@@ -30,6 +31,9 @@ public class ShapedImageView extends android.support.v7.widget.AppCompatImageVie
     private int mShapeMode = 0;
     private float mRadius = 0;
     private Shape mShape;
+
+    public int drawableWidth;
+    public int drawableHeight;
 
     public ShapedImageView(Context context) {
         super(context);
@@ -70,6 +74,8 @@ public class ShapedImageView extends android.support.v7.widget.AppCompatImageVie
 
     @Override
     public void setImageBitmap(Bitmap bm) {
+        drawableWidth = bm.getWidth();
+        drawableHeight = bm.getHeight();
         if (bm != null) {
             RoundedBitmapDrawable roundedBitmapDrawable = RoundedBitmapDrawableFactory.create(getResources(), bm);
             roundedBitmapDrawable.setCornerRadius(mRadius);
@@ -78,4 +84,6 @@ public class ShapedImageView extends android.support.v7.widget.AppCompatImageVie
             super.setImageBitmap(bm);
         }
     }
+
+
 }
