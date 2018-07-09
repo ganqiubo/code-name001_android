@@ -19,6 +19,7 @@ public class SocketReceiver {
 	private static final String TAG = "SocketReceiver";
 	protected ISocketReceiver receiverListener;
 	public ClientSocket mClientSocket;
+	protected RecProgressListerer recProgressListerer;
 	
 	public SocketReceiver(Socket mSocket, ClientSocket clientSocket) {
 		super();
@@ -120,10 +121,22 @@ public class SocketReceiver {
 		this.receiverListener = mISocketReceiver;
 	}
 	
+	public void setRecProgressListerer(RecProgressListerer recProgressListerer) {
+		this.recProgressListerer = recProgressListerer;
+		if(mSocketBytesParser != null) {
+			mSocketBytesParser.setRecProgressListerer(recProgressListerer);
+		}
+	}
+
 	public void stopReceive() {
 		if(mSocketBytesParser != null) {
 			mSocketBytesParser.stop();
 		}
+	}
+	
+	public interface RecProgressListerer{
+		public void progress(MessageHeader header, int progress);
+		public void finish(MessageHeader header);
 	}
 	
 }

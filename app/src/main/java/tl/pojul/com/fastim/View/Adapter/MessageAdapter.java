@@ -3,41 +3,57 @@ package tl.pojul.com.fastim.View.Adapter;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
+import android.media.MediaPlayer;
 import android.os.Build;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.MediaController;
 import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
+import android.widget.VideoView;
 
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.request.RequestOptions;
 import com.google.gson.Gson;
 import com.pojul.fastIM.entity.Friend;
+import com.pojul.fastIM.entity.Message;
 import com.pojul.fastIM.entity.User;
 import com.pojul.fastIM.message.chat.AudioMessage;
 import com.pojul.fastIM.message.chat.ChatMessage;
+import com.pojul.fastIM.message.chat.DateMessage;
 import com.pojul.fastIM.message.chat.FileMessage;
 import com.pojul.fastIM.message.chat.NetPicMessage;
 import com.pojul.fastIM.message.chat.PicMessage;
 import com.pojul.fastIM.message.chat.TextChatMessage;
+import com.pojul.fastIM.message.chat.VideoMessage;
 import com.pojul.objectsocket.constant.StorageType;
 import com.pojul.objectsocket.message.BaseMessage;
+import com.pojul.objectsocket.utils.LogUtil;
 
 import java.io.File;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
-import tl.pojul.com.fastim.Audio.AudioManager;
+import tl.pojul.com.fastim.Media.AudioManager;
+import tl.pojul.com.fastim.Media.VideoManager;
 import tl.pojul.com.fastim.R;
 import tl.pojul.com.fastim.View.activity.ChatFileDownloadActivity;
+import tl.pojul.com.fastim.View.activity.VideoActivity;
 import tl.pojul.com.fastim.View.widget.PolygonImage.view.PolygonImageView;
+import tl.pojul.com.fastim.socket.Converter.HistoryChatConverter;
+import tl.pojul.com.fastim.util.DateUtil;
+import tl.pojul.com.fastim.util.DensityUtil;
 import tl.pojul.com.fastim.util.DialogUtil;
 
 /**
@@ -45,10 +61,13 @@ import tl.pojul.com.fastim.util.DialogUtil;
  */
 
 public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.BaseMessageHolder> {
+
     private Context mContext;
     private List<ChatMessage> mList;
     private User user;
     private Friend friend;
+    private static final String TAG = "MessageAdapter";
+    private HashMap<Integer, Integer> progressWidths = new HashMap<>();
 
     public MessageAdapter(Context mContext, List<ChatMessage> mList, User user, Friend friend) {
         this.mContext = mContext;
@@ -81,8 +100,14 @@ public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.BaseMess
                 case 5:
                     view = LayoutInflater.from(mContext).inflate(R.layout.item_file_message, parent, false);
                     return new FileMessageHolder(view);
+                case 6:
+                    view = LayoutInflater.from(mContext).inflate(R.layout.item_video_message, parent, false);
+                    return new VideoMessageHolder(view);
+                case 7:
+                    view = LayoutInflater.from(mContext).inflate(R.layout.item_date_message, parent, false);
+                    return new DateMessageHolder(view);
                 default:
-                    view = LayoutInflater.from(mContext).inflate(R.layout.item_pic_message, parent, false);
+                    view = LayoutInflater.from(mContext).inflate(R.layout.item_text_message, parent, false);
                     return new PicMessageHolder(view);
             }
         }
@@ -108,6 +133,12 @@ public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.BaseMess
                 case 5:
                     bindFileMessageHolder((FileMessageHolder) holder, position);
                     break;
+                case 6:
+                    bindVideoMessageHolder((VideoMessageHolder) holder, position);
+                    break;
+                case 7:
+                    bindDateMessageHolder((DateMessageHolder) holder, position);
+                    break;
                 default:
                     break;
             }
@@ -131,6 +162,10 @@ public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.BaseMess
             return 4;
         } else if (mList.get(position) instanceof FileMessage) {
             return 5;
+        } else if (mList.get(position) instanceof VideoMessage) {
+            return 6;
+        } else if (mList.get(position) instanceof DateMessage) {
+            return 7;
         } else {
             return -1;
         }
@@ -138,6 +173,7 @@ public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.BaseMess
 
     private void bindBaseMessageHolder(BaseMessageHolder holder, int position) {
         ChatMessage chatMessage = mList.get(position);
+        holder.llTextMessage.setVisibility(View.VISIBLE);
         RelativeLayout.LayoutParams layoutParams = (RelativeLayout.LayoutParams) holder.llTextMessage.getLayoutParams();
         if (user.getUserName().equals(chatMessage.getFrom())) {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR1) {
@@ -188,8 +224,7 @@ public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.BaseMess
             holder.pic.setOnClickListener(v -> {
                 Toast.makeText(mContext, "pic click", Toast.LENGTH_SHORT).show();
                 try {
-                    DialogUtil.getInstance().showDetailImgDialogPop(mContext, picMessage.getPic().getFilePath(),
-                            picMessage.getPic().getStorageType(), holder.pic, picMessage.getPic().getFilePath());
+                    DialogUtil.getInstance().showDetailImgDialogPop(mContext, picMessage, holder.pic, DialogUtil.POP_TYPR_IMG);
                 } catch (Exception e) {
                 }
             });
@@ -245,8 +280,7 @@ public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.BaseMess
         Glide.with(mContext).load(netPicMessage.getThumbURL().getFilePath()).apply(options).into(holder.pic);
         holder.pic.setOnClickListener(v -> {
             try {
-                DialogUtil.getInstance().showDetailImgDialogPop(mContext, netPicMessage.getFullURL().getFilePath(),
-                        netPicMessage.getFullURL().getStorageType(), holder.pic, netPicMessage.getThumbURL().getFilePath());
+                DialogUtil.getInstance().showDetailImgDialogPop(mContext, netPicMessage, holder.pic, DialogUtil.POP_TYPR_IMG);
             } catch (Exception e) {
             }
         });
@@ -256,11 +290,64 @@ public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.BaseMess
         FileMessage fileMessage = (FileMessage) mList.get(position);
         bindBaseMessageHolder(holder, position);
         holder.fileName.setText(fileMessage.getFile().getFileName());
-        holder.rlFile.setOnClickListener(v->{
-            Intent intent = new Intent(((Activity)mContext), ChatFileDownloadActivity.class);
+        holder.rlFile.setOnClickListener(v -> {
+            Intent intent = new Intent(mContext, ChatFileDownloadActivity.class);
             intent.putExtra("fileMessage", new Gson().toJson(fileMessage));
-            ((Activity)mContext).startActivity(intent);
+            mContext.startActivity(intent);
         });
+
+        if(progressWidths.get(position) == null) {
+            int width = holder.fileIcon.getWidth() + holder.fileName.getWidth();
+            int minWidth = DensityUtil.dp2px(mContext, 70);
+            if(width < minWidth){
+                width = minWidth;
+            }
+            progressWidths.put(position, width);
+        }
+        int progressWidth = progressWidths.get(position);
+        holder.progressBar1.getLayoutParams().width =  progressWidth;
+        holder.progressBar1.getLayoutParams().height =  DensityUtil.dp2px(mContext, 3);
+        holder.progressBar1.setProgress(fileMessage.getSendProgress());
+    }
+
+    private void bindVideoMessageHolder(VideoMessageHolder holder, int position){
+        VideoMessage videoMessage = (VideoMessage) mList.get(position);
+        bindBaseMessageHolder(holder, position);
+        holder.play.setOnClickListener(view->{
+            Intent intent = new Intent(mContext, VideoActivity.class);
+            intent.putExtra("videoMessage", new Gson().toJson(videoMessage));
+            mContext.startActivity(intent);
+        });
+        if(videoMessage.getFirstPic() != null){
+            RequestOptions options = new RequestOptions();
+            options.placeholder(R.drawable.pic)
+                    .error(R.drawable.pic)
+                    .fallback(R.drawable.pic);
+            Glide.with(mContext).load(videoMessage.getFirstPic().getFilePath()).apply(options).into(holder.pic);
+        }
+
+        if(videoMessage.getVideoWidth() > 0 && videoMessage.getVideoHeight() > 0 && videoMessage.getIsSend() == 0){
+            int progressWidth;
+            if(videoMessage.getVideoHeight() > videoMessage.getVideoWidth()){
+                if(progressWidths.get(position) == null){
+                    float scale = videoMessage.getVideoWidth()*1.0f / videoMessage.getVideoHeight();
+                    int width = (int) (DensityUtil.dp2px(mContext, 100) * scale);
+                    progressWidths.put(position, width);
+                }
+                progressWidth = progressWidths.get(position) - 6;
+            }else{
+                progressWidth = DensityUtil.dp2px(mContext, 100) - 6;
+            }
+            holder.progressBar1.getLayoutParams().width =  progressWidth- 6;
+            holder.progressBar1.getLayoutParams().height =  DensityUtil.dp2px(mContext, 3);
+            holder.progressBar1.setProgress(videoMessage.getSendProgress());
+        }
+    }
+
+    private void bindDateMessageHolder(DateMessageHolder holder, int position) {
+        DateMessage dateMessage = (DateMessage) mList.get(position);
+        holder.llTextMessage.setVisibility(View.GONE);
+        holder.date.setText(dateMessage.getDate());
     }
 
     class BaseMessageHolder extends RecyclerView.ViewHolder {
@@ -329,12 +416,50 @@ public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.BaseMess
         }
     }
 
+    class VideoMessageHolder extends BaseMessageHolder {
+
+        @BindView(R.id.pic)
+        ImageView pic;
+        @BindView(R.id.play)
+        ImageView play;
+
+        public VideoMessageHolder(View itemView) {
+            super(itemView);
+            ButterKnife.bind(this, itemView);
+        }
+    }
+
+    class DateMessageHolder extends BaseMessageHolder {
+
+        @BindView(R.id.date)
+        TextView date;
+
+        public DateMessageHolder(View itemView) {
+            super(itemView);
+            ButterKnife.bind(this, itemView);
+        }
+    }
+
     public void onSendFinish(BaseMessage message) {
         synchronized (mList) {
             for (int i = (mList.size() - 1); i >= 0; i--) {
                 if (message.getMessageUid() != null && message.getMessageUid().equals(mList.get(i).getMessageUid())) {
                     mList.get(i).setIsSend(1);
                     notifyItemChanged(i);
+                    break;
+                }
+            }
+        }
+    }
+
+    public void updateSendProgress(BaseMessage message, int progress) {
+        synchronized (mList) {
+            for (int i = (mList.size() - 1); i >= 0; i--) {
+                if (message.getMessageUid() != null && message.getMessageUid().equals(mList.get(i).getMessageUid())) {
+                    if(message instanceof FileMessage || message instanceof VideoMessage){
+                        mList.get(i).setSendProgress(progress);
+                        notifyItemChanged(i);
+                    }
                     break;
                 }
             }
@@ -353,27 +478,58 @@ public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.BaseMess
         }
     }
 
+    public void addHistoryChat(ArrayList<Message> messages) {
+        /**
+         * 添加时间检测
+         * */
+        synchronized (mList){
+            List<ChatMessage> chatMessages = new HistoryChatConverter().converter(messages);
+            if(chatMessages.size() > 0 && mList.size() > 1 && (mList.get(0) instanceof DateMessage) &&
+                    !DateUtil.isDiffDay(chatMessages.get(chatMessages.size() -1).getSendTime(), mList.get(1).getSendTime())){
+                mList.remove(0);
+                notifyItemRemoved(0);
+            }
+            mList.addAll(0, chatMessages);
+            this.notifyItemRangeInserted(0, chatMessages.size());
+        }
+    }
+
     public void receiveMessage(ChatMessage message) {
+        /**
+         * 添加时间检测
+         * */
         synchronized (mList) {
+            if(isDiffDayWithPrev(message)){
+                mList.add(new DateMessage(DateUtil.transformToRoughDate(message.getSendTime())));
+                notifyItemInserted((mList.size() - 1));
+            }
             mList.add(message);
             notifyItemInserted((mList.size() - 1));
         }
     }
 
     public void addMessage(ChatMessage message) {
+        /**
+         * 添加时间检测
+         * */
         synchronized (mList) {
+            if(isDiffDayWithPrev(message)){
+                mList.add(new DateMessage(DateUtil.transformToRoughDate(message.getSendTime())));
+                notifyItemInserted((mList.size() - 1));
+            }
             mList.add(message);
             notifyItemInserted((mList.size() - 1));
         }
     }
 
-    public void addMessage(List<ChatMessage> messages) {
-        synchronized (mList) {
-            if (messages == null) {
-                return;
-            }
-            mList.addAll(messages);
-            notifyDataSetChanged();
+    public boolean isDiffDayWithPrev(ChatMessage message){
+        if(mList.size() == 0){
+            return true;
+        }
+        if(DateUtil.isDiffDay(message.getSendTime(), mList.get((mList.size() -1)).getSendTime())){
+            return true;
+        }else{
+            return false;
         }
     }
 

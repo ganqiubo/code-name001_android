@@ -8,6 +8,10 @@ public class LoginMessage extends RequestMessage{
 	private String PassWd;
 	private String deviceType;
 
+	public LoginMessage() {
+		super();
+	}
+
 	public String getDeviceType() {
 		return deviceType;
 	}

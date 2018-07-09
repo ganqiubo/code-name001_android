@@ -1,4 +1,4 @@
-package tl.pojul.com.fastim.Audio;
+package tl.pojul.com.fastim.Media;
 
 import android.content.Context;
 import android.media.MediaPlayer;
@@ -105,6 +105,7 @@ public class AudioManager {
     }
 
     public void playNetAudio(String url){
+        VideoManager.getInstance().stopPlay();
         try {
             mediaPlayer.reset();
             mediaPlayer.setDataSource(url);
@@ -137,4 +138,6 @@ public class AudioManager {
             mediaPlayer.stop();
         }
     }
+
+
 }

@@ -8,6 +8,7 @@
     <uses-permission android:name="android.permission.RECORD_AUDIO" />
     <uses-permission android:name="android.permission.VIBRATE" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+    <uses-permission android:name="android.permission.WAKE_LOCK" />
 
     <application
         android:name=".MyApplication"
@@ -41,6 +42,9 @@
         <activity android:name=".View.activity.ChatRoomActivity" />
         <activity
             android:name=".View.activity.ChatFileDownloadActivity"
+            android:theme="@style/AppTheme.NoActionBar" />
+        <activity
+            android:name=".View.activity.VideoActivity"
             android:theme="@style/AppTheme.NoActionBar"/>
     </application>
 

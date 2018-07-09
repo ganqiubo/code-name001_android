@@ -14,22 +14,13 @@ public class Conversation extends BaseEntity {
     private String conversationLastChattime;
     private String conversationOwner;
 	private int unreadMessage;
+	private int conversationType;
 	
 	public Conversation() {
 		super();
 		// TODO Auto-generated constructor stub
 	}
-	public Conversation(String conversationName, String conversationFrom, String conversationPhoto,
-			String conversationLastChat, String conversationLastChattime, String conversationOwner, int unreadMessage) {
-		super();
-		this.conversationName = conversationName;
-		this.conversationFrom = conversationFrom;
-		this.conversationPhoto = conversationPhoto;
-		this.conversationLastChat = conversationLastChat;
-		this.conversationLastChattime = conversationLastChattime;
-		this.conversationOwner = conversationOwner;
-		this.unreadMessage = unreadMessage;
-	}
+
 	public String getConversationName() {
 		return conversationName;
 	}
@@ -75,17 +66,12 @@ public class Conversation extends BaseEntity {
 		this.unreadMessage = unreadMessage;
 	}
 
-	@Override
-	public String toString() {
-		return "Conversation{" +
-				"conversationName='" + conversationName + '\'' +
-				", conversationFrom='" + conversationFrom + '\'' +
-				", conversationPhoto='" + conversationPhoto + '\'' +
-				", conversationLastChat='" + conversationLastChat + '\'' +
-				", conversationLastChattime='" + conversationLastChattime + '\'' +
-				", conversationOwner='" + conversationOwner + '\'' +
-				", unreadMessage=" + unreadMessage +
-				'}';
+	public int getConversationType() {
+		return conversationType;
+	}
+
+	public void setConversationType(int conversationType) {
+		this.conversationType = conversationType;
 	}
 
 	@Override
@@ -102,6 +88,7 @@ public class Conversation extends BaseEntity {
 		conversationLastChattime = getString(cursor, "conversation_last_chattime");
 		conversationOwner = getString(cursor, "conversation_owner");
 		unreadMessage = getInt(cursor, "unread_message");
+		conversationType = getInt(cursor, "conversation_type");
 	}
 	
 }

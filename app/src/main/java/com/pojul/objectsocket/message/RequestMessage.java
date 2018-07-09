@@ -1,5 +1,7 @@
 package com.pojul.objectsocket.message;
 
+import tl.pojul.com.fastim.util.SPUtil;
+
 public class RequestMessage extends BaseMessage{
 
 	private String requestUrl;
@@ -7,6 +9,9 @@ public class RequestMessage extends BaseMessage{
 	public RequestMessage() {
 		super();
 		// TODO Auto-generated constructor stub
+		if(SPUtil.getInstance().getUser() != null){
+			setFrom(SPUtil.getInstance().getUser().getUserName());
+		}
 	}
 
 	public RequestMessage(String requestUrl) {

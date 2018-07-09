@@ -10,6 +10,7 @@ import java.util.regex.Pattern;
 
 import com.google.gson.Gson;
 import com.pojul.objectsocket.message.BaseMessage;
+import com.pojul.objectsocket.message.HeartbeatMessage;
 import com.pojul.objectsocket.message.MessageHeader;
 import com.pojul.objectsocket.message.StringFile;
 import com.pojul.objectsocket.parser.interfacer.ISocketEntityParser;
@@ -18,7 +19,7 @@ import com.pojul.objectsocket.utils.LogUtil;
 
 /**
  * 将对象转换成二进制
- * .*/
+ **/
 public class SocketEntityParser {
 	
 	protected ISocketEntityParser mISocketEntityParser;
@@ -43,12 +44,18 @@ public class SocketEntityParser {
 	
 	public boolean stopSend = false;
 	
+	protected long totalLength;
+	
 	public SocketEntityParser(ISocketEntityParser mISocketEntityParser) {
 		super();
 		this.mISocketEntityParser = mISocketEntityParser;
 	}
 	
 	public void startParse(BaseMessage mBaseMessage) throws IllegalArgumentException, IllegalAccessException, IOException {
+		if(mBaseMessage instanceof HeartbeatMessage) {
+			mISocketEntityParser.onParser(new byte[]{1}, mBaseMessage, 1);
+			return;
+		}
 		this.mBaseMessage = mBaseMessage;
 		files = new ArrayList<>();
 		if(mISocketEntityParser == null) {
@@ -72,7 +79,7 @@ public class SocketEntityParser {
 		//设置Header及其长度
 		setHeaderJson();
 		//获取message string区总长度
-		getStringLength();
+		getLength();
 	}
 	
 	protected void setEntityJson() throws UnsupportedEncodingException {
@@ -112,8 +119,16 @@ public class SocketEntityParser {
 		headerLength = headerJson.getBytes("utf-8").length;
 	}
 	
-	protected void getStringLength() {
+	protected void getLength() {
 		stringLength = headerLength + entieyJsonLength;
+		totalLength = stringLength + 9;
+		for(int i = 0; i< files.size(); i++) {
+			File file = new File(files.get(i));
+			if(file.exists()) {
+				totalLength = totalLength + file.length();
+			}
+		}
+		totalLength = totalLength + 1;
 	}
 	
 	protected void parse() throws IOException {
@@ -127,8 +142,12 @@ public class SocketEntityParser {
 	}
 	
 	protected void parseStringLength() throws IOException {
-		byte[] tempBytes = BytesUtil.intToByteArray(stringLength);
-		mISocketEntityParser.onParser(tempBytes);
+		byte[] tempBytes0 = new byte[] {2};
+		byte[] tempBytes1 = BytesUtil.longToBytes(totalLength);
+		byte[] tempBytes2 = BytesUtil.intToByteArray(stringLength);
+		byte[] tempBytes = BytesUtil.byteMerger(tempBytes0, tempBytes1);
+		tempBytes = BytesUtil.byteMerger(tempBytes, tempBytes2);
+		mISocketEntityParser.onParser(tempBytes, mBaseMessage, totalLength);
 	}
 	
 	protected void parseHead() throws IOException {
@@ -141,16 +160,16 @@ public class SocketEntityParser {
 
 	protected void parseFiles() throws IOException {
 		for(int i = 0; i< files.size(); i++) {
-			mISocketEntityParser.onParser(new byte[] {0});
+			mISocketEntityParser.onParser(new byte[] {0}, mBaseMessage, totalLength);
 			parseFile(files.get(i));
 		}
-		mISocketEntityParser.onParser(new byte[] {1});
+		mISocketEntityParser.onParser(new byte[] {1}, mBaseMessage, totalLength);
 		mISocketEntityParser.onParserFinish(mBaseMessage);
 	}
 	
 	protected void parseString(String str) throws IOException {
 		byte[] tempBytes = str.getBytes("utf-8");
-		mISocketEntityParser.onParser(tempBytes);
+		mISocketEntityParser.onParser(tempBytes, mBaseMessage, totalLength);
 	}
 	
 	protected void parseFile(String path) throws IOException {
@@ -160,7 +179,7 @@ public class SocketEntityParser {
 			length = f.length();
 			LogUtil.d(TAG, "write file exit");
 		}
-		mISocketEntityParser.onParser(BytesUtil.longToBytes(length));
+		mISocketEntityParser.onParser(BytesUtil.longToBytes(length), mBaseMessage, totalLength);
 		if(length <= 0) {
 			return;
 		}
@@ -171,7 +190,7 @@ public class SocketEntityParser {
 		while(!stopSend && (len = fis.read(bytes, 0, bytes.length)) != -1) {
 			byte[] readBytes = new byte[len];
 			System.arraycopy(bytes, 0, readBytes, 0, len);
-			mISocketEntityParser.onParser(readBytes);
+			mISocketEntityParser.onParser(readBytes, mBaseMessage, totalLength);
 			total = total + len;
 		}
 		fis.close();

@@ -42,13 +42,15 @@ public class SearchPicAdapter extends RecyclerView.Adapter<SearchPicAdapter.View
     private List<NetPicMessage> mList;
     private int itemWidth;
     private HashMap<Integer, Integer> itemHeight = new HashMap<>();
+    private int chatRoomType;
 
     private String searchEngine = "baidu";
     private boolean isSearch;
 
-    public SearchPicAdapter(Context mContext, List<NetPicMessage> mList) {
+    public SearchPicAdapter(Context mContext, List<NetPicMessage> mList, int chatRoomType) {
         this.mContext = mContext;
         this.mList = mList;
+        this.chatRoomType = chatRoomType;
         itemWidth = (int) ((MyApplication.SCREEN_WIDTH - DensityUtil.dp2px(mContext,12))* 1.0f/3);
     }
 
@@ -85,18 +87,19 @@ public class SearchPicAdapter extends RecyclerView.Adapter<SearchPicAdapter.View
         Glide.with(mContext).load(netPicMessage.getThumbURL().getFilePath()).apply(options).into(holder.pic);
         holder.view.setOnClickListener(v->{
             try{
-                DialogUtil.getInstance().showDetailImgDialogPop(mContext, netPicMessage.getFullURL().getFilePath(),
-                        netPicMessage.getFullURL().getStorageType() ,holder.pic, netPicMessage.getThumbURL().getFilePath());
+                DialogUtil.getInstance().showDetailImgDialogPop(mContext, netPicMessage,
+                       holder.pic, DialogUtil.POP_TYPR_IMG);
             }catch(Exception e){}
         });
         holder.pic.setOnClickListener(v->{
             try{
-                DialogUtil.getInstance().showDetailImgDialogPop(mContext, netPicMessage.getFullURL().getFilePath(),
-                        netPicMessage.getFullURL().getStorageType() ,holder.pic, netPicMessage.getThumbURL().getFilePath());
+                DialogUtil.getInstance().showDetailImgDialogPop(mContext, netPicMessage,
+                        holder.pic, DialogUtil.POP_TYPR_IMG);
             }catch(Exception e){}
         });
         holder.send.setOnClickListener(v->{
-            ((ChatRoomActivity)mContext).sendNetPicMessage(netPicMessage);
+            netPicMessage.setChatType(1);
+            ((ChatRoomActivity)mContext).sendChatMessage(netPicMessage);
         });
 
     }
@@ -146,8 +149,8 @@ public class SearchPicAdapter extends RecyclerView.Adapter<SearchPicAdapter.View
                 isSearch = false;
             }
             @Override
-            public void onResponse(Call call, final Response response) throws IOException {
-                final String responseStr = response.body().string();
+            public void onResponse(Call call, Response response) throws IOException {
+                String responseStr = response.body().string();
                 isSearch = false;
                 ((Activity)mContext).runOnUiThread(()-> {
                     ArrayList<NetPicMessage> netPics = null;

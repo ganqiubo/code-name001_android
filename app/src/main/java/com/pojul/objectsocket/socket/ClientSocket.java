@@ -5,6 +5,8 @@ import java.net.InetSocketAddress;
 import java.net.Socket;
 import java.net.UnknownHostException;
 import com.pojul.objectsocket.message.BaseMessage;
+import com.pojul.objectsocket.socket.SocketReceiver.RecProgressListerer;
+import com.pojul.objectsocket.socket.SocketSender.SendProgressListerer;
 import com.pojul.objectsocket.utils.LogUtil;
 
 public class ClientSocket {
@@ -19,6 +21,9 @@ public class ClientSocket {
 	protected String chatId;
 	protected String deviceType;
 	protected int connTimeOut = 8000;
+	protected SendProgressListerer sendProgressListerer;
+	protected RecProgressListerer recProgressListerer;
+	protected String tokenId;
 
 	public void setmOnStatusChangedListener(OnStatusChangedListener mOnStatusChangedListener) {
 		this.mOnStatusChangedListener = mOnStatusChangedListener;
@@ -85,6 +90,20 @@ public class ClientSocket {
 		}
 	}
 	
+	public void setSendProgressListerer(SendProgressListerer sendProgressListerer) {
+		this.sendProgressListerer = sendProgressListerer;
+		if(mSocketSender != null) {
+			mSocketSender.setSendProgressListerer(sendProgressListerer);
+		}
+	}
+
+	public void setRecProgressListerer(RecProgressListerer recProgressListerer) {
+		this.recProgressListerer = recProgressListerer;
+		if(mSocketReceiver != null) {
+			mSocketReceiver.setRecProgressListerer(recProgressListerer);
+		}
+	}
+	
 	public void closeConn() {
 		if(mSocket != null) {
 			try {
@@ -118,6 +137,18 @@ public class ClientSocket {
 		mSocketSender.stopSend();
 	}
 
+	public void setHeartbeat(long heartbeatInterval){
+		if(mSocketSender != null){
+			mSocketSender.setHeartbeat(heartbeatInterval);
+		}
+	}
+
+	public void stopHeartbeat(){
+		if(mSocketSender != null){
+			mSocketSender.stopHeartbeat();
+		}
+	}
+
 	public String getChatId() {
 		return chatId;
 	}
@@ -126,8 +157,16 @@ public class ClientSocket {
 		this.chatId = chatId;
 	}
 	
+	public String getTokenId() {
+		return tokenId;
+	}
+
+	public void setTokenId(String tokenId) {
+		this.tokenId = tokenId;
+	}
+
 	public interface OnStatusChangedListener{
 		public void onConnClosed();
 	}
-	
+
 }

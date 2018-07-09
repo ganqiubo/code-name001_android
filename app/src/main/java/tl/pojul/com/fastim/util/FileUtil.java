@@ -1,9 +1,17 @@
 package tl.pojul.com.fastim.util;
 
+import android.graphics.Bitmap;
+import android.util.Log;
+
 import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
 import java.text.DecimalFormat;
 
 public class FileUtil {
+
+    private static  final String TAG = "FileUtil";
 
     private static final String[][] MIME_MapTable={
             //{后缀名，MIME类型}
@@ -128,6 +136,23 @@ public class FileUtil {
         }else{
             return f.delete();
         }
+    }
+
+    public static void saveBitmap(Bitmap bitmap, String path){
+        try {
+            File file = new File(path);
+            if (!file.getParentFile().exists() && !file.getParentFile().mkdirs()) {
+                Log.e(TAG, "saveBitmap mkdir fail");
+                return;
+            }
+            FileOutputStream fos = new FileOutputStream(file);
+            bitmap.compress(Bitmap.CompressFormat.JPEG, 100, fos);
+            fos.flush();
+            fos.close();
+        } catch (Exception e) {
+            Log.e(TAG, "saveBitmap fail");
+        }
+
     }
 
 }

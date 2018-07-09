@@ -6,6 +6,7 @@ public class ChatMessage extends BaseMessage{
 
 	protected int chatType;
 	protected int isRead;
+	protected int sendProgress;
 
 	@Override
 	public void setFrom(String from) {
@@ -27,5 +28,13 @@ public class ChatMessage extends BaseMessage{
 
 	public void setIsRead(int isRead) {
 		this.isRead = isRead;
+	}
+
+	public int getSendProgress() {
+		return sendProgress;
+	}
+
+	public void setSendProgress(int sendProgress) {
+		this.sendProgress = sendProgress;
 	}
 }

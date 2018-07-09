@@ -5,6 +5,7 @@ import java.io.IOException;
 import java.net.Socket;
 import java.util.LinkedList;
 import com.pojul.objectsocket.message.BaseMessage;
+import com.pojul.objectsocket.message.HeartbeatMessage;
 import com.pojul.objectsocket.message.ResponseMessage;
 import com.pojul.objectsocket.parser.SocketEntityParser;
 import com.pojul.objectsocket.parser.interfacer.ISocketEntityParser;
@@ -28,6 +29,11 @@ public class SocketSender{
 	protected boolean closeConnWhenFinish = false; 
 	protected long messageCheckInterval = 500;
 	private boolean isWait = false;
+	protected SendProgressListerer sendProgressListerer;
+	protected long sendedLength;
+	protected boolean sendHeartbeat;
+	protected long heartbeatInterval = 1 * 1000;
+	protected long lastHeartbeatTime;
 	
 	public SocketSender(Socket mSocket, ClientSocket clientSocket) {
 		super();
@@ -66,14 +72,16 @@ public class SocketSender{
 						LogUtil.dStackTrace(e1);
 					}
 					synchronized (mMessageQuene) {
-						if(mMessageQuene.size() <= 0) {
-							try {
-								isWait = true;
-								mMessageQuene.wait();
-							} catch (InterruptedException e) {
-								// TODO Auto-generated catch block
-								LogUtil.d(getClass().getName(), e.toString());
-								LogUtil.dStackTrace(e);
+						if(!sendHeartbeat) {
+							if(mMessageQuene.size() <= 0) {
+								try {
+									isWait = true;
+									mMessageQuene.wait();
+								} catch (InterruptedException e) {
+									// TODO Auto-generated catch block
+									LogUtil.d(getClass().getName(), e.toString());
+									LogUtil.dStackTrace(e);
+								}
 							}
 						}
 					}
@@ -83,9 +91,20 @@ public class SocketSender{
 					}
 					BaseMessage mMessage = getTopAndRemoveMessage();
 					if(mMessage != null) {
+						if(mMessage instanceof HeartbeatMessage && 
+								(System.currentTimeMillis() - lastHeartbeatTime) < heartbeatInterval) {
+							continue;
+						}
 						LogUtil.d("senddata", mMessage.toString());
 						try {
+							sendedLength = 0;
 							sendByteMessage(mMessage);
+							if(mMessage instanceof HeartbeatMessage) {
+								lastHeartbeatTime = System.currentTimeMillis();
+							}
+							if(!(mMessage instanceof HeartbeatMessage) && sendProgressListerer != null) {
+								sendProgressListerer.finish(mMessage);
+							}
 						} catch (IllegalArgumentException | IllegalAccessException | IOException e) {
 							// TODO Auto-generated catch block
 							//e.printStackTrace();
@@ -106,7 +125,9 @@ public class SocketSender{
 
 	protected void onSendError(BaseMessage mMessage, Exception e) {
 		if(RequestTimeOut.getInstance().isRequestMessage(mMessage.getMessageUid())){
-			RequestTimeOut.getInstance().onRequestError((ResponseMessage) mMessage, e);
+			ResponseMessage responseMessage = new ResponseMessage();
+			responseMessage.setMessageUid(mMessage.getMessageUid());
+			RequestTimeOut.getInstance().onRequestError(responseMessage, e);
 		}else if(senderListener != null) {
 			senderListener.onSendError(e);
 		}
@@ -130,28 +151,36 @@ public class SocketSender{
 					mMessageQuene.notifyAll();
 				}
 			}
+			
 		}
+		
 	}
-
+	
 	protected BaseMessage getTopAndRemoveMessage() {
-		BaseMessage mBaseMessage = null;
-		try {
-			mBaseMessage = mMessageQuene.getFirst();
-		} catch (Exception e) {
-			// TODO: handle exception
-
+		synchronized (mMessageQuene) {
+			BaseMessage mBaseMessage = null;
+			try {
+				mBaseMessage = mMessageQuene.getFirst();
+			} catch (Exception e) {}
+			if (mBaseMessage == null) {
+				return null;
+			}
+			mMessageQuene.removeFirst();
+			if(sendHeartbeat && mMessageQuene.size() <= 0) {
+				mMessageQuene.addLast(new HeartbeatMessage());
+			}
+			return mBaseMessage;
 		}
-		if (mBaseMessage == null) {
-			return null;
-		}
-		mMessageQuene.removeFirst();
-		return mBaseMessage;
 	}
 	
 	public void setSenderListener(ISocketSender mISocketSender) {
 		this.senderListener = mISocketSender;
 	}
 	
+	public void setSendProgressListerer(SendProgressListerer sendProgressListerer) {
+		this.sendProgressListerer = sendProgressListerer;
+	}
+
 	protected void sendByteMessage(BaseMessage mMessage) throws IllegalArgumentException, IllegalAccessException, IOException {
 		if(mMessage == null || mSocket == null || dos == null) {
 			return;
@@ -160,10 +189,18 @@ public class SocketSender{
 			mSocketEntityParser = new SocketEntityParser(new ISocketEntityParser() {
 
 				@Override
-				public void onParser(byte[] mBytes) throws IOException {
+				public void onParser(byte[] mBytes, BaseMessage message, long totalLength) throws IOException {
 					// TODO Auto-generated method stub
 					dos.write(mBytes);
 					dos.flush();
+					if(sendProgressListerer != null) {
+						if(message instanceof HeartbeatMessage) {
+							return;
+						}
+						sendedLength = sendedLength + mBytes.length;
+						int progress = (int)((sendedLength*1.0/totalLength)*100);
+						sendProgressListerer.progress(message, progress);
+					}
 				}
 
 				@Override
@@ -207,6 +244,18 @@ public class SocketSender{
 
 	public void closeConnWhenFinish() {
 		closeConnWhenFinish = true;
+	}
+
+	public void setHeartbeat(long heartbeatInterval){
+		sendHeartbeat = true;
+		this.heartbeatInterval = heartbeatInterval;
+	}
+
+	public void stopHeartbeat(){sendHeartbeat = false;}
+	
+	public interface SendProgressListerer{
+		public void progress(BaseMessage message, int progress);
+		public void finish(BaseMessage message);
 	}
 	
 }

@@ -16,14 +16,15 @@ public class ConversationDao {
 
     public int insertConversation(Conversation conversation){
         String sql = "insert into conversation(conversation_name, conversation_from, conversation_photo" +
-                ", conversation_last_chat, conversation_last_chattime, conversation_owner, unread_message) values(" +
+                ", conversation_last_chat, conversation_last_chattime, conversation_owner, unread_message, conversation_type) values(" +
                 "'" + conversation.getConversationName() + "'," +
                 "'" + conversation.getConversationFrom() + "'," +
                 "'" + conversation.getConversationPhoto() + "'," +
                 "'" + conversation.getConversationLastChat() + "'," +
                 "'" + conversation.getConversationLastChattime() + "'," +
                 "'" + conversation.getConversationOwner() + "'," +
-                "'" + conversation.getUnreadMessage() + "'" +
+                "'" + conversation.getUnreadMessage() + "'," +
+                "'" + conversation.getConversationType() + "'" +
         ")";
         return DaoUtil.executeUpdate(sql);
     }

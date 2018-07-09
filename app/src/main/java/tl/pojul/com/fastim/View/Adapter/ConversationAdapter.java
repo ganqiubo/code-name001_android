@@ -1,6 +1,8 @@
 package tl.pojul.com.fastim.View.Adapter;
 
 import android.content.Context;
+import android.content.Intent;
+import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
 import android.support.v7.widget.RecyclerView;
@@ -11,7 +13,9 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
+import com.google.gson.Gson;
 import com.pojul.fastIM.entity.Conversation;
+import com.pojul.fastIM.entity.Friend;
 import com.pojul.fastIM.message.chat.AudioMessage;
 import com.pojul.fastIM.message.chat.ChatMessage;
 import com.pojul.fastIM.message.chat.FileMessage;
@@ -34,9 +38,11 @@ import butterknife.ButterKnife;
 import tl.pojul.com.fastim.MyApplication;
 import tl.pojul.com.fastim.R;
 import tl.pojul.com.fastim.View.activity.MainActivity;
+import tl.pojul.com.fastim.View.activity.SingleChatRoomActivity;
 import tl.pojul.com.fastim.View.fragment.FriendsFragment;
 import tl.pojul.com.fastim.View.widget.PolygonImage.view.PolygonImageView;
 import tl.pojul.com.fastim.dao.ConversationDao;
+import tl.pojul.com.fastim.socket.Converter.HistoryChatConverter;
 import tl.pojul.com.fastim.util.DateUtil;
 import tl.pojul.com.fastim.util.SPUtil;
 
@@ -63,14 +69,13 @@ public class ConversationAdapter extends RecyclerView.Adapter<ConversationAdapte
 
     @Override
     public void onBindViewHolder(MyViewHolder holder, int position) {
-        if (mOnItemClickListener != null) {
-            holder.itemRl.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    mOnItemClickListener.onClick(position);
-                }
-            });
-        }
+        holder.itemRl.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Conversation conversation = mList.get(position);
+                startChatRoom(conversation);
+            }
+        });
         Conversation conversation = mList.get(position);
 
         if (conversation.getConversationPhoto() != null && !"".equals(conversation.getConversationPhoto())
@@ -121,6 +126,12 @@ public class ConversationAdapter extends RecyclerView.Adapter<ConversationAdapte
             if (mList == null) {
                 return;
             }
+            if (message instanceof ChatMessage) {
+                String chatRoomUid = UidUtil.getChatRoomUid((ChatMessage)message);
+                if(MyApplication.getApplication().exitChatRoomUid.equals(chatRoomUid)){
+                    return;
+                }
+            }
             boolean containConversation = false;
             for (int i = 0; i < mList.size(); i++) {
                 Conversation conversation = mList.get(i);
@@ -157,6 +168,7 @@ public class ConversationAdapter extends RecyclerView.Adapter<ConversationAdapte
         setNoteText(message, conversation);
         conversation.setConversationLastChattime(message.getSendTime());
         conversation.setConversationOwner(SPUtil.getInstance().getUser().getUserName());
+        conversation.setConversationType(message.getChatType());
 
         GetConversionInfoRequest request = new GetConversionInfoRequest();
         request.setRequestUrl("GetConversionInfo");
@@ -227,6 +239,10 @@ public class ConversationAdapter extends RecyclerView.Adapter<ConversationAdapte
         }
     }
 
+    public static int getUnReadMessageNum(String from, String to) {
+        return new ConversationDao().getUnreadNum(from, to);
+    }
+
     public static void putUnReadMessage(ChatMessage message){
         synchronized (unReadMessage){
             String chatRoomUid = UidUtil.getChatRoomUid(message);
@@ -261,8 +277,12 @@ public class ConversationAdapter extends RecyclerView.Adapter<ConversationAdapte
                 return;
             }
             unReadMessage.remove(chatRoomUid);
-            new ConversationDao().updateUnreadNum(from, SPUtil.getInstance().getUser().getUserName() ,0);
+            setUnReadDb(from, SPUtil.getInstance().getUser().getUserName() ,0);
         }
+    }
+
+    public static void setUnReadDb(String from, String to ,int num){
+        new ConversationDao().updateUnreadNum(from, to ,num);
     }
 
     public static List getChatRoomMessages(String chatRoomUid){
@@ -279,11 +299,40 @@ public class ConversationAdapter extends RecyclerView.Adapter<ConversationAdapte
             if(!chatRoomMessages.containsKey(chatRoomUid)){
                 chatRoomMessages.put(chatRoomUid, new ArrayList<>());
             }
+            /**
+             * 添加时间检测
+             * */
             if(unReadMessage.get(chatRoomUid) != null){
-                chatRoomMessages.get(chatRoomUid).addAll(unReadMessage.get(chatRoomUid));
+                List<ChatMessage> chatMessages = HistoryChatConverter.insertDate(unReadMessage.get(chatRoomUid));
+                List<ChatMessage> chatRoomUidMessages = chatRoomMessages.get(chatRoomUid);
+                if(chatMessages.size() > 1 && chatRoomUidMessages.size() > 0 && !DateUtil.isDiffDay(chatMessages.get(1).getSendTime(),
+                        chatRoomUidMessages.get(chatRoomUidMessages.size() -1).getSendTime())){
+                    chatMessages.remove(0);
+                }
+                chatRoomMessages.get(chatRoomUid).addAll(chatMessages);
             }
         }
         clearUnReadMessage(chatRoomUid, from);
+    }
+
+    private void startChatRoom(Conversation conversation) {
+        if(conversation.getConversationType() == 1){
+            Intent intent = new Intent(mContext, SingleChatRoomActivity.class);
+            Bundle bundle=new Bundle();
+            bundle.putInt("chat_room_type", 1);
+            bundle.putString("chat_room_name", conversation.getConversationName());
+            FriendsFragment friendsFragment = (FriendsFragment) ((MainActivity)mContext).fragments.get(1);
+            if(friendsFragment != null && friendsFragment.friendsAdapter != null){
+                Friend friend = null;
+                friend = friendsFragment.friendsAdapter.getFriendByUserName(conversation.getConversationFrom());
+                if(friend != null){
+                    bundle.putString("friend", new Gson().toJson(friend));
+                    intent.putExtras(bundle);
+                    mContext.startActivity(intent);
+                }
+            }
+
+        }
     }
 
     public interface OnItemClickListener {

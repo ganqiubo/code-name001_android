@@ -3,7 +3,6 @@ package tl.pojul.com.fastim.View.activity;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
-import android.os.Environment;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ImageView;
@@ -14,7 +13,6 @@ import com.pojul.fastIM.message.chat.FileMessage;
 import com.pojul.objectsocket.constant.StorageType;
 
 import java.io.File;
-import java.nio.file.FileSystem;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -23,7 +21,9 @@ import tl.pojul.com.fastim.R;
 import tl.pojul.com.fastim.http.download.DownLoadCallBack;
 import tl.pojul.com.fastim.http.download.DownLoadManager;
 import tl.pojul.com.fastim.http.download.DownloadTask;
+import tl.pojul.com.fastim.util.Constant;
 import tl.pojul.com.fastim.util.FileUtil;
+import tl.pojul.com.fastim.util.SPUtil;
 
 public class ChatFileDownloadActivity extends BaseActivity {
 
@@ -77,8 +77,8 @@ public class ChatFileDownloadActivity extends BaseActivity {
                 fileOperation.setText("文件不存在");
             }
         } else {
-            fileLocalPath = Environment.getExternalStorageDirectory().getAbsolutePath() + "/footstep/others/" + fileMessage.getFile().getFileName();
-            file = new File(Environment.getExternalStorageDirectory().getAbsolutePath() + "/footstep/others/" + fileMessage.getFile().getFileName());
+            fileLocalPath = SPUtil.getInstance().getString(Constant.BASE_STORAGE_PATH) + "/footstep/others/" + fileMessage.getFile().getFileName();
+            file = new File( SPUtil.getInstance().getString(Constant.BASE_STORAGE_PATH) + "/footstep/others/" + fileMessage.getFile().getFileName());
             if (file.exists()) {
                 progress.setProgress(100);
                 fileOperation.setText("查看文件");
@@ -125,7 +125,7 @@ public class ChatFileDownloadActivity extends BaseActivity {
     }
 
     public void startDownload() {
-        File file = new File((Environment.getExternalStorageDirectory().getAbsolutePath() + "/footstep/others/"));
+        File file = new File((SPUtil.getInstance().getString(Constant.BASE_STORAGE_PATH) + "/footstep/others/"));
         if (!file.exists() && !file.mkdirs()) {
             showShortToas("创建下载文件失败");
             return;

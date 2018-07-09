@@ -10,20 +10,18 @@ import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
-
-import com.bumptech.glide.Glide;
 import com.pojul.fastIM.message.request.LoginMessage;
 import com.pojul.fastIM.message.response.LoginResponse;
 import com.pojul.objectsocket.message.ResponseMessage;
 import com.pojul.objectsocket.socket.ClientSocket;
 import com.pojul.objectsocket.socket.SocketRequest;
+import com.pojul.objectsocket.utils.Constant;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
 import tl.pojul.com.fastim.MyApplication;
 import tl.pojul.com.fastim.R;
-import tl.pojul.com.fastim.util.Constant;
 import tl.pojul.com.fastim.util.DialogUtil;
 import tl.pojul.com.fastim.util.SPUtil;
 
@@ -76,9 +74,11 @@ public class LoginActivity extends BaseActivity {
                         return;
                     }
                     MyApplication.ClientSocket = clientSocket;
+                    MyApplication.ClientSocket.setHeartbeat(1 * 1000);
                     MyApplication.getApplication().registerSocketRecListerer();
                     MyApplication.getApplication().registerSocketSendListerer();
                     MyApplication.getApplication().registerSocketStatusListerer();
+                    MyApplication.getApplication().registSendProgListerer();
                     login();
                 });
             }
@@ -91,6 +91,7 @@ public class LoginActivity extends BaseActivity {
         mLoginMessage.setUserName(loginAccount.getText().toString());
         mLoginMessage.setPassWd(loginPasswd.getText().toString());
         mLoginMessage.setDeviceType("Android");
+        mLoginMessage.setFrom(loginAccount.getText().toString());
         new SocketRequest().resuest(MyApplication.ClientSocket, mLoginMessage, new SocketRequest.IRequest() {
             @Override
             public void onError(String msg) {
@@ -108,6 +109,7 @@ public class LoginActivity extends BaseActivity {
                     showShortToas(mResponse.getMessage());
                     if (loginResponse.getCode() == 200) {
                         SPUtil.getInstance().putUser(loginResponse.getUser());
+                        MyApplication.ClientSocket.setTokenId(loginResponse.getTokenId());
                         startActivity(new Intent(LoginActivity.this, MainActivity.class));
                         finish();
                     }

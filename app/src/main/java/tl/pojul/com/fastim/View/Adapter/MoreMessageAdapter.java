@@ -7,7 +7,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
 import android.net.Uri;
-import android.os.Environment;
 import android.provider.MediaStore;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
@@ -20,34 +19,21 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.pojul.fastIM.message.chat.AudioMessage;
-import com.pojul.fastIM.message.chat.FileMessage;
-import com.pojul.fastIM.message.chat.NetPicMessage;
-import com.pojul.fastIM.message.chat.PicMessage;
-import com.pojul.objectsocket.message.StringFile;
-import com.pojul.objectsocket.constant.StorageType;
-import com.pojul.objectsocket.utils.FileClassUtil;
+import com.pojul.fastIM.message.chat.ChatMessage;
 import com.tbruyelle.rxpermissions2.Permission;
 import com.tbruyelle.rxpermissions2.RxPermissions;
-
 import java.io.File;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
-
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import io.reactivex.functions.Consumer;
-import okhttp3.Call;
-import okhttp3.Callback;
-import okhttp3.Response;
-import tl.pojul.com.fastim.Audio.AudioManager;
-import tl.pojul.com.fastim.MyApplication;
+import tl.pojul.com.fastim.Media.AudioManager;
+import tl.pojul.com.fastim.Factory.ChatMessageFcctory;
 import tl.pojul.com.fastim.R;
 import tl.pojul.com.fastim.View.activity.ChatRoomActivity;
-import tl.pojul.com.fastim.View.activity.SingleChatRoomActivity;
-import tl.pojul.com.fastim.http.converter.BaiduPicConverter;
-import tl.pojul.com.fastim.http.request.HttpRequestManager;
+import tl.pojul.com.fastim.util.Constant;
+import tl.pojul.com.fastim.util.FileUtil;
 import tl.pojul.com.fastim.util.SPUtil;
 
 public class MoreMessageAdapter extends RecyclerView.Adapter<MoreMessageAdapter.ViewHolder> {
@@ -56,8 +42,9 @@ public class MoreMessageAdapter extends RecyclerView.Adapter<MoreMessageAdapter.
     private int chatRoomType;
     private int REQUEST_CODE_IMAGE = 1;
     private int REQUEST_CODE_FILE = 3;
+    private int REQUEST_CODE_RECORD_VIDEO = 4;
     private Context mContext;
-    private List<Integer> typeIconList = new ArrayList() {{
+    private List<Integer> typeIconList = new ArrayList<Integer>() {{
         add(R.drawable.pic);
         add(R.drawable.sound);
         add(R.drawable.take_pic);
@@ -66,7 +53,7 @@ public class MoreMessageAdapter extends RecyclerView.Adapter<MoreMessageAdapter.
         add(R.drawable.file);
     }};
 
-    private List<String> typeNoteList = new ArrayList() {{
+    private List<String> typeNoteList = new ArrayList<String>() {{
         add("图片");
         add("语音");
         add("拍照");
@@ -78,12 +65,14 @@ public class MoreMessageAdapter extends RecyclerView.Adapter<MoreMessageAdapter.
     private boolean isRecordering;
     private String recorderPath;
     private String imageCapturePath;
+    private String recorderVideoPath = "";
     private final String TAG = "MoreMessageAdapter";
 
     public MoreMessageAdapter(Context mContext, int chatRoomType) {
         this.mContext = mContext;
         this.chatRoomType = chatRoomType;
         checkRecordRermission(false);
+        checkRecordVideoRermission(false);
     }
 
     @Override
@@ -142,23 +131,26 @@ public class MoreMessageAdapter extends RecyclerView.Adapter<MoreMessageAdapter.
             Cursor cursor = mContext.getContentResolver().query(uri, null, null, null,null);
             if (cursor != null && cursor.moveToFirst()) {
                 String path = cursor.getString(cursor.getColumnIndexOrThrow(MediaStore.Images.Media.DATA));
-                createPicMessage(path);
+                createMessage(ChatMessageFcctory.TYPE_PIC, path);
             }
         }else if(requestCode == REQUEST_CODE_IMAGE_CAPTURE && resultCode == Activity.RESULT_OK) {
-            createPicMessage(imageCapturePath);
+            createMessage(ChatMessageFcctory.TYPE_PIC, imageCapturePath);
             imageCapturePath = "";
         }else if(requestCode == REQUEST_CODE_FILE && resultCode == Activity.RESULT_OK) {
             Uri uri = data.getData();
             String path = uri.getPath();
-            createTypeFileMessage(path);
+            createMessage(ChatMessageFcctory.TYPE_FILE, path);
             Log.e("", "REQUEST_CODE_FILE" + path);
+        }else if(requestCode == REQUEST_CODE_RECORD_VIDEO && resultCode == Activity.RESULT_OK) {
+            createMessage(ChatMessageFcctory.TYPE_VIDEO, recorderVideoPath);
+            recorderVideoPath = "";
         }
     }
 
     private void startImageCapture() {
         Intent intent = new Intent();
         intent.setAction("android.media.action.IMAGE_CAPTURE");
-        String filePath = Environment.getExternalStorageDirectory().getAbsolutePath() + "/footstep/pic";
+        String filePath = SPUtil.getInstance().getString(Constant.BASE_STORAGE_PATH) + "/footstep/pic";
         File file = new File(filePath);
         if(!file.exists() && !file.mkdirs()){
             showShortToas("获取不到存储空间");
@@ -188,8 +180,8 @@ public class MoreMessageAdapter extends RecyclerView.Adapter<MoreMessageAdapter.
                 startImageCapture();
                 break;
             case 3:
-                //录制视频
-                //startImageCapture();
+                recorderVideoPath = "";
+                checkRecordVideoRermission(true);
                 break;
             case 4:
                 ((ChatRoomActivity)mContext).showSearchPic();
@@ -213,6 +205,42 @@ public class MoreMessageAdapter extends RecyclerView.Adapter<MoreMessageAdapter.
         }
     }
 
+    private void startRecordVideo(){
+        String filePath = SPUtil.getInstance().getString(Constant.BASE_STORAGE_PATH) + "/footstep/video";
+        String fileName = SPUtil.getInstance().getUser().getNickName() + "_" + System.currentTimeMillis() + ".mp4";
+        File dir = new File(filePath);
+        if(!dir.exists() && !dir.mkdirs()){
+            showShortToas("创建文件失败");
+            return;
+        }
+        recorderVideoPath = filePath + "/" + fileName;
+        File file = new File(recorderVideoPath);
+
+        Intent intent = new Intent(MediaStore.ACTION_VIDEO_CAPTURE);
+        Uri fileUri = Uri.fromFile(file);//设置视频录制保存地址的uri
+        intent.putExtra(MediaStore.EXTRA_OUTPUT, fileUri);
+        intent.putExtra(MediaStore.EXTRA_VIDEO_QUALITY, 1);
+        intent.putExtra(MediaStore.EXTRA_DURATION_LIMIT, 15);     //限制持续时长
+        ((Activity)mContext).startActivityForResult(intent, REQUEST_CODE_RECORD_VIDEO);
+    }
+
+    /**
+     * @param hasAndRecord
+     * */
+    @SuppressLint("CheckResult")
+    private void checkRecordVideoRermission(boolean hasAndRecord){
+        new RxPermissions((Activity) mContext).requestEach(Manifest.permission.RECORD_AUDIO).subscribe(new Consumer<Permission>() {
+            @Override
+            public void accept(Permission permission) throws Exception {
+                if (permission.granted) {
+                    if(hasAndRecord){
+                        startRecordVideo();
+                    }
+                }
+            }
+        });
+    }
+
     @SuppressLint("CheckResult")
     private void checkRecordRermission(boolean hasAndRecord){
         new RxPermissions((Activity) mContext).requestEach(Manifest.permission.RECORD_AUDIO).subscribe(new Consumer<Permission>() {
@@ -221,7 +249,7 @@ public class MoreMessageAdapter extends RecyclerView.Adapter<MoreMessageAdapter.
                 if (permission.granted) {
                     if(hasAndRecord){
                         isRecordering = true;
-                        String filePath = Environment.getExternalStorageDirectory().getAbsolutePath() + "/footstep/audio";
+                        String filePath = SPUtil.getInstance().getString(Constant.BASE_STORAGE_PATH) + "/footstep/audio";
                         String fileName = SPUtil.getInstance().getUser().getNickName() + "_" + System.currentTimeMillis() + ".amr";
                         AudioManager.getInstance().startRecording(filePath, fileName);
                         recorderPath = filePath + "/" + fileName;
@@ -242,7 +270,7 @@ public class MoreMessageAdapter extends RecyclerView.Adapter<MoreMessageAdapter.
                 if(isRecordering){
                     isRecordering = false;
                     AudioManager.getInstance().stopRecording();
-                    createAudioMessage(recorderPath);
+                    createMessage(ChatMessageFcctory.TYPE_AUDIO, recorderPath);
                     recorderPath = "";
                 }
                 break;
@@ -264,67 +292,24 @@ public class MoreMessageAdapter extends RecyclerView.Adapter<MoreMessageAdapter.
         }
     }
 
-    public void createPicMessage(String path) {
-        if(mContext == null){
+    public void createMessage(int chatMessageType, String path){
+        if(mContext == null || path == null){
             return;
         }
         File file = new File(path);
         if(!file.exists()){
-            showShortToas("图片不存在");
-            return;
-        }
-        PicMessage picMessage = new PicMessage();
-        picMessage.setChatType(chatRoomType);
-        picMessage.setPic(FileClassUtil.createStringFile(path));
-        ((ChatRoomActivity) mContext).sendPicMessage(picMessage);
-    }
-
-    private void createAudioMessage(String recorderPath) {
-        if(mContext == null){
-            return;
-        }
-        File file = new File(recorderPath);
-        if(!file.exists()){
-            showShortToas("音频文件不存在");
-            return;
-        }
-        AudioMessage audioMessage = new AudioMessage();
-        audioMessage.setChatType(chatRoomType);
-        audioMessage.setAudio(FileClassUtil.createStringFile(recorderPath));
-        ((ChatRoomActivity) mContext).sendAudioMessage(audioMessage);
-    }
-
-    private void createTypeFileMessage(String filePath) {
-        if(filePath == null || !new File(filePath).exists()){
-            showShortToas("文件不存在或路径不正确");
-            return;
-        }
-        if(FileClassUtil.isPathPicFile(filePath)){
-            createPicMessage(filePath);
-        } else if(FileClassUtil.isPathAudioFile(filePath)){
-            createAudioMessage(filePath);
-        } else if(FileClassUtil.isPathVideoFile(filePath)){
-
-        } else {
-            createFileMessage(filePath);
-        }
-    }
-
-    private void createFileMessage(String filePath) {
-        if(mContext == null){
-            return;
-        }
-        if(filePath == null || !new File(filePath).exists()){
             showShortToas("文件不存在");
             return;
         }
-        FileMessage fileMessage = new FileMessage();
-        File f = new File(filePath);
-        fileMessage.setFile(FileClassUtil.createStringFile(filePath));
-        if(f.length() > 10 * 1024 * 1024){
-            showShortToas("文件大小超过10M");
-        } else {
-            ((ChatRoomActivity)mContext).sendSmallFileMessage(fileMessage);
+        if(file.length() > Constant.MAX_UPLOAD_SIZE){
+            showShortToas("上传文件不能超过20M" + FileUtil.getDataSize(Constant.MAX_UPLOAD_SIZE));
+            return;
+        }
+        if(file.length() > Constant.NEW_TASK_UPLOAD_SIZE){
+            showShortToas("文件大小超过5M");
+        }else{
+            ChatMessage chatMessage = new ChatMessageFcctory().create(chatMessageType, path, chatRoomType);
+            ((ChatRoomActivity) mContext).sendChatMessage(chatMessage);
         }
     }
 

@@ -2,6 +2,7 @@ package tl.pojul.com.fastim.View.activity;
 
 import android.animation.Animator;
 import android.animation.AnimatorInflater;
+import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
@@ -22,30 +23,39 @@ import com.bumptech.glide.Glide;
 import com.google.gson.Gson;
 import com.pojul.fastIM.entity.Friend;
 import com.pojul.fastIM.entity.User;
-import com.pojul.fastIM.message.chat.AudioMessage;
 import com.pojul.fastIM.message.chat.ChatMessage;
-import com.pojul.fastIM.message.chat.FileMessage;
-import com.pojul.fastIM.message.chat.NetPicMessage;
-import com.pojul.fastIM.message.chat.PicMessage;
+import com.pojul.fastIM.message.chat.DateMessage;
 import com.pojul.fastIM.message.chat.TextChatMessage;
+import com.pojul.fastIM.message.request.HistoryChatReq;
+import com.pojul.fastIM.message.response.HistoryChatResp;
 import com.pojul.objectsocket.message.BaseMessage;
+import com.pojul.objectsocket.message.RequestMessage;
+import com.pojul.objectsocket.message.ResponseMessage;
+import com.pojul.objectsocket.socket.SocketRequest;
 import com.pojul.objectsocket.utils.UidUtil;
 import com.scwang.smartrefresh.layout.SmartRefreshLayout;
+import com.scwang.smartrefresh.layout.api.RefreshLayout;
+import com.scwang.smartrefresh.layout.listener.OnRefreshListener;
 import com.yanzhenjie.recyclerview.swipe.SwipeMenuRecyclerView;
 
+import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
-import tl.pojul.com.fastim.Audio.AudioManager;
+import tl.pojul.com.fastim.Media.AudioManager;
+import tl.pojul.com.fastim.Factory.ChatMessageFcctory;
+import tl.pojul.com.fastim.Media.VideoManager;
 import tl.pojul.com.fastim.MyApplication;
 import tl.pojul.com.fastim.R;
 import tl.pojul.com.fastim.View.Adapter.ConversationAdapter;
 import tl.pojul.com.fastim.View.Adapter.MessageAdapter;
 import tl.pojul.com.fastim.View.Adapter.MoreMessageAdapter;
 import tl.pojul.com.fastim.View.Adapter.SearchPicAdapter;
+import tl.pojul.com.fastim.View.widget.SmoothLinearLayoutManager;
 import tl.pojul.com.fastim.util.ArrayUtil;
+import tl.pojul.com.fastim.util.DateUtil;
 import tl.pojul.com.fastim.util.SPUtil;
 
 public class SingleChatRoomActivity extends ChatRoomActivity {
@@ -93,13 +103,16 @@ public class SingleChatRoomActivity extends ChatRoomActivity {
 
     private String searchPicWord = "";
 
-    private int REMOVE_UNREAD_MESSAGE = 1001;
+    private final static int INIT_DATA = 1002;
+    private final static int SCROLL_TO_TOP = 1003;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_chat_room);
         ButterKnife.bind(this);
+
+        mHandler.sendEmptyMessageDelayed(INIT_DATA, 300);
 
         init();
 
@@ -118,14 +131,22 @@ public class SingleChatRoomActivity extends ChatRoomActivity {
             return;
         }
         chatRoomUid = UidUtil.getSingleChatRoomUid(friend.getUserName(), SPUtil.getInstance().getUser().getUserName());
+        MyApplication.getApplication().exitChatRoomUid = chatRoomUid;
         chatroomName.setText(chatRoomName);
         MyApplication.getApplication().registerReceiveMessage(iReceiveMessage);
         MyApplication.getApplication().registerSendMessage(iSendMessage);
+        MyApplication.getApplication().registerSendProgress(iSendProgress);
+    }
 
-        LinearLayoutManager layoutmanager = new LinearLayoutManager(this);
+    public void initData(){
+        SmoothLinearLayoutManager layoutmanager = new SmoothLinearLayoutManager(this);
         chatMessageList.setLayoutManager(layoutmanager);
         messageAdapter = new MessageAdapter(this, ConversationAdapter.getChatRoomMessages(chatRoomUid), user, friend);
         ConversationAdapter.addAndRemoveUnReadMessage(chatRoomUid, friend.getUserName());
+        int unReadNum = ConversationAdapter.getUnReadMessageNum(friend.getUserName(), user.getUserName());
+        if(unReadNum > 0){
+            getHistoryChat(unReadNum);
+        }
         chatMessageList.setAdapter(messageAdapter);
         chatMessageList.scrollToPosition(messageAdapter.getItemCount() - 1);
 
@@ -136,7 +157,7 @@ public class SingleChatRoomActivity extends ChatRoomActivity {
 
         StaggeredGridLayoutManager staggeredGridLayoutManager = new StaggeredGridLayoutManager(3, StaggeredGridLayoutManager.VERTICAL);
         searchPics.setLayoutManager(staggeredGridLayoutManager);
-        searchPicAdapter = new SearchPicAdapter(this, new ArrayList<>());
+        searchPicAdapter = new SearchPicAdapter(this, new ArrayList<>(), 1);
         staggeredGridLayoutManager.setGapStrategy(StaggeredGridLayoutManager.GAP_HANDLING_NONE);
         searchPics.setAdapter(searchPicAdapter);
         searchPics.addOnScrollListener(new RecyclerView.OnScrollListener() {
@@ -165,16 +186,58 @@ public class SingleChatRoomActivity extends ChatRoomActivity {
             }
         });
 
+        smartRefresh.setOnRefreshListener(new OnRefreshListener() {
+            @Override
+            public void onRefresh(RefreshLayout refreshlayout) {
+                getHistoryChat(6);
+            }
+        });
+
+    }
+
+    public void getHistoryChat(int num){
+        String lastSendTime = DateUtil.getFormatDate();
+        if(messageAdapter.getChatMessages() != null && messageAdapter.getChatMessages().size() > 0){
+            if(messageAdapter.getChatMessages().get(0) instanceof DateMessage && messageAdapter.getChatMessages().size() > 1){
+                lastSendTime = messageAdapter.getChatMessages().get(1).getSendTime();
+            }else if(!(messageAdapter.getChatMessages().get(0) instanceof DateMessage)){
+                lastSendTime = messageAdapter.getChatMessages().get(0).getSendTime();
+            }
+        }
+        HistoryChatReq historyChatReq = new HistoryChatReq(lastSendTime, chatRoomUid, num);
+        new SocketRequest().resuest(MyApplication.ClientSocket, historyChatReq, new SocketRequest.IRequest() {
+            @Override
+            public void onError(String msg) {
+                runOnUiThread(() -> {
+                    smartRefresh.finishRefresh(false);
+                    showShortToas(msg);
+                });
+            }
+            @Override
+            public void onFinished(ResponseMessage mResponse) {
+                runOnUiThread(() -> {
+                    ConversationAdapter.setUnReadDb(friend.getUserName(), user.getUserName(), 0);
+                    smartRefresh.finishRefresh(true);
+                    if(mResponse.getCode() == 200){
+                        messageAdapter.addHistoryChat(((HistoryChatResp)mResponse).getMessages());
+                    }else{
+                        showShortToas(mResponse.getMessage());
+                    }
+                });
+            }
+        });
     }
 
     @OnClick({R.id.send, R.id.add, R.id.search_submit, R.id.search_engine})
     public void onClick(View v) {
         switch (v.getId()) {
             case R.id.send:
-                if (null == input.getText().toString() || "".equals(input.getText().toString())) {
+                if (input.getText() == null || "".equals(input.getText().toString().trim())) {
                     return;
                 }
-                sendTextChatMessage();
+                TextChatMessage textChatMessage = new ChatMessageFcctory().createTextMessage(input.getText().toString(),1);
+                sendChatMessage(textChatMessage);
+                input.setText("");
                 break;
             case R.id.add:
                 if (add.isSelected()) {
@@ -236,60 +299,21 @@ public class SingleChatRoomActivity extends ChatRoomActivity {
         rlSearchPic.setVisibility(View.GONE);
     }
 
-    private void sendTextChatMessage() {
-        if (!MyApplication.getApplication().isConnected()) {
-            showShortToas("与服务器已断开连接");
-            return;
-        }
-        TextChatMessage message = new TextChatMessage();
-        message.setFrom(user.getUserName());
-        message.setTo(friend.getUserName());
-        message.setChatType(1);
-        message.setText(input.getText().toString());
-        MyApplication.ClientSocket.sendData(message);
-        messageAdapter.addMessage(message);
-        input.setText("");
-        chatMessageList.scrollToPosition(messageAdapter.getItemCount() - 1);
+    public void scrollToTop(){
+        chatMessageList.smoothScrollToPosition(0);
     }
 
-    private void sendChatMessage(ChatMessage chatMessage) {
+    @Override
+    public void sendChatMessage(ChatMessage chatMessage) {
         if (!MyApplication.getApplication().isConnected()) {
             showShortToas("与服务器已断开连接");
             return;
         }
+        chatMessage.setFrom(user.getUserName());
+        chatMessage.setTo(friend.getUserName());
         MyApplication.ClientSocket.sendData(chatMessage);
         messageAdapter.addMessage(chatMessage);
         chatMessageList.scrollToPosition(messageAdapter.getItemCount() - 1);
-    }
-
-    @Override
-    public void sendPicMessage(PicMessage picMessage) {
-        picMessage.setFrom(user.getUserName());
-        picMessage.setTo(friend.getUserName());
-        sendChatMessage(picMessage);
-    }
-
-    @Override
-    public void sendAudioMessage(AudioMessage audioMessage) {
-        audioMessage.setFrom(user.getUserName());
-        audioMessage.setTo(friend.getUserName());
-        sendChatMessage(audioMessage);
-    }
-
-    @Override
-    public void sendNetPicMessage(NetPicMessage netPicMessage) {
-        netPicMessage.setChatType(1);
-        netPicMessage.setFrom(user.getUserName());
-        netPicMessage.setTo(friend.getUserName());
-        sendChatMessage(netPicMessage);
-    }
-
-    @Override
-    public void sendSmallFileMessage(FileMessage fileMessage) {
-        fileMessage.setChatType(1);
-        fileMessage.setFrom(user.getUserName());
-        fileMessage.setTo(friend.getUserName());
-        sendChatMessage(fileMessage);
     }
 
     private MyApplication.IReceiveMessage iReceiveMessage = new MyApplication.IReceiveMessage() {
@@ -298,11 +322,6 @@ public class SingleChatRoomActivity extends ChatRoomActivity {
             if (friend.getUserName().equals(message.getFrom()) && message instanceof ChatMessage) {
                 messageAdapter.receiveMessage((ChatMessage) message);
                 chatMessageList.scrollToPosition(messageAdapter.getItemCount() - 1);
-
-                Message msg = new Message();
-                msg.what = REMOVE_UNREAD_MESSAGE;
-                msg.obj = message;
-                mHandler.sendMessageDelayed(msg, 100);
             }
             showLongToas("iReceiveMessage--->" + message.getFrom());
         }
@@ -321,25 +340,52 @@ public class SingleChatRoomActivity extends ChatRoomActivity {
         }
     };
 
-    private Handler mHandler = new Handler() {
+    private MyApplication.ISendProgress iSendProgress = new MyApplication.ISendProgress() {
+        @Override
+        public void progress(BaseMessage message, int progress) {
+            if(progress > 100){
+                progress = 100;
+            }
+            messageAdapter.updateSendProgress(message, progress);
+        }
+        @Override
+        public void finish(BaseMessage message) {}
+    };
+
+    private MyHandler mHandler = new MyHandler(this);
+    static class MyHandler extends Handler{
+        //注意下面的“”类是MyHandler类所在的外部类，即所在的activity或者fragment
+        WeakReference<SingleChatRoomActivity> activity;
+        MyHandler(SingleChatRoomActivity activity) {
+            this.activity = new WeakReference<>(activity);
+        }
         @Override
         public void handleMessage(Message msg) {
             super.handleMessage(msg);
+            if(activity.get() == null){
+                return;
+            }
             switch (msg.what) {
-                case 1001:
-                    ConversationAdapter.removeUnReadMessage((ChatMessage) msg.obj);
+                case INIT_DATA:
+                    activity.get().initData();
+                    break;
+                case SCROLL_TO_TOP:
+                    activity.get().scrollToTop();
                     break;
             }
         }
-    };
+    }
 
     @Override
     protected void onDestroy() {
         super.onDestroy();
         MyApplication.getApplication().unRegisterReceiveMessage(iReceiveMessage);
         MyApplication.getApplication().unRegisterSendMessage(iSendMessage);
+        MyApplication.getApplication().unRegisterSendProgress(iSendProgress);
         mHandler.removeCallbacksAndMessages(null);
         AudioManager.getInstance().stopPlaySound();
+        VideoManager.getInstance().stopPlay();
+        MyApplication.getApplication().exitChatRoomUid = "";
     }
 
     @Override

@@ -64,16 +64,17 @@ android:orientation="horizontal"
 
         <ProgressBar
             android:id="@+id/progressBar1"
-            android:layout_width="20dp"
-            android:layout_height="20dp"
-            android:layout_gravity="center"
-            android:indeterminateBehavior="repeat"
+            android:layout_width="wrap_content"
+            android:layout_height="3dp"
+            android:layout_marginLeft="2dp"
+            android:layout_marginRight="2dp"
             android:layout_centerInParent="true"
-            android:indeterminateDrawable="@drawable/dialog_loading"
-            android:layout_marginLeft="10dp"
-            android:indeterminateOnly="true"
+            android:layout_marginTop="8dp"
+            android:max="100"
+            android:progress="0"
+            style="?android:attr/progressBarStyleHorizontal"
+            android:progressDrawable="@drawable/progress_file_download"
             />
-
     </RelativeLayout>
 
     <tl.pojul.com.fastim.View.widget.PolygonImage.view.PolygonImageView

@@ -2,8 +2,11 @@ package tl.pojul.com.fastim.View.activity;
 
 import android.Manifest;
 import android.app.Activity;
+import android.content.Context;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Environment;
+import android.os.PowerManager;
 import android.support.design.widget.TabLayout;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
@@ -17,6 +20,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.WindowManager;
 import android.widget.ImageView;
+import android.widget.Space;
 import android.widget.TextView;
 
 import com.tbruyelle.rxpermissions2.Permission;
@@ -31,6 +35,8 @@ import tl.pojul.com.fastim.View.fragment.ConversationFragment;
 import tl.pojul.com.fastim.View.fragment.FriendsFragment;
 import tl.pojul.com.fastim.View.fragment.TrendsFragment;
 import tl.pojul.com.fastim.View.widget.MyViewPager;
+import tl.pojul.com.fastim.util.Constant;
+import tl.pojul.com.fastim.util.SPUtil;
 
 public class MainActivity extends BaseActivity {
 
@@ -41,6 +47,8 @@ public class MainActivity extends BaseActivity {
     public ArrayList<Fragment> fragments = new ArrayList<>();
     private TabLayout tabLayout;
     private TextView unreadMessage;
+    private PowerManager pm;
+    private PowerManager.WakeLock wakeLock;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -51,8 +59,17 @@ public class MainActivity extends BaseActivity {
         }
         setContentView(R.layout.activity_main);
 
+        pm = (PowerManager) this.getSystemService(Context.POWER_SERVICE);
+        //保持cpu一直运行，不管屏幕是否黑屏  
+        wakeLock = pm.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, "CPUKeepRunning");
+        wakeLock.acquire();
+
         applyPermission();
 
+        if("".equals(SPUtil.getInstance().getString(Constant.BASE_STORAGE_PATH))){
+            SPUtil.getInstance().putString(Constant.BASE_STORAGE_PATH, (Environment.getExternalStorageDirectory().getAbsolutePath()));
+        }
+        
         initView();
     }
 
@@ -187,6 +204,7 @@ public class MainActivity extends BaseActivity {
 
     @Override
     protected void onDestroy() {
+        wakeLock.release();
         super.onDestroy();
     }
 }

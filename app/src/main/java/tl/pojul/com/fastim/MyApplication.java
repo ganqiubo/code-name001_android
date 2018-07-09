@@ -2,9 +2,9 @@ package tl.pojul.com.fastim;
 
 import android.app.Application;
 import android.content.Context;
-import android.graphics.Color;
 import android.os.Handler;
 import android.os.Looper;
+import android.util.Log;
 import android.widget.Toast;
 
 import com.pojul.objectsocket.message.BaseMessage;
@@ -15,22 +15,17 @@ import com.pojul.objectsocket.socket.SocketReceiver;
 import com.pojul.objectsocket.socket.SocketSender;
 import com.pojul.objectsocket.utils.Constant;
 import com.scwang.smartrefresh.layout.SmartRefreshLayout;
-import com.scwang.smartrefresh.layout.api.DefaultRefreshFooterCreater;
 import com.scwang.smartrefresh.layout.api.DefaultRefreshHeaderCreater;
-import com.scwang.smartrefresh.layout.api.RefreshFooter;
 import com.scwang.smartrefresh.layout.api.RefreshHeader;
 import com.scwang.smartrefresh.layout.api.RefreshLayout;
 import com.scwang.smartrefresh.layout.constant.SpinnerStyle;
-import com.scwang.smartrefresh.layout.footer.ClassicsFooter;
 import com.scwang.smartrefresh.layout.header.ClassicsHeader;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 
-import tl.pojul.com.fastim.Audio.AudioManager;
-import tl.pojul.com.fastim.Audio.VibrateManager;
-import tl.pojul.com.fastim.View.activity.MainActivity;
+import tl.pojul.com.fastim.Media.AudioManager;
+import tl.pojul.com.fastim.Media.VibrateManager;
 import tl.pojul.com.fastim.dao.MySQLiteHelper;
 import tl.pojul.com.fastim.util.SPUtil;
 
@@ -48,8 +43,13 @@ public class MyApplication extends Application {
 
     public static ClientSocket ClientSocket;
 
+    private static final String TAG = "MyApplication";
+
     protected List<IReceiveMessage> IReceiveMessages = new ArrayList<>();
     protected List<ISendMessage> ISendMessage = new ArrayList<>();
+    protected List<ISendProgress> ISendProgress = new ArrayList<>();
+
+    public static String exitChatRoomUid = "";
 
     static {//static 代码段可以防止内存泄露
         //设置全局的Header构建器
@@ -185,7 +185,41 @@ public class MyApplication extends Application {
         ClientSocket.setmOnStatusChangedListener(new ClientSocket.OnStatusChangedListener(){
             @Override
             public void onConnClosed() {
+                new Handler(Looper.getMainLooper()).post(()->{
+                    showLongToas("lose connection");
+                    Log.e(TAG, "onConnClosed");
+                });
                 //showLongToas("lose connection");
+            }
+        });
+    }
+
+    public void registSendProgListerer(){
+        if(ClientSocket == null || ClientSocket.getmSocket() == null){
+            return;
+        }
+        ClientSocket.setSendProgressListerer(new SocketSender.SendProgressListerer() {
+            @Override
+            public void progress(BaseMessage message, int progress) {
+                new Handler(Looper.getMainLooper()).post(()->{
+                    for(int i =0; i< ISendProgress.size(); i++){
+                        ISendProgress iSendProgress = ISendProgress.get(i);
+                        if(iSendProgress != null){
+                            iSendProgress.progress(message, progress);
+                        }
+                    }
+                });
+            }
+            @Override
+            public void finish(BaseMessage message) {
+                new Handler(Looper.getMainLooper()).post(()->{
+                    for(int i =0; i< ISendProgress.size(); i++){
+                        ISendProgress iSendProgress = ISendProgress.get(i);
+                        if(iSendProgress != null){
+                            iSendProgress.finish(message);
+                        }
+                    }
+                });
             }
         });
     }
@@ -214,6 +248,22 @@ public class MyApplication extends Application {
         }
     }
 
+    public void unRegisterSendProgress(ISendProgress iSendProgress){
+        synchronized (ISendProgress){
+            if(iSendProgress != null){
+                ISendProgress.remove(iSendProgress);
+            }
+        }
+    }
+
+    public void registerSendProgress(ISendProgress iSendProgress){
+        synchronized (ISendProgress){
+            if(iSendProgress != null){
+                ISendProgress.add(iSendProgress);
+            }
+        }
+    }
+
     public void unRegisterSendMessage(ISendMessage iSendMessage){
         synchronized (ISendMessage){
             if(iSendMessage != null){
@@ -229,6 +279,11 @@ public class MyApplication extends Application {
 
     public interface IReceiveMessage{
         public void receiveMessage(BaseMessage message);
+    }
+
+    public interface ISendProgress{
+        public void progress(BaseMessage message, int progress);
+        public void finish(BaseMessage message);
     }
 
     public void showShortToas(String msg){

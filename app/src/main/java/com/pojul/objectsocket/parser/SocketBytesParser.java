@@ -15,13 +15,14 @@ import com.pojul.objectsocket.message.MessageHeader;
 import com.pojul.objectsocket.message.StringFile;
 import com.pojul.objectsocket.parser.interfacer.ISocketBytesParser;
 import com.pojul.objectsocket.parser.util.ReadUtil;
+import com.pojul.objectsocket.socket.SocketReceiver.RecProgressListerer;
 import com.pojul.objectsocket.utils.BytesUtil;
 import com.pojul.objectsocket.utils.Constant;
 import com.pojul.objectsocket.utils.LogUtil;
 
 /**
  * 将二进制转换成对象
- * .*/
+ **/
 public class SocketBytesParser{
 	
 	protected Socket mSocket;
@@ -32,8 +33,11 @@ public class SocketBytesParser{
 	protected MessageHeader mMessageHeader;
 	protected BaseMessage mMessageEntity;
 	public boolean stopRec = false;
-	private static final String TAG = "SocketBytesParser"; 
-	
+	private static final String TAG = "SocketBytesParser";
+	protected long totalLength;
+	protected long recivedLength;
+	protected RecProgressListerer recProgressListerer;
+
 	public SocketBytesParser(Socket mSocket, ISocketBytesParser mISocketBytesParser, boolean recOnce) {
 		super();
 		this.mSocket = mSocket;
@@ -64,9 +68,21 @@ public class SocketBytesParser{
 	}
 	
 	protected void parseHead() throws Exception {
+		/**
+		 * firstCode(非负数): 1 心跳包; 2 普通消息
+		 * */
+		byte[] firstCode = ReadUtil.recvBytes(is, 1);
+		if(firstCode[0] == 1) {
+			return;
+		}
 		byte[] b;
-		b = ReadUtil.recvBytes(is, 4);
-		int entityLength = BytesUtil.byteArrayToInt(b);
+		recivedLength = 0;
+		b = ReadUtil.recvBytes(is, 12);
+		byte[] tempBytes1 = BytesUtil.subBytes(b, 0, 8);
+		byte[] tempBytes2 = BytesUtil.subBytes(b, 8, 4);
+		totalLength = BytesUtil.bytesToLong(tempBytes1);
+		recivedLength = b.length;
+		int entityLength = BytesUtil.byteArrayToInt(tempBytes2);
 		if(entityLength <= 0) {
 			stopRec = true;
 			mISocketBytesParser.onError(new Exception("失去连接"));
@@ -88,6 +104,11 @@ public class SocketBytesParser{
 			LogUtil.d(TAG, "parseHeader raw MessageHeader = " + headerString);
 			mMessageHeader = gs.fromJson(headerString, MessageHeader.class);
 			mISocketBytesParser.onReadHead(mMessageHeader);
+			if(recProgressListerer != null) {
+				recivedLength = recivedLength + b.length;
+				int progress = (int)((recivedLength*1.0/totalLength)*100);
+				recProgressListerer.progress(mMessageHeader, progress);
+			}
 			if(str.length() > (index + 1)) {
 				entityString = str.substring((index + 1), str.length());
 			}
@@ -104,6 +125,11 @@ public class SocketBytesParser{
 				break;
 			}
 			byte[] fileLengthBytes = ReadUtil.recvBytes(is, 8);
+			if(recProgressListerer != null) {
+				recivedLength = recivedLength + 9;
+				int progress = (int)((recivedLength*1.0/totalLength)*100);
+				recProgressListerer.progress(mMessageHeader, progress);
+			}
 			long fileLength = BytesUtil.bytesToLong(fileLengthBytes);
 			LogUtil.d(TAG, mSocket.isClosed() + "::" + mSocket.isConnected() + ":hasFile, file byte length = " + fileLength);
 			Pattern pattern = Pattern.compile(StringFile.regexServerStr2);
@@ -141,6 +167,11 @@ public class SocketBytesParser{
 					fileLength = fileLength - readLength;
 					tempReadLength = (fileLength > 0) ? readLength:(fileLength + readLength);
 					writeBytes = ReadUtil.recvBytes(is, (int)tempReadLength);
+					if(recProgressListerer != null) {
+						recivedLength = recivedLength + writeBytes.length;
+						int progress = (int)((recivedLength*1.0/totalLength)*100);
+						recProgressListerer.progress(mMessageHeader, progress);
+					}
 					total = total + writeBytes.length;
 					fos.write(writeBytes);
 					fos.flush();
@@ -153,6 +184,9 @@ public class SocketBytesParser{
 		mMessageEntity =  (BaseMessage) new Gson().fromJson(entityString, Class.forName(mMessageHeader.getClassName()));
 		mISocketBytesParser.onReadEntity(mMessageEntity);
 		mISocketBytesParser.onReadFinish();
+		if(recProgressListerer != null) {
+			recProgressListerer.finish(mMessageHeader);
+		}
 	}
 	
 	protected StringFileIndex getStringFile(String entityString, int start, int end) {
@@ -204,4 +238,7 @@ public class SocketBytesParser{
 		stopRec = true;
 	}
 	
+	public void setRecProgressListerer(RecProgressListerer recProgressListerer) {
+		this.recProgressListerer = recProgressListerer;
+	}
 }

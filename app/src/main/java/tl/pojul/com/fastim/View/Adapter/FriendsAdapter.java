@@ -106,6 +106,17 @@ public class FriendsAdapter extends RecyclerView.Adapter<FriendsAdapter.MyViewHo
         this.notifyDataSetChanged();
     }
 
+    public Friend getFriendByUserName(String userName){
+        Friend friend = null;
+        for (int i =0; i< mList.size(); i++){
+            if(mList.get(i).getUserName().equals(userName)){
+                friend = mList.get(i);
+                break;
+            }
+        }
+        return friend;
+    }
+
     public interface OnItemClickListener {
         void onClick(int position);
     }

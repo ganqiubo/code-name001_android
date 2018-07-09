@@ -16,6 +16,7 @@ public class MySQLiteHelper extends SQLiteOpenHelper {
             + "conversation_photo varchar(80) not null, "
             + "conversation_last_chat varchar(80) not null, "
             + "unread_message int(4) not null default 0, "
+            + "conversation_type int(4) not null default 0, "
             + "conversation_last_chattime varchar(20) not null)";
 
     private MySQLiteHelper(Context context) {

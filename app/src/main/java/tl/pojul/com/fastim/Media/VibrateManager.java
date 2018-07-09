@@ -1,4 +1,4 @@
-package tl.pojul.com.fastim.Audio;
+package tl.pojul.com.fastim.Media;
 
 import android.app.Service;
 import android.content.Context;
