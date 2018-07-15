@@ -31,9 +31,14 @@ import java.util.ArrayList;
 import io.reactivex.functions.Consumer;
 import tl.pojul.com.fastim.MyApplication;
 import tl.pojul.com.fastim.R;
+import tl.pojul.com.fastim.View.fragment.ChatFragment;
+import tl.pojul.com.fastim.View.fragment.CommunityFragment;
 import tl.pojul.com.fastim.View.fragment.ConversationFragment;
 import tl.pojul.com.fastim.View.fragment.FriendsFragment;
+import tl.pojul.com.fastim.View.fragment.HomeFragment;
+import tl.pojul.com.fastim.View.fragment.TakePicFragment;
 import tl.pojul.com.fastim.View.fragment.TrendsFragment;
+import tl.pojul.com.fastim.View.fragment.UserFragment;
 import tl.pojul.com.fastim.View.widget.MyViewPager;
 import tl.pojul.com.fastim.util.Constant;
 import tl.pojul.com.fastim.util.SPUtil;
@@ -49,14 +54,15 @@ public class MainActivity extends BaseActivity {
     private TextView unreadMessage;
     private PowerManager pm;
     private PowerManager.WakeLock wakeLock;
+    public HomeFragment homeFragment;
+    public ChatFragment chatFragment;
+    public TakePicFragment takePicFragment;
+    public CommunityFragment communityFragment;
+    public UserFragment userFragment;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
-            //透明状态栏
-            getWindow().addFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS);
-        }
         setContentView(R.layout.activity_main);
 
         pm = (PowerManager) this.getSystemService(Context.POWER_SERVICE);
@@ -89,9 +95,17 @@ public class MainActivity extends BaseActivity {
 
     private void initView() {
 
-        fragments.add(new ConversationFragment());
-        fragments.add(new FriendsFragment());
-        fragments.add(new TrendsFragment());
+        homeFragment = new HomeFragment();
+        chatFragment = new ChatFragment();
+        takePicFragment = new TakePicFragment();
+        communityFragment = new CommunityFragment();
+        userFragment = new UserFragment();
+        fragments.add(homeFragment);
+        fragments.add(chatFragment);
+        fragments.add(takePicFragment);
+        fragments.add(communityFragment);
+        fragments.add(userFragment);
+
         mSectionsPagerAdapter = new SectionsPagerAdapter(getSupportFragmentManager());
 
         mViewPager = findViewById(R.id.container);
@@ -99,31 +113,34 @@ public class MainActivity extends BaseActivity {
         mViewPager.setAdapter(mSectionsPagerAdapter);
 
         tabLayout.setupWithViewPager(mViewPager);
-
         View tab1 = LayoutInflater.from(this).inflate(R.layout.tab_main, null);
         ImageView tab1Icon = tab1.findViewById(R.id.iv);
-        TextView tab1Name = tab1.findViewById(R.id.tv);
-        unreadMessage =  tab1.findViewById(R.id.unread_message);
+        //unreadMessage =  tab1.findViewById(R.id.unread_message);
         tabLayout.getTabAt(0).setCustomView(tab1);
-        tab1Name.setText("会话");
-        tab1Icon.setImageResource(R.drawable.selector_conversation_icon);
+        tab1Icon.setImageResource(R.drawable.selector_tab_home);
 
         View tab2 = LayoutInflater.from(this).inflate(R.layout.tab_main, null);
-        ImageView tab3Icon = tab2.findViewById(R.id.iv);
-        TextView tab3Name = tab2.findViewById(R.id.tv);
+        ImageView tab2Icon = tab2.findViewById(R.id.iv);
         tabLayout.getTabAt(1).setCustomView(tab2);
-        tab3Name.setText("好友");
-        tab3Icon.setImageResource(R.drawable.selector_friends_icon);
+        tab2Icon.setImageResource(R.drawable.selector_tab_chat);
 
         View tab3 = LayoutInflater.from(this).inflate(R.layout.tab_main, null);
-        ImageView tab2Icon = tab3.findViewById(R.id.iv);
-        TextView tab2Name = tab3.findViewById(R.id.tv);
+        ImageView tab3Icon = tab3.findViewById(R.id.iv);
         tabLayout.getTabAt(2).setCustomView(tab3);
-        tab2Name.setText("动态");
-        tab2Icon.setImageResource(R.drawable.selector_trends_icon);
+        tab3Icon.setImageResource(R.drawable.selector_tab_take_pic);
+
+        View tab4 = LayoutInflater.from(this).inflate(R.layout.tab_main, null);
+        ImageView tab4Icon = tab4.findViewById(R.id.iv);
+        tabLayout.getTabAt(3).setCustomView(tab4);
+        tab4Icon.setImageResource(R.drawable.selector_tab_community);
+
+        View tab5 = LayoutInflater.from(this).inflate(R.layout.tab_main, null);
+        ImageView tab5Icon = tab5.findViewById(R.id.iv);
+        tabLayout.getTabAt(4).setCustomView(tab5);
+        tab5Icon.setImageResource(R.drawable.selector_tab_user);
 
         mViewPager.setHorizontalScrollBarEnabled(false);
-        mViewPager.setCurrentItem(1);
+        //mViewPager.setCurrentItem(1);
 
         mViewPager.addOnPageChangeListener(new ViewPager.OnPageChangeListener() {
 
@@ -191,7 +208,7 @@ public class MainActivity extends BaseActivity {
         return super.onKeyUp(keyCode, event);
     }
 
-    public void unreadUnmChanged(int total){
+    /*public void unreadUnmChanged(int total){
         int unReadNum;
         unReadNum = total;
         unreadMessage.setText((unReadNum + ""));
@@ -200,7 +217,7 @@ public class MainActivity extends BaseActivity {
         }else{
             unreadMessage.setVisibility(View.GONE);
         }
-    }
+    }*/
 
     @Override
     protected void onDestroy() {

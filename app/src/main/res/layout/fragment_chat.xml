@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#ffffff"
+    >
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:fitsSystemWindows="true"
+        android:background="#ffffff"
+        android:orientation="vertical">
+
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="聊天"
+                android:textSize="16sp"
+                android:textColor="#676767"
+                android:padding="15dp"
+                android:layout_centerHorizontal="true"/>
+
+            <ImageView
+                android:layout_width="35dp"
+                android:layout_height="35dp"
+                android:layout_centerVertical="true"
+                android:layout_alignParentRight="true"
+                android:padding="5dp"
+                android:src="@drawable/selector_more"
+                android:layout_marginRight="8dp"
+                android:clickable="true"
+                />
+        </RelativeLayout>
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="2px"
+            android:background="#e1e1e1" />
+
+        <android.support.design.widget.TabLayout
+            android:id="@+id/chat_page_tabs"
+            android:layout_width="match_parent"
+            android:layout_height="32dp"
+            android:layout_gravity="top"
+            app:tabGravity="fill"
+            app:tabIndicatorHeight="1dp"
+            app:tabIndicatorColor="#1296db"
+            app:tabMode="fixed"
+            app:tabSelectedTextColor="#1296db"
+            app:tabTextColor="#aaaaaa"
+            android:background="#ffffff"
+            android:fillViewport="false" />
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1px"
+            android:background="#e1e1e1" />
+
+        <tl.pojul.com.fastim.View.widget.MyViewPager
+            android:id="@+id/chat_container"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_weight="1" />
+    </LinearLayout>
+</RelativeLayout>

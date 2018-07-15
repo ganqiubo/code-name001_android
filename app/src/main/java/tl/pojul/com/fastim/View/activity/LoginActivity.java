@@ -1,6 +1,8 @@
 package tl.pojul.com.fastim.View.activity;
 
 import android.content.Intent;
+import android.graphics.Color;
+import android.os.Build;
 import android.os.Bundle;
 import android.text.InputType;
 import android.view.View;
@@ -50,6 +52,9 @@ public class LoginActivity extends BaseActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+            getWindow().setStatusBarColor(Color.TRANSPARENT);
+        }
         setContentView(R.layout.activity_login);
         ButterKnife.bind(this);
     }
@@ -74,7 +79,7 @@ public class LoginActivity extends BaseActivity {
                         return;
                     }
                     MyApplication.ClientSocket = clientSocket;
-                    MyApplication.ClientSocket.setHeartbeat(1 * 1000);
+                    MyApplication.ClientSocket.setHeartbeat(2 * 1000);
                     MyApplication.getApplication().registerSocketRecListerer();
                     MyApplication.getApplication().registerSocketSendListerer();
                     MyApplication.getApplication().registerSocketStatusListerer();

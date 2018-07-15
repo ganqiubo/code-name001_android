@@ -39,6 +39,7 @@ import tl.pojul.com.fastim.MyApplication;
 import tl.pojul.com.fastim.R;
 import tl.pojul.com.fastim.View.activity.MainActivity;
 import tl.pojul.com.fastim.View.activity.SingleChatRoomActivity;
+import tl.pojul.com.fastim.View.fragment.ChatFragment;
 import tl.pojul.com.fastim.View.fragment.FriendsFragment;
 import tl.pojul.com.fastim.View.widget.PolygonImage.view.PolygonImageView;
 import tl.pojul.com.fastim.dao.ConversationDao;
@@ -231,11 +232,16 @@ public class ConversationAdapter extends RecyclerView.Adapter<ConversationAdapte
                 each.put(mList.get(i).getConversationFrom(), mList.get(i).getUnreadMessage());
             }
             MainActivity mainActivity = ((MainActivity) mContext);
-            FriendsFragment friendsFragment = (FriendsFragment) mainActivity.fragments.get(1);
+            FriendsFragment friendsFragment = null;
+            if(mainActivity.chatFragment != null){
+                friendsFragment = mainActivity.chatFragment.friendsFragment;
+            }
             if (friendsFragment != null && friendsFragment.friendsAdapter != null) {
                 friendsFragment.friendsAdapter.unreadUnmChanged(each);
             }
-            mainActivity.unreadUnmChanged(totalUnreadUum);
+            if(mainActivity.chatFragment != null){
+                mainActivity.chatFragment.unreadUnmChanged(totalUnreadUum);
+            }
         }
     }
 
@@ -321,7 +327,10 @@ public class ConversationAdapter extends RecyclerView.Adapter<ConversationAdapte
             Bundle bundle=new Bundle();
             bundle.putInt("chat_room_type", 1);
             bundle.putString("chat_room_name", conversation.getConversationName());
-            FriendsFragment friendsFragment = (FriendsFragment) ((MainActivity)mContext).fragments.get(1);
+            FriendsFragment friendsFragment = null;
+            if(((MainActivity)mContext).chatFragment != null){
+                friendsFragment = ((MainActivity)mContext).chatFragment.friendsFragment;
+            }
             if(friendsFragment != null && friendsFragment.friendsAdapter != null){
                 Friend friend = null;
                 friend = friendsFragment.friendsAdapter.getFriendByUserName(conversation.getConversationFrom());
@@ -331,7 +340,6 @@ public class ConversationAdapter extends RecyclerView.Adapter<ConversationAdapte
                     mContext.startActivity(intent);
                 }
             }
-
         }
     }
 

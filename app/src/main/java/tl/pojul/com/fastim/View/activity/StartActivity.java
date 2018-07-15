@@ -1,6 +1,8 @@
 package tl.pojul.com.fastim.View.activity;
 
 import android.content.Intent;
+import android.graphics.Color;
+import android.os.Build;
 import android.os.Bundle;
 import android.widget.ImageView;
 import android.widget.TextView;
@@ -23,6 +25,9 @@ public class StartActivity extends BaseActivity implements CustomTimeDown.OnTime
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+            getWindow().setStatusBarColor(Color.TRANSPARENT);
+        }
         setContentView(R.layout.activity_start);
         ButterKnife.bind(this);
 
@@ -39,7 +44,8 @@ public class StartActivity extends BaseActivity implements CustomTimeDown.OnTime
 
     @Override
     public void OnFinish() {
-        Intent intent = new Intent(this, LoginActivity.class);
+        //Intent intent = new Intent(this, LoginActivity.class);
+        Intent intent = new Intent(this, MainActivity.class);
         startActivity(intent);
         finish();
     }

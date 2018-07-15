@@ -123,7 +123,10 @@ public class FriendsFragment extends BaseFragment {
 
     private void refreshUnreadNum(){
         MainActivity mainActivity = (MainActivity)getActivity();
-        ConversationFragment conversationFragment = (ConversationFragment)mainActivity.fragments.get(0);
+        ConversationFragment conversationFragment = null;
+        if(mainActivity.chatFragment != null){
+            conversationFragment = mainActivity.chatFragment.conversationFragment;
+        }
         if(conversationFragment != null && conversationFragment.conversationAdapter != null){
             conversationFragment.conversationAdapter.notifyUnReadNum();
         }

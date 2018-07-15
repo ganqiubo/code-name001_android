@@ -1,20 +1,19 @@
 package tl.pojul.com.fastim.View.activity;
 
-import android.os.Build;
 import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;
 import android.view.Window;
-import android.view.WindowManager;
 import android.widget.Toast;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class BaseActivity extends FragmentActivity {
 
+    private List<PauseListener> pauseListeners = new ArrayList<>();
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
-            //透明状态栏
-            getWindow().addFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS);
-        }
         this.requestWindowFeature(Window.FEATURE_NO_TITLE);
         super.onCreate(savedInstanceState);
 
@@ -28,4 +27,46 @@ public class BaseActivity extends FragmentActivity {
         Toast.makeText(this, msg, Toast.LENGTH_LONG).show();
     }
 
+    public void resisterPauseListener(PauseListener pauseListener){
+        if(pauseListener != null){
+            synchronized (pauseListeners){
+                pauseListeners.add(pauseListener);
+            }
+        }
+    }
+
+    public void unResisterPauseListener(PauseListener pauseListener){
+        if(pauseListener != null){
+            synchronized (pauseListeners){
+                pauseListeners.remove(pauseListener);
+            }
+        }
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        for (int i = 0 ; i < pauseListeners.size(); i++){
+            PauseListener pauseListener = pauseListeners.get(i);
+            if(pauseListener != null){
+                pauseListener.onPause();
+            }
+        }
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        for (int i = 0 ; i < pauseListeners.size(); i++){
+            PauseListener pauseListener = pauseListeners.get(i);
+            if(pauseListener != null){
+                pauseListener.onResume();
+            }
+        }
+    }
+
+    public interface PauseListener{
+        void onPause();
+        void onResume();
+    }
 }
