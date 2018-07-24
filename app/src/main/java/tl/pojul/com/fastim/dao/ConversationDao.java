@@ -26,13 +26,13 @@ public class ConversationDao {
                 "'" + conversation.getUnreadMessage() + "'," +
                 "'" + conversation.getConversationType() + "'" +
         ")";
-        return DaoUtil.executeUpdate(sql);
+        return DaoUtil.executeUpdate(sql, false);
     }
 
     public int deleteConversation(String from, String owner){
         String sql = "delete from conversation where conversation_from = '" + from + "'" +
                 "and conversation_owner = '" + owner + "'";
-        return DaoUtil.executeUpdate(sql);
+        return DaoUtil.executeUpdate(sql, false);
     }
 
     public int updateConversationChat(Conversation conversation ){
@@ -42,7 +42,7 @@ public class ConversationDao {
                 "unread_message = '"+ conversation.getUnreadMessage() + "'" +
                 " where conversation_from = '" + conversation.getConversationFrom() + "'" +
                 "and conversation_owner = '" + conversation.getConversationOwner() + "'";
-        return DaoUtil.executeUpdate(sql);
+        return DaoUtil.executeUpdate(sql, false);
     }
 
     public int updateUnreadNum(String from, String to, int num){
@@ -50,7 +50,7 @@ public class ConversationDao {
                 "unread_message = '"+ num + "'" +
                 " where conversation_from = '" + from + "'" +
                 "and conversation_owner = '" + to + "'";
-        return DaoUtil.executeUpdate(sql);
+        return DaoUtil.executeUpdate(sql, false);
     }
 
     public int getUnreadNum(String from, String to){

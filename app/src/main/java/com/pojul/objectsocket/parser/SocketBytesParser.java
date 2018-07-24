@@ -9,7 +9,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import com.google.gson.Gson;
-import com.google.gson.JsonSyntaxException;
+import com.google.gson.GsonBuilder;
 import com.pojul.objectsocket.message.BaseMessage;
 import com.pojul.objectsocket.message.MessageHeader;
 import com.pojul.objectsocket.message.StringFile;
@@ -37,12 +37,17 @@ public class SocketBytesParser{
 	protected long totalLength;
 	protected long recivedLength;
 	protected RecProgressListerer recProgressListerer;
+	protected String saveFilePath = Constant.SERVICE_LOCAL_FILE_PATH;
+	protected String saveFileUrl = Constant.BASE_URL;
 
-	public SocketBytesParser(Socket mSocket, ISocketBytesParser mISocketBytesParser, boolean recOnce) {
+	public SocketBytesParser(Socket mSocket, boolean recOnce) {
 		super();
 		this.mSocket = mSocket;
-		this.mISocketBytesParser = mISocketBytesParser;
 		this.recOnce = recOnce;
+	}
+	
+	public void setISocketBytesParser(ISocketBytesParser mISocketBytesParser) {
+		this.mISocketBytesParser = mISocketBytesParser;
 		try {
 			is=mSocket.getInputStream();
 		} catch (IOException e) {
@@ -50,6 +55,7 @@ public class SocketBytesParser{
 			mISocketBytesParser.onError(e);
 		}
 		parse();
+		
 	}
 	
 	protected void parse() {
@@ -96,7 +102,8 @@ public class SocketBytesParser{
 		byte[] b;
 		b = ReadUtil.recvBytes(is, entityLength);
 		String str = new String(b,"UTF-8");
-		Gson gs = new Gson();
+		Gson gs = new GsonBuilder().disableHtmlEscaping().create();
+		//Gson gs = new Gson();
 		int index = str.indexOf("\n");
 		String entityString = "";
 		if(index != -1) {
@@ -148,7 +155,7 @@ public class SocketBytesParser{
 				if(Constant.STORAGE_TYPE == 0) {
 					stringFileIndex.stringFile.setStorageType(0);
 				}
-				stringFileIndex.stringFile.setFilePath(Constant.BASE_URL + currentTimeMillis + fileName);
+				stringFileIndex.stringFile.setFilePath(/*Constant.BASE_URL*/saveFileUrl + currentTimeMillis + fileName);
 				entityString = new StringBuilder(entityString).replace(
 						stringFileIndex.start ,stringFileIndex.end,
 						(new Gson().toJson(stringFileIndex.stringFile)) ).toString();
@@ -157,26 +164,33 @@ public class SocketBytesParser{
 			}
 			if(fileLength > 0) {
 				long tempReadLength = 0;
-				FileOutputStream fos = new FileOutputStream(new File(Constant.SERVICE_LOCAL_FILE_PATH + currentTimeMillis + fileName));
+				File parent = new File(saveFilePath);
+				if (!parent.exists()) {
+					parent.mkdirs();
+				}
+				FileOutputStream fos = new FileOutputStream(new File(/*Constant.SERVICE_LOCAL_FILE_PATH + */saveFilePath + currentTimeMillis + fileName));
 				byte[] writeBytes;
 				long total = 0;
-				while(!stopRec) {
-					if(fileLength <= 0) {
-						break;
+				try {
+					while(!stopRec) {
+						if(fileLength <= 0) {
+							break;
+						}
+						fileLength = fileLength - readLength;
+						tempReadLength = (fileLength > 0) ? readLength:(fileLength + readLength);
+						writeBytes = ReadUtil.recvBytes(is, (int)tempReadLength);
+						if(recProgressListerer != null) {
+							recivedLength = recivedLength + writeBytes.length;
+							int progress = (int)((recivedLength*1.0/totalLength)*100);
+							recProgressListerer.progress(mMessageHeader, progress);
+						}
+						total = total + writeBytes.length;
+						fos.write(writeBytes);
+						fos.flush();
 					}
-					fileLength = fileLength - readLength;
-					tempReadLength = (fileLength > 0) ? readLength:(fileLength + readLength);
-					writeBytes = ReadUtil.recvBytes(is, (int)tempReadLength);
-					if(recProgressListerer != null) {
-						recivedLength = recivedLength + writeBytes.length;
-						int progress = (int)((recivedLength*1.0/totalLength)*100);
-						recProgressListerer.progress(mMessageHeader, progress);
-					}
-					total = total + writeBytes.length;
-					fos.write(writeBytes);
-					fos.flush();
+				}finally{
+					fos.close();
 				}
-				fos.close();
 			}
 			
 		}
@@ -236,6 +250,11 @@ public class SocketBytesParser{
 	
 	public void stop() {
 		stopRec = true;
+	}
+	
+	public void setSaveFilePath(String saveFilePath, String saveFileUrl) {
+		this.saveFilePath = saveFilePath;
+		this.saveFileUrl = saveFileUrl;
 	}
 	
 	public void setRecProgressListerer(RecProgressListerer recProgressListerer) {

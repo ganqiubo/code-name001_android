@@ -45,8 +45,8 @@ public class StartActivity extends BaseActivity implements CustomTimeDown.OnTime
     @Override
     public void OnFinish() {
         //Intent intent = new Intent(this, LoginActivity.class);
-        Intent intent = new Intent(this, MainActivity.class);
-        startActivity(intent);
-        finish();
+        /*Intent intent = new Intent(this, MainActivity.class);
+        startActivity(intent);*/
+        startActivityAndFinish(LoginActivity.class);
     }
 }

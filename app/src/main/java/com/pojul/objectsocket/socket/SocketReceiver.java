@@ -46,7 +46,8 @@ public class SocketReceiver {
 			public void run() {
 				// TODO Auto-generated method stub
 				if(mSocketBytesParser == null) {
-					mSocketBytesParser = new SocketBytesParser(mSocket, new ISocketBytesParser() {
+					mSocketBytesParser = new SocketBytesParser(mSocket, recOnce);
+					mSocketBytesParser.setISocketBytesParser(new ISocketBytesParser() {
 						
 						@Override
 						public void onReadHead(MessageHeader header) {
@@ -90,7 +91,7 @@ public class SocketReceiver {
 							LogUtil.dStackTrace(e);
 							LogUtil.e(TAG, e.toString());
 						}
-					}, recOnce);
+					});
 				}
 			}
 		});
@@ -125,6 +126,12 @@ public class SocketReceiver {
 		this.recProgressListerer = recProgressListerer;
 		if(mSocketBytesParser != null) {
 			mSocketBytesParser.setRecProgressListerer(recProgressListerer);
+		}
+	}
+	
+	public void setSaveFilePath(String saveFilePath, String saveFileUrl) {
+		if(mSocketBytesParser != null) {
+			mSocketBytesParser.setSaveFilePath(saveFilePath, saveFileUrl);
 		}
 	}
 

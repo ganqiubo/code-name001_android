@@ -34,6 +34,7 @@ public class ChatFragment extends BaseFragment {
     public ConversationFragment conversationFragment;
     public FriendsFragment friendsFragment;
     public TrendsFragment trendsFragment;
+    private View view;
 
     public ChatFragment() {
         // Required empty public constructor
@@ -43,7 +44,11 @@ public class ChatFragment extends BaseFragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
-        View view = inflater.inflate(R.layout.fragment_chat, container, false);
+        if(view!=null){
+            ViewGroup parent =(ViewGroup)view.getParent();
+            parent.removeView(view);
+        }
+        view = inflater.inflate(R.layout.fragment_chat, container, false);
         unbinder = ButterKnife.bind(this, view);
         return view;
     }
@@ -57,7 +62,7 @@ public class ChatFragment extends BaseFragment {
         fragments.add(conversationFragment);
         fragments.add(friendsFragment);
         fragments.add(trendsFragment);
-        mSectionsPagerAdapter = new SectionsPagerAdapter(getActivity().getSupportFragmentManager());
+        mSectionsPagerAdapter = new SectionsPagerAdapter(getChildFragmentManager());
 
         chatViewPage.setAdapter(mSectionsPagerAdapter);
         chatPageTabs.setupWithViewPager(chatViewPage);
@@ -80,7 +85,7 @@ public class ChatFragment extends BaseFragment {
 
         chatViewPage.setHorizontalScrollBarEnabled(true);
         chatViewPage.setCurrentItem(1);
-
+        chatViewPage.setOffscreenPageLimit(3);
         chatViewPage.addOnPageChangeListener(new ViewPager.OnPageChangeListener() {
 
             @Override
@@ -95,7 +100,6 @@ public class ChatFragment extends BaseFragment {
             public void onPageScrollStateChanged(int state) {
             }
         });
-
     }
 
     public class SectionsPagerAdapter extends FragmentPagerAdapter {
@@ -128,6 +132,9 @@ public class ChatFragment extends BaseFragment {
     public void unreadUnmChanged(int total) {
         int unReadNum;
         unReadNum = total;
+        if(unreadMessage == null){
+            return;
+        }
         unreadMessage.setText((unReadNum + ""));
         if (unReadNum > 0) {
             unreadMessage.setVisibility(View.VISIBLE);

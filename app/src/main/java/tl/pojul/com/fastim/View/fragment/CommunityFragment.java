@@ -8,7 +8,7 @@ import android.view.ViewGroup;
 
 import tl.pojul.com.fastim.R;
 
-public class CommunityFragment extends Fragment {
+public class CommunityFragment extends BaseFragment {
 
     public CommunityFragment() {
         // Required empty public constructor

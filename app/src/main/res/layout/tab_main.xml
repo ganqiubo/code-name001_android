@@ -7,10 +7,22 @@
         android:id="@+id/iv"
         android:layout_gravity="center"
         android:src="@mipmap/ic_launcher"
-        android:padding="6dp"
+        android:padding="2dp"
+        android:layout_marginTop="2dp"
         android:layout_centerHorizontal="true"
-        android:layout_width="37dp"
-        android:layout_height="37dp"/>
+        android:layout_width="30dp"
+        android:layout_height="30dp"/>
+
+    <TextView
+        android:id="@+id/note"
+        android:layout_below="@+id/iv"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerHorizontal="true"
+        android:textColor="@color/selector_tab_text_color"
+        android:textSize="12sp"
+        android:layout_marginBottom = "2dp"
+        android:text="首页"/>
 
     <TextView
         android:visibility="gone"
@@ -25,6 +37,5 @@
         android:layout_marginLeft="-12dp"
         android:textSize="10sp"
         />
-
 
 </RelativeLayout>

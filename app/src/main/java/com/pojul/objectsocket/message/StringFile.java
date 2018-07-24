@@ -35,12 +35,14 @@ public class StringFile {
 		this.fileName = fileName;
 	}
 	public String getFilePath() {
+		if(this.filePath == null){
+			return null;
+		}
 		if(storageType == StorageType.LOCAL) {
 			return filePath.replace(pathBorderStart, "").replace(pathBorderEnd, "");
 		}else {
 			return filePath;
 		}
-		
 	}
 	public void setFilePath(String filePath) {
 		if(storageType == StorageType.LOCAL) {
@@ -66,8 +68,10 @@ public class StringFile {
 	
 	public void setStorageType(int storageType) {
 		this.storageType = storageType;
-		this.filePath = this.filePath.replace(pathBorderStart, "").replace(pathBorderEnd, "");
-		setFilePath(this.filePath);
+		if(this.filePath != null){
+			this.filePath = this.filePath.replace(pathBorderStart, "").replace(pathBorderEnd, "");
+			setFilePath(this.filePath);
+		}
 	}
 	
 	@Override

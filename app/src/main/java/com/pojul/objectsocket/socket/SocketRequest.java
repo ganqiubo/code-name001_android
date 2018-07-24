@@ -23,7 +23,7 @@ public class SocketRequest {
         this.defaultTimeOut = defaultTimeOut;
     }
 
-    public void resuestConn(final IRequestConn mIRequestConn, final String host, final int port){
+    public void requestConn(final IRequestConn mIRequestConn, final String host, final int port){
         new Thread(new Runnable() {
             @Override
             public void run() {
@@ -42,11 +42,11 @@ public class SocketRequest {
      *@param message
      * message mIRequest
      */
-    public void resuest(ClientSocket mClientSocket, RequestMessage message, final IRequest mIRequest){
-        resuest(mClientSocket, message, mIRequest, defaultTimeOut);
+    public void request(ClientSocket mClientSocket, RequestMessage message, final IRequest mIRequest){
+        request(mClientSocket, message, mIRequest, defaultTimeOut);
     }
 
-    public void resuest(ClientSocket mClientSocket, RequestMessage message, final IRequest mIRequest, long timeout){
+    public void request(ClientSocket mClientSocket, RequestMessage message, final IRequest mIRequest, long timeout){
         if(mClientSocket == null || mClientSocket.getmSocket() == null){
             LogUtil.i(getClass().getName(), "ClientSocket is not conneted");
             mIRequest.onError("与服务器连接已断开");

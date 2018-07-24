@@ -205,7 +205,7 @@ public class SingleChatRoomActivity extends ChatRoomActivity {
             }
         }
         HistoryChatReq historyChatReq = new HistoryChatReq(lastSendTime, chatRoomUid, num);
-        new SocketRequest().resuest(MyApplication.ClientSocket, historyChatReq, new SocketRequest.IRequest() {
+        new SocketRequest().request(MyApplication.ClientSocket, historyChatReq, new SocketRequest.IRequest() {
             @Override
             public void onError(String msg) {
                 runOnUiThread(() -> {

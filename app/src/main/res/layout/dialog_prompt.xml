@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="260dp"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:background="#ffffff"
+    >
+
+    <TextView
+        android:id="@+id/prompt_title"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:textSize="14sp"
+        android:textColor="#676767"
+        android:text="删除数据"
+        android:textStyle="bold"
+        android:gravity="center"
+        android:layout_marginTop="21dp"
+        />
+
+    <TextView
+        android:id="@+id/prompt_content"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:textColor="#787878"
+        android:layout_below="@+id/prompt_title"
+        android:textSize="13sp"
+        android:gravity="center"
+        android:layout_marginTop="5dp"
+        android:text="确定删除保存在本地的数据？"
+        android:paddingBottom="22dp"
+        />
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="1px"
+        android:background="#ababab"
+        android:layout_above="@+id/bt_ll"/>
+
+    <LinearLayout
+        android:id="@+id/bt_ll"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/prompt_content"
+        android:weightSum="2"
+        android:orientation="horizontal">
+
+        <Button
+            android:id="@+id/left_button"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@drawable/ripple_normal"
+            android:text="确定"
+            android:textColor="#787878"
+            android:textSize="12sp"
+            android:layout_weight="1"/>
+
+        <View
+            android:layout_width="1px"
+            android:layout_height="match_parent"
+            android:background="#ababab"/>
+
+        <Button
+            android:id="@+id/right_button"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@drawable/ripple_normal"
+            android:text="取消"
+            android:textColor="#787878"
+            android:textSize="12sp"
+            android:layout_weight="1"/>
+    </LinearLayout>
+
+</RelativeLayout>

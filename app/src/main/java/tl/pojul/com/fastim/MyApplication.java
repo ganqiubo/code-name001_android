@@ -7,6 +7,11 @@ import android.os.Looper;
 import android.util.Log;
 import android.widget.Toast;
 
+import com.baidu.location.BDAbstractLocationListener;
+import com.baidu.location.BDLocation;
+import com.baidu.location.LocationClient;
+import com.baidu.location.LocationClientOption;
+import com.baidu.mapapi.SDKInitializer;
 import com.pojul.objectsocket.message.BaseMessage;
 import com.pojul.objectsocket.message.MessageHeader;
 import com.pojul.objectsocket.message.StringFile;
@@ -27,6 +32,7 @@ import java.util.List;
 import tl.pojul.com.fastim.Media.AudioManager;
 import tl.pojul.com.fastim.Media.VibrateManager;
 import tl.pojul.com.fastim.dao.MySQLiteHelper;
+import tl.pojul.com.fastim.socket.upload.PicUploadManager;
 import tl.pojul.com.fastim.util.SPUtil;
 
 /**
@@ -43,13 +49,18 @@ public class MyApplication extends Application {
 
     public static ClientSocket ClientSocket;
 
+    public static LocationClient mLocationClient;
+
     private static final String TAG = "MyApplication";
 
     protected List<IReceiveMessage> IReceiveMessages = new ArrayList<>();
     protected List<ISendMessage> ISendMessage = new ArrayList<>();
     protected List<ISendProgress> ISendProgress = new ArrayList<>();
+    protected List<ILocationListener> iLocationListeners = new ArrayList<>();
 
     public static String exitChatRoomUid = "";
+
+    private MyLocationListener myListener = new MyLocationListener();
 
     static {//static 代码段可以防止内存泄露
         //设置全局的Header构建器
@@ -69,19 +80,37 @@ public class MyApplication extends Application {
     public void onCreate() {
         super.onCreate();
         myApplication = this;
-        showLongToas("onCreate");
         Constant.STORAGE_TYPE = 0;
         SPUtil.Instance(getApplicationContext());
         MySQLiteHelper.Instance(getApplicationContext());
         AudioManager.Instance(getApplicationContext());
         VibrateManager.Instance(getApplicationContext());
+        SDKInitializer.initialize(getApplicationContext());
+        mLocationClient= new LocationClient(getApplicationContext());
+        initLocation();
 
+    }
+
+    private void initLocation() {
+        mLocationClient.registerLocationListener(myListener);
+        LocationClientOption option = new LocationClientOption();
+        option.setLocationMode(LocationClientOption.LocationMode.Hight_Accuracy);
+        option.setCoorType("wgs84");
+        //option.setCoorType("bd09ll");
+        option.setEnableSimulateGps(false);
+        option.setIsNeedAltitude(true);
+        option.setIsNeedAddress(true);
+        option.setTimeOut(5 * 1000);
+        option.setOpenGps(true);
+        option.setScanSpan(1000);
+        mLocationClient.setLocOption(option);
     }
 
     @Override
     public void onTerminate() {
         super.onTerminate();
         closeConn();
+        PicUploadManager.getInstance().onDestory();
     }
 
     public void closeConn(){
@@ -136,6 +165,23 @@ public class MyApplication extends Application {
             }
         });
     }
+
+    class MyLocationListener extends BDAbstractLocationListener {
+        @Override
+        public void onReceiveLocation(BDLocation bdLocation) {
+            for (int i = 0; i < iLocationListeners.size(); i ++){
+                ILocationListener iLocationListener = iLocationListeners.get(i);
+                if(iLocationListener == null){
+                    continue;
+                }
+                if(bdLocation.getLocType() == 61 || bdLocation.getLocType() == 66 || bdLocation.getLocType() == 161){
+                    iLocationListener.onReceive(bdLocation);
+                }else {
+                    iLocationListener.onFail("定位失败");
+                }
+            }
+        }
+    };
 
     public void registerSocketSendListerer(){
         if(ClientSocket == null || ClientSocket.getmSocket() == null){
@@ -272,18 +318,49 @@ public class MyApplication extends Application {
         }
     }
 
+    public void registerLocationListener(ILocationListener iLocationListener){
+        synchronized (iLocationListeners){
+            if(iLocationListener != null){
+                iLocationListeners.add(iLocationListener);
+            }
+        }
+    }
+
+    public void unRegisterLocationListener(ILocationListener iLocationListener){
+        synchronized (iLocationListeners){
+            if(iLocationListener != null){
+                iLocationListeners.remove(iLocationListener);
+            }
+        }
+    }
+
+    public void requireLocAddr(boolean require){
+        if(mLocationClient == null){
+            return;
+        }
+        if(mLocationClient.getLocOption() == null){
+            return;
+        }
+        mLocationClient.getLocOption().setIsNeedAddress(require);
+    }
+
     public interface ISendMessage{
-        public void onSendFinish(BaseMessage message);
-        public void onSendFail(BaseMessage message);
+        void onSendFinish(BaseMessage message);
+        void onSendFail(BaseMessage message);
     }
 
     public interface IReceiveMessage{
-        public void receiveMessage(BaseMessage message);
+        void receiveMessage(BaseMessage message);
     }
 
     public interface ISendProgress{
-        public void progress(BaseMessage message, int progress);
-        public void finish(BaseMessage message);
+        void progress(BaseMessage message, int progress);
+        void finish(BaseMessage message);
+    }
+
+    public interface ILocationListener{
+        void onReceive(BDLocation bdLocation);
+        void onFail(String msg);
     }
 
     public void showShortToas(String msg){

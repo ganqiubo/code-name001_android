@@ -61,7 +61,7 @@ public class LoginActivity extends BaseActivity {
 
     private void conn() {
         DialogUtil.getInstance().showLoadingDialog(this, "连接服务器中...");
-        new SocketRequest().resuestConn(new SocketRequest.IRequestConn() {
+        new SocketRequest().requestConn(new SocketRequest.IRequestConn() {
             @Override
             public void onError(String msg) {
                 runOnUiThread(() -> {
@@ -79,7 +79,7 @@ public class LoginActivity extends BaseActivity {
                         return;
                     }
                     MyApplication.ClientSocket = clientSocket;
-                    MyApplication.ClientSocket.setHeartbeat(2 * 1000);
+                    MyApplication.ClientSocket.setHeartbeat(3 * 1000);
                     MyApplication.getApplication().registerSocketRecListerer();
                     MyApplication.getApplication().registerSocketSendListerer();
                     MyApplication.getApplication().registerSocketStatusListerer();
@@ -97,7 +97,7 @@ public class LoginActivity extends BaseActivity {
         mLoginMessage.setPassWd(loginPasswd.getText().toString());
         mLoginMessage.setDeviceType("Android");
         mLoginMessage.setFrom(loginAccount.getText().toString());
-        new SocketRequest().resuest(MyApplication.ClientSocket, mLoginMessage, new SocketRequest.IRequest() {
+        new SocketRequest().request(MyApplication.ClientSocket, mLoginMessage, new SocketRequest.IRequest() {
             @Override
             public void onError(String msg) {
                 runOnUiThread(() -> {

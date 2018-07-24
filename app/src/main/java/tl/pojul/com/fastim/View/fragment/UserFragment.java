@@ -12,7 +12,7 @@ import tl.pojul.com.fastim.R;
 /**
  * A simple {@link Fragment} subclass.
  */
-public class UserFragment extends Fragment {
+public class UserFragment extends BaseFragment {
 
 
     public UserFragment() {

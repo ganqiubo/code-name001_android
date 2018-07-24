@@ -8,6 +8,8 @@ import android.util.DisplayMetrics;
 
 public class SmoothLinearLayoutManager extends LinearLayoutManager {
 
+    private float sppeed = 140f;
+
     public SmoothLinearLayoutManager(Context context) {
         super(context);
     }
@@ -21,11 +23,14 @@ public class SmoothLinearLayoutManager extends LinearLayoutManager {
                     // 返回：滑过1px时经历的时间(ms)。
                     @Override
                     protected float calculateSpeedPerPixel(DisplayMetrics displayMetrics) {
-                        return 140f / displayMetrics.densityDpi;
+                        return sppeed / displayMetrics.densityDpi;
                     }
                 };
         smoothScroller.setTargetPosition(position);
         startSmoothScroll(smoothScroller);
     }
 
+    public void setSppeed(float sppeed) {
+        this.sppeed = sppeed;
+    }
 }

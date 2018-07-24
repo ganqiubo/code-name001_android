@@ -53,22 +53,34 @@ public class DaoUtil {
         return entitys;
     }
 
-    public static int executeUpdate(String sql) {
+    public static int executeUpdate(String sql, boolean lastInsert) {
         SQLiteDatabase db = MySQLiteHelper.getInstance().getWritableDatabase();
         if(db == null) {
             return -1;
         }
         try {
             db.execSQL(sql);
-            return 0;
+            if(lastInsert){
+                return getLastInsertId(db);
+            }else{
+                return 0;
+            }
         } catch (Exception e) {
             // TODO Auto-generated catch block
             LogUtil.i(TAG, e.toString());
-            e.printStackTrace();
+            //e.printStackTrace();
             return -1;
         }finally {
             closeDb(db, null);
         }
     }
 
+    public static int getLastInsertId(SQLiteDatabase db){
+        Cursor cursor = db.rawQuery("select last_insert_rowid() ", null);
+        int lastInsertId = 0;
+        if (cursor.moveToFirst()){
+            lastInsertId = cursor.getInt(0);
+        }
+        return lastInsertId;
+    }
 }

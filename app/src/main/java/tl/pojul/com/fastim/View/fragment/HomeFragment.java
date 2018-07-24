@@ -28,7 +28,7 @@ import tl.pojul.com.fastim.View.widget.sowingmap.SowingMap;
 /**
  * A simple {@link Fragment} subclass.
  */
-public class HomeFragment extends Fragment {
+public class HomeFragment extends BaseFragment {
 
     @BindView(R.id.home_choiceness_icon)
     ImageView homeChoicenessIcon;
@@ -56,6 +56,7 @@ public class HomeFragment extends Fragment {
     @BindView(R.id.recommend)
     RecyclerView recommend;
 
+    private View view;
     private HashMap<String, MoveTargetPos> sowingViewMpvePos;
     private static final String TAG = "HomeFragment";
 
@@ -65,7 +66,7 @@ public class HomeFragment extends Fragment {
         add("http://f.hiphotos.baidu.com/image/pic/item/3812b31bb051f8195bf514a9d6b44aed2f73e705.jpg");
         add("http://c.hiphotos.baidu.com/image/pic/item/09fa513d269759eeef490028befb43166d22df3c.jpg");
         add("http://imglf0.nosdn0.126.net/img/Sk5OZVhRaUZtSFg5bVR3SGtOeTlIQzJCdFRRUUpQYUNRTllSUzNKVVpTcXBMSmNZU2Q5T1pRPT0.jpg?imageView&thumbnail=500x0&quality=96&stripmeta=0&type=jpg");
-        add("https://img01.sogoucdn.com/net/a/04/link?appid=100520145&url=http%3A%2F%2Fpic.7y7.com%2F20133%2F2013031249077593.jpg");
+        add("https://timgsa.baidu.com/timg?image&quality=80&size=b9999_10000&sec=1532179773763&di=9f843b3e3a13e0f103711a7ba1a911cf&imgtype=0&src=http%3A%2F%2Fimg.mp.itc.cn%2Fupload%2F20161018%2F3bf24a8ceb974b0f9cf354fdb86d1271_th.jpg");
     }};
 
     public HomeFragment() {
@@ -77,7 +78,11 @@ public class HomeFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
-        View view = inflater.inflate(R.layout.fragment_home, container, false);
+        if(view!=null){
+            ViewGroup parent =(ViewGroup)view.getParent();
+            parent.removeView(view);
+        }
+        view = inflater.inflate(R.layout.fragment_home, container, false);
         unbinder = ButterKnife.bind(this, view);
         return view;
     }

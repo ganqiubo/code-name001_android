@@ -9,6 +9,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import com.pojul.objectsocket.message.BaseMessage;
 import com.pojul.objectsocket.message.HeartbeatMessage;
 import com.pojul.objectsocket.message.MessageHeader;
@@ -83,7 +84,8 @@ public class SocketEntityParser {
 	}
 	
 	protected void setEntityJson() throws UnsupportedEncodingException {
-		Gson gson = new Gson();
+		//Gson gson = new Gson();
+		Gson gson = new GsonBuilder().disableHtmlEscaping().create();
 		entityJson = gson.toJson(mBaseMessage);
 		getFilesPath();
 		LogUtil.d(TAG, "BaseMessage to jsonstring = " + entityJson);

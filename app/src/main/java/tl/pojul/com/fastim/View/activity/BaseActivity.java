@@ -1,5 +1,6 @@
 package tl.pojul.com.fastim.View.activity;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;
 import android.view.Window;
@@ -7,6 +8,8 @@ import android.widget.Toast;
 
 import java.util.ArrayList;
 import java.util.List;
+
+import tl.pojul.com.fastim.R;
 
 public class BaseActivity extends FragmentActivity {
 
@@ -63,6 +66,27 @@ public class BaseActivity extends FragmentActivity {
                 pauseListener.onResume();
             }
         }
+    }
+
+    public void startActivityAndFinish(Class cls){
+        Intent intent = new Intent(this, cls);
+        startActivity(intent);
+        super.finish();
+    }
+
+    public void startActivity(Class cls, Bundle bundle){
+        Intent intent = new Intent(this, cls);
+        if(bundle != null){
+            intent.putExtras(bundle);
+        }
+        startActivity(intent);
+        overridePendingTransition(R.anim.activity_move_enter_anim, R.anim.activity_scale_out_anim);
+    }
+
+    @Override
+    public void finish(){
+        super.finish();
+        overridePendingTransition(R.anim.activity_scale_in_anim, R.anim.activity_move_outr_anim);
     }
 
     public interface PauseListener{

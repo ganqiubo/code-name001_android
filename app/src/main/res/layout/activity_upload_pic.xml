@@ -1,0 +1,389 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#efefef"
+    android:orientation="vertical">
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="50dp"
+        android:background="#ffffff">
+
+        <ImageView
+            android:id="@+id/upload_pic_back"
+            android:layout_width="60dp"
+            android:layout_height="match_parent"
+            android:src="@drawable/back_mormal"
+            android:scaleType="fitCenter"
+            android:rotation="180"
+            android:clickable="true"
+            android:background="@drawable/ripple_normal"
+            android:paddingTop="17dp"
+            android:paddingBottom="17dp"
+            android:paddingLeft="8dp"/>
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:layout_centerHorizontal="true"
+            android:gravity="center"
+            android:text="上传图片"
+            android:textColor="#676767"
+            android:textSize="16sp" />
+
+        <TextView
+            android:id="@+id/upload_pic_save"
+            android:layout_width="60dp"
+            android:layout_height="match_parent"
+            android:gravity="center"
+            android:text="保存"
+            android:textColor="#707070"
+            android:clickable="true"
+            android:background="@drawable/ripple_normal"
+            android:textSize="13sp"
+            android:layout_alignParentRight="true"
+            />
+    </RelativeLayout>
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="2px"
+        android:background="#e1e1e1" />
+
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="3dp"
+                android:orientation="vertical"
+                android:background="@drawable/corners_item_search_netpic"
+                android:layout_marginLeft="6dp"
+                android:layout_marginRight="6dp"
+                android:paddingBottom="10dp">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textSize="13sp"
+                    android:textColor="#787878"
+                    android:padding="5dp"
+                    android:text="基本信息"
+                    android:focusable="true"
+                    android:focusableInTouchMode="true"
+                    android:layout_marginTop="5dp"
+                    android:layout_marginLeft="8dp"
+                    />
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:padding="5dp"
+                    android:orientation="horizontal"
+                    android:layout_marginLeft="10dp"
+                    android:layout_marginRight="10dp">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:textColor="#787878"
+                        android:textSize="13sp"
+                        android:padding="5dp"
+                        android:text="主 题："/>
+
+                    <EditText
+                        android:id="@+id/upload_pic_theme"
+                        android:layout_width="match_parent"
+                        android:layout_height="28dp"
+                        android:background="@drawable/shape_et"
+                        android:textSize="13sp"
+                        android:textColor="#787878"
+                        android:layout_gravity="center"
+                        android:paddingLeft="5dp"
+                        android:textCursorDrawable="@null"
+                        android:hint="最多可输入15个字符"
+                        android:padding="5dp"
+                        android:textColorHint="#aaaaaa"
+                        android:layout_marginLeft="5dp"/>
+                </LinearLayout>
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:padding="5dp"
+                    android:orientation="vertical"
+                    android:layout_marginLeft="10dp"
+                    android:layout_marginRight="10dp">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:textSize="13sp"
+                        android:padding="5dp"
+                        android:textColor="#787878"
+                        android:text="标 签："/>
+
+                    <tl.pojul.com.fastim.View.widget.FlowTagView
+                        android:id="@+id/upload_pic_labels"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        app:text_size="12sp"
+                        app:tag_height="22dp"
+                        app:tag_radio="5dp"
+                        app:tag_horiz_padding="8dp"
+                        android:layout_gravity="center"
+                        android:layout_marginLeft="8dp"
+                        />
+                </LinearLayout>
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:padding="5dp"
+                    android:orientation="vertical"
+                    android:layout_marginLeft="10dp"
+                    android:layout_marginRight="10dp">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:textSize="13sp"
+                        android:padding="5dp"
+                        android:textColor="#787878"
+                        android:text="自定义标签："/>
+
+                    <EditText
+                        android:id="@+id/self_label"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:minHeight="28dp"
+                        android:background="@drawable/shape_et"
+                        android:textSize="13sp"
+                        android:textColor="#787878"
+                        android:paddingLeft="5dp"
+                        android:textCursorDrawable="@null"
+                        android:maxLength="25"
+                        android:textColorHint="#aaaaaa"
+                        android:padding="5dp"
+                        android:hint="最多可输入25个字符，不同标签之间用逗号隔开"
+                        android:layout_marginLeft="25dp"/>
+                </LinearLayout>
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:padding="5dp"
+                    android:layout_marginLeft="10dp"
+                    android:layout_marginRight="10dp"
+                    android:orientation="vertical">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:textSize="13sp"
+                        android:padding="5dp"
+                        android:textColor="#787878"
+                        android:drawableLeft="@drawable/required"
+                        android:text="图 片："/>
+
+                    <android.support.v7.widget.RecyclerView
+                        android:id="@+id/upload_img"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="center">
+                    </android.support.v7.widget.RecyclerView>
+                </LinearLayout>
+            </LinearLayout>
+
+            <LinearLayout
+                android:id="@+id/location_ll"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="6dp"
+                android:orientation="vertical"
+                android:background="@drawable/corners_item_search_netpic"
+                android:layout_marginLeft="6dp"
+                android:layout_marginRight="6dp"
+                android:paddingBottom="10dp">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textSize="13sp"
+                    android:textColor="#787878"
+                    android:padding="5dp"
+                    android:text="位置信息"
+                    android:layout_marginTop="5dp"
+                    android:layout_marginLeft="8dp"/>
+
+                <RelativeLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:padding="5dp"
+                    android:layout_marginLeft="10dp"
+                    android:layout_marginRight="10dp">
+
+                    <TextView
+                        android:id="@+id/pic_location_tv"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:textSize="13sp"
+                        android:padding="5dp"
+                        android:textColor="#787878"
+                        android:layout_centerVertical="true"
+                        android:drawableLeft="@drawable/required"
+                        android:text="地理位置："/>
+
+                    <TextView
+                        android:id="@+id/location"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:minHeight="28dp"
+                        android:background="@drawable/shape_et"
+                        android:textSize="13sp"
+                        android:textColor="#787878"
+                        android:padding="5dp"
+                        android:layout_gravity="center"
+                        android:textCursorDrawable="@null"
+                        android:layout_toRightOf="@+id/pic_location_tv"
+                        android:layout_marginLeft="5dp"
+                        android:layout_toLeftOf="@+id/get_location"
+                        android:layout_marginRight="8dp"/>
+
+                    <TextView
+                        android:id="@+id/get_location"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:clickable="true"
+                        android:layout_alignParentRight="true"
+                        android:padding="5dp"
+                        android:textSize="12sp"
+                        android:layout_centerVertical="true"
+                        android:textColor="@color/selector_text_not_note"
+                        android:background="@drawable/selector_corners_not_note"
+                        android:text="获取位置"/>
+                </RelativeLayout>
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:padding="5dp"
+                    android:orientation="horizontal"
+                    android:layout_marginLeft="10dp"
+                    android:layout_marginRight="10dp">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:textSize="13sp"
+                        android:padding="5dp"
+                        android:textColor="#787878"
+                        android:layout_centerVertical="true"
+                        android:text=" 简短描述："/>
+
+                    <EditText
+                        android:id="@+id/loc_note"
+                        android:layout_width="match_parent"
+                        android:layout_height="28dp"
+                        android:background="@drawable/shape_et"
+                        android:textSize="13sp"
+                        android:textColor="#787878"
+                        android:layout_gravity="center"
+                        android:paddingLeft="5dp"
+                        android:textCursorDrawable="@null"
+                        android:layout_marginLeft="5dp"
+                        android:textColorHint="#aaaaaa"
+                        android:maxLength="15"
+                        android:hint="如：九寨沟、西湖"/>
+                </LinearLayout>
+
+
+                <RelativeLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:textSize="13sp"
+                        android:padding="5dp"
+                        android:layout_marginLeft="15dp"
+                        android:textColor="#787878"
+                        android:layout_centerVertical="true"
+                        android:drawableLeft="@drawable/required"
+                        android:text="显示位置："/>
+
+                    <TextView
+                        android:id="@+id/show_location_note"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:textSize="12sp"
+                        android:layout_alignParentRight="true"
+                        android:layout_centerVertical="true"
+                        android:text="说明>"
+                        android:padding="5dp"
+                        android:textColor="@color/selector_text_gray"
+                        android:layout_marginRight="15dp"
+                        android:clickable="true"/>
+                </RelativeLayout>
+
+                <RadioGroup
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:layout_gravity="center">
+                    <RadioButton
+                        android:id="@+id/show_vague"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="模糊位置"
+                        android:textColor="#787878"
+                        android:button="@drawable/selector_radio_green"
+                        android:textSize="12sp"
+                        android:padding="5dp"/>
+
+                    <RadioButton
+                        android:id="@+id/show_accurate"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="精确位置"
+                        android:textColor="#787878"
+                        android:button="@drawable/selector_radio_green"
+                        android:layout_marginLeft="20dp"
+                        android:textSize="12sp"
+                        android:padding="5dp"/>
+                </RadioGroup>
+                </LinearLayout>
+
+            <TextView
+                android:id="@+id/upload"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="@drawable/ripple_corner_small"
+                android:layout_marginLeft="6dp"
+                android:layout_marginRight="6dp"
+                android:layout_marginTop="6dp"
+                android:textSize="13sp"
+                android:padding="10dp"
+                android:textColor="#787878"
+                android:gravity="center"
+                android:clickable="true"
+                android:text="上传"/>
+
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="10dp"
+                android:visibility="invisible"/>
+        </LinearLayout>
+    </ScrollView>
+
+</LinearLayout>

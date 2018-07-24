@@ -24,4 +24,11 @@
         <attr name="round_radius" format="dimension" />
     </declare-styleable>
 
+    <declare-styleable name="FlowTagView">
+        <attr name="text_size" format="dimension" />
+        <attr name="tag_height" format="dimension" />
+        <attr name="tag_horiz_padding" format="dimension" />
+        <attr name="tag_radio" format="dimension" />
+    </declare-styleable>
+
 </resources>

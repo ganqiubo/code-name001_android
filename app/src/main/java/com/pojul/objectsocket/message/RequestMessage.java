@@ -17,6 +17,9 @@ public class RequestMessage extends BaseMessage{
 	public RequestMessage(String requestUrl) {
 		super();
 		this.requestUrl = requestUrl;
+		if(SPUtil.getInstance().getUser() != null){
+			setFrom(SPUtil.getInstance().getUser().getUserName());
+		}
 	}
 
 	public String getRequestUrl() {

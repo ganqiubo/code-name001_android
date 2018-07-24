@@ -165,6 +165,12 @@ public class ClientSocket {
 		this.tokenId = tokenId;
 	}
 
+	public void setSaveFilePath(String saveFilePath, String saveFileUrl) {
+		if(mSocketReceiver != null) {
+			mSocketReceiver.setSaveFilePath(saveFilePath, saveFileUrl);
+		}
+	}
+	
 	public interface OnStatusChangedListener{
 		public void onConnClosed();
 	}

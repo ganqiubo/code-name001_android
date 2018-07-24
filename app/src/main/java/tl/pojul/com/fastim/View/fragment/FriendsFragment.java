@@ -44,6 +44,7 @@ public class FriendsFragment extends BaseFragment {
     SmartRefreshLayout smartRefresh;
     private Unbinder unbinder;
     public FriendsAdapter friendsAdapter;
+    private View view;
 
     public FriendsFragment() {
         // Required empty public constructor
@@ -52,7 +53,11 @@ public class FriendsFragment extends BaseFragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        View view = inflater.inflate(R.layout.fragment_friends, container, false);
+        if(view!=null){
+            ViewGroup parent =(ViewGroup)view.getParent();
+            parent.removeView(view);
+        }
+        view = inflater.inflate(R.layout.fragment_friends, container, false);
         unbinder = ButterKnife.bind(this, view);
         return view;
     }
@@ -65,7 +70,7 @@ public class FriendsFragment extends BaseFragment {
 
         friendsList.setSwipeMenuCreator(swipeMenuCreator);
         friendsList.setSwipeMenuItemClickListener(mMenuItemClickListener);
-
+        smartRefresh.setEnableLoadmore(true);
         smartRefresh.setOnRefreshListener(new OnRefreshListener() {
             @Override
             public void onRefresh(RefreshLayout refreshlayout) {
@@ -87,7 +92,7 @@ public class FriendsFragment extends BaseFragment {
         if(showDialog){
             DialogUtil.getInstance().showLoadingDialog(getActivity(), "加载中...");
         }
-        new SocketRequest().resuest(MyApplication.ClientSocket, getFriendsRequest, new SocketRequest.IRequest() {
+        new SocketRequest().request(MyApplication.ClientSocket, getFriendsRequest, new SocketRequest.IRequest() {
             @Override
             public void onError(String msg) {
                 getActivity().runOnUiThread(() -> {
@@ -115,7 +120,6 @@ public class FriendsFragment extends BaseFragment {
                     } else {
                         showShortToas(mResponse.getMessage());
                     }
-
                 });
             }
         });

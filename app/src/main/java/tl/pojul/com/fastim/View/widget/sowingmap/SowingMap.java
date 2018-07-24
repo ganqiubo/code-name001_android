@@ -33,7 +33,7 @@ public class SowingMap extends RelativeLayout implements CustomTimeDown.OnTimeDo
     /**
      *图片停留时间
      */
-    private long retention = 9000;
+    private long retention = 6000;
     private CustomTimeDown customTimeDown;
     private int currentPosition;
     private TransitLis transitListener;
@@ -149,11 +149,11 @@ public class SowingMap extends RelativeLayout implements CustomTimeDown.OnTimeDo
         selectedViewPoint.setSelected(true);
         this.addView(selectedViewPoint, DensityUtil.dp2px(getContext(), 8),
                 DensityUtil.dp2px(getContext(), 4));
-
+        selectedViewPointX = -1;
         linearLayout.getViewTreeObserver().addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
             @Override
             public void onGlobalLayout() {
-                if(selectedViewPointX == -1){
+                if(SowingMap.this.selectedViewPointX == -1){
                     //以区域的左上角的坐标原点
                     //先获取右侧区域的坐标
                     float x = linearLayout.getLeft();

@@ -1,32 +1,23 @@
 package tl.pojul.com.fastim.util;
 
-import android.animation.Animator;
-import android.animation.AnimatorSet;
-import android.animation.ObjectAnimator;
-import android.animation.ValueAnimator;
 import android.app.Activity;
+import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.graphics.drawable.BitmapDrawable;
-import android.graphics.drawable.Drawable;
-import android.media.MediaPlayer;
 import android.os.Handler;
 import android.os.Looper;
-import android.provider.MediaStore;
-import android.support.annotation.Nullable;
-import android.util.Log;
-import android.view.Display;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.Window;
-import android.view.WindowManager;
 import android.widget.ImageView;
 import android.widget.MediaController;
 import android.widget.PopupWindow;
 import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
+import android.widget.TextView;
 import android.widget.VideoView;
 
 import com.bm.library.PhotoView;
@@ -54,6 +45,7 @@ public class DialogUtil {
     private static DialogUtil mDialogUtil;
     private LoadingDialog mLoadingDialog;
     private Dialog dialog;
+    private DialogClick dialogClick;
 
     public static final int POP_TYPR_IMG = 1;
     public static final int POP_TYPR_VIDEO = 2;
@@ -243,10 +235,60 @@ public class DialogUtil {
         return result;
     }
 
+    public void showNoteDialog(Context context, String title, String content){
+        AlertDialog.Builder normalDialog =
+                new AlertDialog.Builder(context);
+        normalDialog.setTitle(title);
+        normalDialog.setMessage(content);
+        normalDialog.setPositiveButton("确定",
+                new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                    }
+                });
+        normalDialog.setNegativeButton("关闭",
+                new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                    }
+                });
+        normalDialog.show();
+    }
+
+    public void showPromptDialog(Context context, String title, String content){
+        AlertDialog.Builder promptDialogBuilder = new AlertDialog.Builder(context);
+        View view = View .inflate(context, R.layout.dialog_prompt, null);
+        ((TextView)view.findViewById(R.id.prompt_title)).setText(title);
+        ((TextView)view.findViewById(R.id.prompt_content)).setText(content);
+        promptDialogBuilder.setView(view);
+        AlertDialog promptDialog = promptDialogBuilder.create();
+        view.findViewById(R.id.left_button).setOnClickListener(v ->{
+            if(dialogClick != null){
+                dialogClick.onclick("确定");
+            }
+            promptDialog.dismiss();
+        });
+        view.findViewById(R.id.right_button).setOnClickListener(v ->{
+            if(dialogClick != null){
+                dialogClick.onclick("取消");
+            }
+            promptDialog.dismiss();
+        });
+        promptDialog.show();
+    }
+
+    public void setDialogClick(DialogClick dialogClick) {
+        this.dialogClick = dialogClick;
+    }
+
     public void dimissDialog(){
         if(dialog != null){
             dialog.dismiss();
         }
+    }
+
+    public interface DialogClick{
+        void onclick(String str);
     }
 
 }

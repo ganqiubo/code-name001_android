@@ -176,7 +176,7 @@ public class ConversationAdapter extends RecyclerView.Adapter<ConversationAdapte
         request.setChatRoomType(message.getChatType());
         request.setConversionFrom(message.getFrom());
         request.setOwner(SPUtil.getInstance().getUser().getUserName());
-        new SocketRequest().resuest(MyApplication.ClientSocket, request, new SocketRequest.IRequest() {
+        new SocketRequest().request(MyApplication.ClientSocket, request, new SocketRequest.IRequest() {
             @Override
             public void onError(String msg) {
                 updatePhotoName(conversation, null, "?不存在?");
