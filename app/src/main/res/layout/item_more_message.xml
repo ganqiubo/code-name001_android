@@ -35,11 +35,11 @@
                 android:layout_height="wrap_content"
                 android:layout_gravity="center"
                 android:text="图片"
+                android:textColor="#787878"
                 android:textSize="11sp"
                 android:clickable="false"
                 android:focusable="false"/>
         </LinearLayout>
-
     </RelativeLayout>
 
 </RelativeLayout>

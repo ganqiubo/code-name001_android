@@ -83,6 +83,15 @@ public class BaseActivity extends FragmentActivity {
         overridePendingTransition(R.anim.activity_move_enter_anim, R.anim.activity_scale_out_anim);
     }
 
+    public void startActivityForResult(Class cls, Bundle bundle, int resultCode){
+        Intent intent = new Intent(this, cls);
+        if(bundle != null){
+            intent.putExtras(bundle);
+        }
+        startActivityForResult(intent, resultCode);
+        overridePendingTransition(R.anim.activity_move_enter_anim, R.anim.activity_scale_out_anim);
+    }
+
     @Override
     public void finish(){
         super.finish();

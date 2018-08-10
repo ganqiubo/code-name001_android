@@ -9,6 +9,9 @@ public class RequestMessage extends BaseMessage{
 	public RequestMessage() {
 		super();
 		// TODO Auto-generated constructor stub
+		/**
+		 * for android method
+		 * */
 		if(SPUtil.getInstance().getUser() != null){
 			setFrom(SPUtil.getInstance().getUser().getUserName());
 		}

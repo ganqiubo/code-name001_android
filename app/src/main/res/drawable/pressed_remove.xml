@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<selector xmlns:android="http://schemas.android.com/apk/res/android">
+    <item android:state_pressed="false">
+        <bitmap android:layout_width="match_parent"
+            android:src="@drawable/remove"
+            android:tint="#aaaaaa" />
+
+    </item>
+    <item android:state_pressed="true">
+        <bitmap android:src="@drawable/remove"
+            android:tint="#dd7711"/>
+    </item>
+</selector>

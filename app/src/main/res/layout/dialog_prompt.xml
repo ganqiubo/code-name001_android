@@ -20,14 +20,15 @@
 
     <TextView
         android:id="@+id/prompt_content"
-        android:layout_width="match_parent"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:textColor="#787878"
         android:layout_below="@+id/prompt_title"
         android:textSize="13sp"
-        android:gravity="center"
         android:layout_marginTop="5dp"
+        android:maxWidth="256dp"
         android:text="确定删除保存在本地的数据？"
+        android:layout_centerHorizontal="true"
         android:paddingBottom="22dp"
         />
 

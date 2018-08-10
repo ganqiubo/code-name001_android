@@ -56,8 +56,8 @@ public class FriendsAdapter extends RecyclerView.Adapter<FriendsAdapter.MyViewHo
         Friend friend = mList.get(position);
         holder.friendNickname.setText(friend.getNickName());
         holder.friendAutograph.setText(friend.getAutograph() == null ? "" : friend.getAutograph());
-        if (friend.getPhoto() != null) {
-            Glide.with(mContext).load(friend.getPhoto()).into(holder.friendPhoto);
+        if (friend.getPhoto() != null && friend.getPhoto().getFilePath() != null) {
+            Glide.with(mContext).load(friend.getPhoto().getFilePath()).into(holder.friendPhoto);
         } else {
             Glide.with(mContext).load(R.drawable.photo_default).into(holder.friendPhoto);
         }
@@ -74,7 +74,7 @@ public class FriendsAdapter extends RecyclerView.Adapter<FriendsAdapter.MyViewHo
         return mList != null ? mList.size() : 0;
     }
 
-    static class MyViewHolder extends RecyclerView.ViewHolder {
+    class MyViewHolder extends RecyclerView.ViewHolder {
 
         @BindView(R.id.friend_photo)
         ImageView friendPhoto;

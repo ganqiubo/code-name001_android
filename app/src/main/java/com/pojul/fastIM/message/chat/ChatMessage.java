@@ -8,6 +8,10 @@ public class ChatMessage extends BaseMessage{
 	protected int isRead;
 	protected int sendProgress;
 
+	public ChatMessage() {
+		super();
+	}
+
 	@Override
 	public void setFrom(String from) {
 		// TODO Auto-generated method stub

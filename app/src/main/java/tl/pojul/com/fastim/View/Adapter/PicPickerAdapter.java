@@ -4,8 +4,6 @@ import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
-import android.os.Handler;
-import android.os.Looper;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -25,16 +23,15 @@ import java.util.List;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import tl.pojul.com.fastim.R;
-import tl.pojul.com.fastim.util.FileUtil;
 import tl.pojul.com.fastim.util.URIUtil;
 
-public class UploadImgAdapter extends RecyclerView.Adapter<UploadImgAdapter.MyViewHolder> {
+public class PicPickerAdapter extends RecyclerView.Adapter<PicPickerAdapter.MyViewHolder> {
 
     private Context mContext;
     private List<String> mList;
     private static final int REQUEST_CODE_IMAGE = 1001;
 
-    public UploadImgAdapter(Context mContext, List<String> mList) {
+    public PicPickerAdapter(Context mContext, List<String> mList) {
         this.mContext = mContext;
         this.mList = mList;
     }

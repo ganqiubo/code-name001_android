@@ -29,8 +29,27 @@ android:orientation="horizontal"
         android:layout_marginRight="5dp"
         app:poly_vertices="0" />
 
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="vertical">
+
+        <TextView
+            android:id="@+id/nick_name"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="5dp"
+            android:ellipsize="middle"
+            android:maxWidth="180dp"
+            android:singleLine="true"
+            android:text="卫道者[穿越]"
+            android:paddingBottom="3dp"
+            android:textColor="#666666"
+            android:textSize="16dp" />
+
+
     <RelativeLayout
-        android:id="@+id/rl_audio"
+        android:id="@+id/rl_message"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:background="@drawable/ripple_corner"
@@ -61,7 +80,7 @@ android:orientation="horizontal"
             />
 
     </RelativeLayout>
-
+    </LinearLayout>
     <tl.pojul.com.fastim.View.widget.PolygonImage.view.PolygonImageView
         android:id="@+id/my_photo"
         android:layout_width="40dp"

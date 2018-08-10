@@ -265,6 +265,16 @@ public class FlowTagView extends View {
         return tagStrs.toString();
     }
 
+    public List<String> getSelectTags(){
+        List<String> selectTags = new ArrayList<>();
+        for (int i = 0; i < tags.size(); i++) {
+            if (tags.get(i).isSelected) {
+                selectTags.add(datas.get(i));
+            }
+        }
+        return selectTags;
+    }
+
     public void setSelectedTags(List<Integer> selectedTags){
         for(int i = 0; i < selectedTags.size(); i++){
             if(i < tags.size()){

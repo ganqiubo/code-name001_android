@@ -1,52 +1,50 @@
 package tl.pojul.com.fastim.View.Adapter;
 
-import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
-import android.media.MediaPlayer;
 import android.os.Build;
+import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
+import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
-import android.widget.MediaController;
 import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
-import android.widget.VideoView;
 
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.request.RequestOptions;
 import com.google.gson.Gson;
+import com.pojul.fastIM.entity.CommunityMessEntity;
 import com.pojul.fastIM.entity.Friend;
 import com.pojul.fastIM.entity.Message;
+import com.pojul.fastIM.entity.Pic;
 import com.pojul.fastIM.entity.User;
 import com.pojul.fastIM.message.chat.AudioMessage;
 import com.pojul.fastIM.message.chat.ChatMessage;
+import com.pojul.fastIM.message.chat.CommunityMessage;
 import com.pojul.fastIM.message.chat.DateMessage;
 import com.pojul.fastIM.message.chat.FileMessage;
 import com.pojul.fastIM.message.chat.NetPicMessage;
 import com.pojul.fastIM.message.chat.PicMessage;
+import com.pojul.fastIM.message.chat.TagCommuMessage;
 import com.pojul.fastIM.message.chat.TextChatMessage;
 import com.pojul.fastIM.message.chat.VideoMessage;
 import com.pojul.objectsocket.constant.StorageType;
 import com.pojul.objectsocket.message.BaseMessage;
-import com.pojul.objectsocket.utils.LogUtil;
 
 import java.io.File;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import tl.pojul.com.fastim.Media.AudioManager;
-import tl.pojul.com.fastim.Media.VideoManager;
 import tl.pojul.com.fastim.R;
 import tl.pojul.com.fastim.View.activity.ChatFileDownloadActivity;
 import tl.pojul.com.fastim.View.activity.VideoActivity;
@@ -55,6 +53,7 @@ import tl.pojul.com.fastim.socket.Converter.HistoryChatConverter;
 import tl.pojul.com.fastim.util.DateUtil;
 import tl.pojul.com.fastim.util.DensityUtil;
 import tl.pojul.com.fastim.util.DialogUtil;
+import tl.pojul.com.fastim.util.GlideUtil;
 
 /**
  * Created by gqb on 2018/6/13.
@@ -106,9 +105,12 @@ public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.BaseMess
                 case 7:
                     view = LayoutInflater.from(mContext).inflate(R.layout.item_date_message, parent, false);
                     return new DateMessageHolder(view);
+                case 8:
+                    view = LayoutInflater.from(mContext).inflate(R.layout.item_tag_message, parent, false);
+                    return new TagMessageHolder(view);
                 default:
                     view = LayoutInflater.from(mContext).inflate(R.layout.item_text_message, parent, false);
-                    return new PicMessageHolder(view);
+                    return new TextMessageHolder(view);
             }
         }
     }
@@ -139,6 +141,9 @@ public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.BaseMess
                 case 7:
                     bindDateMessageHolder((DateMessageHolder) holder, position);
                     break;
+                case 8:
+                    bindTagMessageHolder((TagMessageHolder) holder, position);
+                    break;
                 default:
                     break;
             }
@@ -152,22 +157,41 @@ public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.BaseMess
 
     @Override
     public int getItemViewType(int position) {
-        if (mList.get(position) instanceof TextChatMessage) {
+        ChatMessage chatMessage = mList.get(position);
+        if (chatMessage instanceof CommunityMessage) {
+            chatMessage = ((CommunityMessage) chatMessage).getContent();
+        }
+        if (chatMessage instanceof TextChatMessage) {
             return 1;
-        } else if (mList.get(position) instanceof PicMessage) {
+        } else if (chatMessage instanceof PicMessage) {
             return 2;
-        } else if (mList.get(position) instanceof AudioMessage) {
+        } else if (chatMessage instanceof AudioMessage) {
             return 3;
-        } else if (mList.get(position) instanceof NetPicMessage) {
+        } else if (chatMessage instanceof NetPicMessage) {
             return 4;
-        } else if (mList.get(position) instanceof FileMessage) {
+        } else if (chatMessage instanceof FileMessage) {
             return 5;
-        } else if (mList.get(position) instanceof VideoMessage) {
+        } else if (chatMessage instanceof VideoMessage) {
             return 6;
-        } else if (mList.get(position) instanceof DateMessage) {
+        } else if (chatMessage instanceof DateMessage) {
             return 7;
+        } else if (chatMessage instanceof TagCommuMessage) {
+            return 8;
         } else {
             return -1;
+        }
+    }
+
+    private ChatMessage extractMessage(int position) {
+        ChatMessage baseChatMessage = mList.get(position);
+        ChatMessage chatMessage;
+        if (baseChatMessage instanceof CommunityMessage) {
+            chatMessage = ((CommunityMessage) baseChatMessage).getContent();
+            chatMessage.setFrom(baseChatMessage.getFrom());
+            chatMessage.setTo(baseChatMessage.getTo());
+            return chatMessage;
+        } else {
+            return baseChatMessage;
         }
     }
 
@@ -182,7 +206,7 @@ public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.BaseMess
             layoutParams.addRule(RelativeLayout.ALIGN_PARENT_RIGHT);
             holder.friendPhoto.setVisibility(View.GONE);
             holder.myPhoto.setVisibility(View.VISIBLE);
-            Glide.with(mContext).load(user.getPhoto()).into(holder.myPhoto);
+            Glide.with(mContext).load(user.getPhoto().getFilePath()).into(holder.myPhoto);
         } else {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR1) {
                 layoutParams.removeRule(RelativeLayout.ALIGN_PARENT_RIGHT);
@@ -190,7 +214,11 @@ public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.BaseMess
             layoutParams.addRule(RelativeLayout.ALIGN_PARENT_LEFT);
             holder.friendPhoto.setVisibility(View.VISIBLE);
             holder.myPhoto.setVisibility(View.GONE);
-            Glide.with(mContext).load(friend.getPhoto()).into(holder.friendPhoto);
+            if (chatMessage instanceof CommunityMessage) {
+                Glide.with(mContext).load(((CommunityMessage) chatMessage).getPhoto().getFilePath()).into(holder.friendPhoto);
+            } else {
+                Glide.with(mContext).load(friend.getPhoto().getFilePath()).into(holder.friendPhoto);
+            }
         }
         if (chatMessage.getIsSend() == 0) {
             holder.progressBar1.setVisibility(View.VISIBLE);
@@ -199,16 +227,35 @@ public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.BaseMess
         } else {
             //发送失败图标
         }
+        if (chatMessage instanceof CommunityMessage) {
+            holder.nickName.setVisibility(View.VISIBLE);
+            if (user.getUserName().equals(chatMessage.getFrom())) {
+                holder.nickName.setText(user.getNickName());
+                ((LinearLayout.LayoutParams) holder.nickName.getLayoutParams()).gravity = Gravity.RIGHT;
+                ((LinearLayout.LayoutParams) holder.rlMessage.getLayoutParams()).gravity = Gravity.RIGHT;
+            } else {
+                holder.nickName.setText(((CommunityMessage) chatMessage).getNickName());
+                ((LinearLayout.LayoutParams) holder.nickName.getLayoutParams()).gravity = Gravity.LEFT;
+                ((LinearLayout.LayoutParams) holder.rlMessage.getLayoutParams()).gravity = Gravity.LEFT;
+            }
+        } else {
+            if (user.getUserName().equals(chatMessage.getFrom())) {
+                ((LinearLayout.LayoutParams) holder.rlMessage.getLayoutParams()).gravity = Gravity.RIGHT;
+            } else {
+                ((LinearLayout.LayoutParams) holder.rlMessage.getLayoutParams()).gravity = Gravity.LEFT;
+            }
+            holder.nickName.setVisibility(View.GONE);
+        }
     }
 
     private void bindTextMessageHolder(TextMessageHolder holder, int position) {
         bindBaseMessageHolder(holder, position);
-        TextChatMessage chatMessage = (TextChatMessage) mList.get(position);
+        TextChatMessage chatMessage = (TextChatMessage) extractMessage(position);
         holder.text.setText(chatMessage.getText());
     }
 
     private void bindPicMessageHolder(PicMessageHolder holder, int position) {
-        PicMessage picMessage = (PicMessage) mList.get(position);
+        PicMessage picMessage = (PicMessage) extractMessage(position);
         bindBaseMessageHolder(holder, position);
         if (picMessage.getPic().getFilePath() != null && !"".equals(picMessage.getPic().getFilePath())) {
             RequestOptions options = new RequestOptions();
@@ -247,17 +294,17 @@ public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.BaseMess
     }*/
 
     private void bindAudioMessageHolder(AudioMessageHolder holder, int position) {
-        AudioMessage audioMessage = (AudioMessage) mList.get(position);
+        AudioMessage audioMessage = (AudioMessage) extractMessage(position);
         bindBaseMessageHolder(holder, position);
         if (user.getUserName().equals(audioMessage.getFrom())) {
             holder.audio.setRotation(180);
         } else {
             holder.audio.setRotation(0);
-            holder.rlAudio.setOnClickListener(v -> {
+            holder.rlMessage.setOnClickListener(v -> {
 
             });
         }
-        holder.rlAudio.setOnClickListener(v -> {
+        holder.rlMessage.setOnClickListener(v -> {
             AudioManager.getInstance().playShortSound(R.raw.record_end);
             if (audioMessage.getAudio().getStorageType() == StorageType.LOCAL) {
                 if (new File(audioMessage.getAudio().getFilePath()).exists()) {
@@ -271,7 +318,7 @@ public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.BaseMess
     }
 
     private void bindNetPicMessageHolder(PicMessageHolder holder, int position) {
-        NetPicMessage netPicMessage = (NetPicMessage) mList.get(position);
+        NetPicMessage netPicMessage = (NetPicMessage) extractMessage(position);
         bindBaseMessageHolder(holder, position);
         RequestOptions options = new RequestOptions();
         options.placeholder(R.drawable.pic)
@@ -287,38 +334,38 @@ public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.BaseMess
     }
 
     private void bindFileMessageHolder(FileMessageHolder holder, int position) {
-        FileMessage fileMessage = (FileMessage) mList.get(position);
+        FileMessage fileMessage = (FileMessage) extractMessage(position);
         bindBaseMessageHolder(holder, position);
         holder.fileName.setText(fileMessage.getFile().getFileName());
-        holder.rlFile.setOnClickListener(v -> {
+        holder.rlMessage.setOnClickListener(v -> {
             Intent intent = new Intent(mContext, ChatFileDownloadActivity.class);
             intent.putExtra("fileMessage", new Gson().toJson(fileMessage));
             mContext.startActivity(intent);
         });
 
-        if(progressWidths.get(position) == null) {
+        if (progressWidths.get(position) == null) {
             int width = holder.fileIcon.getWidth() + holder.fileName.getWidth();
             int minWidth = DensityUtil.dp2px(mContext, 70);
-            if(width < minWidth){
+            if (width < minWidth) {
                 width = minWidth;
             }
             progressWidths.put(position, width);
         }
         int progressWidth = progressWidths.get(position);
-        holder.progressBar1.getLayoutParams().width =  progressWidth;
-        holder.progressBar1.getLayoutParams().height =  DensityUtil.dp2px(mContext, 3);
+        holder.progressBar1.getLayoutParams().width = progressWidth;
+        holder.progressBar1.getLayoutParams().height = DensityUtil.dp2px(mContext, 3);
         holder.progressBar1.setProgress(fileMessage.getSendProgress());
     }
 
-    private void bindVideoMessageHolder(VideoMessageHolder holder, int position){
-        VideoMessage videoMessage = (VideoMessage) mList.get(position);
+    private void bindVideoMessageHolder(VideoMessageHolder holder, int position) {
+        VideoMessage videoMessage = (VideoMessage) extractMessage(position);
         bindBaseMessageHolder(holder, position);
-        holder.play.setOnClickListener(view->{
+        holder.play.setOnClickListener(view -> {
             Intent intent = new Intent(mContext, VideoActivity.class);
             intent.putExtra("videoMessage", new Gson().toJson(videoMessage));
             mContext.startActivity(intent);
         });
-        if(videoMessage.getFirstPic() != null){
+        if (videoMessage.getFirstPic() != null) {
             RequestOptions options = new RequestOptions();
             options.placeholder(R.drawable.pic)
                     .error(R.drawable.pic)
@@ -326,22 +373,103 @@ public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.BaseMess
             Glide.with(mContext).load(videoMessage.getFirstPic().getFilePath()).apply(options).into(holder.pic);
         }
 
-        if(videoMessage.getVideoWidth() > 0 && videoMessage.getVideoHeight() > 0 && videoMessage.getIsSend() == 0){
+        if (videoMessage.getVideoWidth() > 0 && videoMessage.getVideoHeight() > 0 && videoMessage.getIsSend() == 0) {
             int progressWidth;
-            if(videoMessage.getVideoHeight() > videoMessage.getVideoWidth()){
-                if(progressWidths.get(position) == null){
-                    float scale = videoMessage.getVideoWidth()*1.0f / videoMessage.getVideoHeight();
+            if (videoMessage.getVideoHeight() > videoMessage.getVideoWidth()) {
+                if (progressWidths.get(position) == null) {
+                    float scale = videoMessage.getVideoWidth() * 1.0f / videoMessage.getVideoHeight();
                     int width = (int) (DensityUtil.dp2px(mContext, 100) * scale);
                     progressWidths.put(position, width);
                 }
                 progressWidth = progressWidths.get(position) - 6;
-            }else{
+            } else {
                 progressWidth = DensityUtil.dp2px(mContext, 100) - 6;
             }
-            holder.progressBar1.getLayoutParams().width =  progressWidth- 6;
-            holder.progressBar1.getLayoutParams().height =  DensityUtil.dp2px(mContext, 3);
+            holder.progressBar1.getLayoutParams().width = progressWidth - 6;
+            holder.progressBar1.getLayoutParams().height = DensityUtil.dp2px(mContext, 3);
             holder.progressBar1.setProgress(videoMessage.getSendProgress());
         }
+    }
+
+    private void bindTagMessageHolder(TagMessageHolder holder, int position) {
+        TagCommuMessage tagMessage = (TagCommuMessage) mList.get(holder.getAdapterPosition());
+        bindBaseMessageHolder(holder, holder.getAdapterPosition());
+        if(tagMessage.getHasReport() == 1){
+            holder.reportTv.setText("已举报");
+            holder.reportRl.setOnClickListener(null);
+            holder.reportTv.setSelected(true);
+            holder.reportIv.setSelected(true);
+        }else{
+            holder.reportTv.setText("举报");
+            holder.reportTv.setSelected(false);
+            holder.reportIv.setSelected(false);
+            holder.reportRl.setOnClickListener(v -> {
+                holder.reportTv.setSelected(true);
+                holder.reportIv.setSelected(true);
+            });
+        }
+        if(tagMessage.getHsaThumbsUp() == 1){
+            holder.thumbUpTv.setSelected(true);
+            holder.thumbUpIv.setSelected(true);
+            holder.thumbUpRl.setOnClickListener(null);
+        }else{
+            holder.thumbUpTv.setSelected(false);
+            holder.thumbUpIv.setSelected(false);
+            holder.thumbUpRl.setOnClickListener(v -> {
+                holder.thumbUpTv.setSelected(true);
+                holder.thumbUpIv.setSelected(true);
+            });
+        }
+        holder.replyRl.setOnClickListener(v -> {
+            holder.replyIv.performClick();
+            holder.replyNumTv.performClick();
+        });
+        if (tagMessage.getTitle() == null || tagMessage.getTitle().isEmpty()) {
+            holder.title.setText("");
+        } else {
+            holder.title.setText(tagMessage.getTitle());
+        }
+        if (tagMessage.getPics() == null || tagMessage.getPics().size() <= 0) {
+            holder.pics.setVisibility(View.GONE);
+            holder.img.setVisibility(View.GONE);
+        } else {
+            //holder.pics.setVisibility(View.VISIBLE);
+            if (tagMessage.getPics().size() == 1) {
+                holder.pics.setVisibility(View.GONE);
+                holder.img.setVisibility(View.VISIBLE);
+                GlideUtil.setImageBitmap(tagMessage.getPics().get(0).getUploadPicUrl().getFilePath(), holder.img, 0.5f);
+            } else {
+                holder.pics.setVisibility(View.VISIBLE);
+                holder.img.setVisibility(View.GONE);
+                if(tagMessage.getPics().size() == 2){
+                    holder.pics.setLayoutManager(new GridLayoutManager(mContext, 2));
+                    holder.pics.setAdapter(new TagPicAdapter(mContext, tagMessage.getPics()));
+                }else if(tagMessage.getPics().size() > 2){
+                    holder.pics.setLayoutManager(new GridLayoutManager(mContext, 3));
+                    List<Pic> pics = new ArrayList<>();
+                    for (int i =0; i < 3; i++){
+                        pics.add(tagMessage.getPics().get(i));
+                    }
+                    holder.pics.setAdapter(new TagPicAdapter(mContext, pics));
+                }
+            }
+            /**
+             *
+             * */
+        }
+        if (tagMessage.getText() == null || tagMessage.getText().isEmpty()) {
+            holder.note.setVisibility(View.GONE);
+        } else {
+            holder.note.setVisibility(View.VISIBLE);
+            holder.note.setText("\u3000" + tagMessage.getText());
+        }
+        if (tagMessage.getIsEffective() == 0) {
+            holder.isEffective.setText("有效");
+        } else {
+            holder.isEffective.setText("已失效");
+        }
+        holder.progressBar1.setProgress(tagMessage.getSendProgress());
+
     }
 
     private void bindDateMessageHolder(DateMessageHolder holder, int position) {
@@ -359,10 +487,16 @@ public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.BaseMess
         LinearLayout llTextMessage;
         @BindView(R.id.progressBar1)
         ProgressBar progressBar1;
+        /*@BindView(R.id.nick_name)*/
+        TextView nickName;
+        //@BindView(R.id.rl_message)
+        RelativeLayout rlMessage;
 
         public BaseMessageHolder(View itemView) {
             super(itemView);
             ButterKnife.bind(this, itemView);
+            nickName = itemView.findViewById(R.id.nick_name);
+            rlMessage = itemView.findViewById(R.id.rl_message);
         }
     }
 
@@ -392,8 +526,6 @@ public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.BaseMess
 
         @BindView(R.id.audio)
         ImageView audio;
-        @BindView(R.id.rl_audio)
-        RelativeLayout rlAudio;
 
         public AudioMessageHolder(View itemView) {
             super(itemView);
@@ -407,8 +539,6 @@ public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.BaseMess
         ImageView fileIcon;
         @BindView(R.id.file_name)
         TextView fileName;
-        @BindView(R.id.rl_file)
-        RelativeLayout rlFile;
 
         public FileMessageHolder(View itemView) {
             super(itemView);
@@ -440,6 +570,51 @@ public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.BaseMess
         }
     }
 
+    class TagMessageHolder extends BaseMessageHolder {
+
+        @BindView(R.id.title)
+        TextView title;
+        @BindView(R.id.pics)
+        RecyclerView pics;
+        @BindView(R.id.note)
+        TextView note;
+        @BindView(R.id.content_ll)
+        RelativeLayout contentLl;
+        @BindView(R.id.reply1)
+        TextView reply1;
+        @BindView(R.id.replys)
+        LinearLayout replys;
+        @BindView(R.id.report_iv)
+        ImageView reportIv;
+        @BindView(R.id.report_tv)
+        TextView reportTv;
+        @BindView(R.id.report_rl)
+        RelativeLayout reportRl;
+        @BindView(R.id.thumb_up_iv)
+        ImageView thumbUpIv;
+        @BindView(R.id.thumb_up_tv)
+        TextView thumbUpTv;
+        @BindView(R.id.thumb_up_rl)
+        RelativeLayout thumbUpRl;
+        @BindView(R.id.reply_iv)
+        ImageView replyIv;
+        @BindView(R.id.reply_num_tv)
+        TextView replyNumTv;
+        @BindView(R.id.reply_rl)
+        RelativeLayout replyRl;
+        @BindView(R.id.is_effective)
+        TextView isEffective;
+        @BindView(R.id.detail)
+        TextView detail;
+        @BindView(R.id.img)
+        ImageView img;
+
+        public TagMessageHolder(View itemView) {
+            super(itemView);
+            ButterKnife.bind(this, itemView);
+        }
+    }
+
     public void onSendFinish(BaseMessage message) {
         synchronized (mList) {
             for (int i = (mList.size() - 1); i >= 0; i--) {
@@ -456,7 +631,11 @@ public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.BaseMess
         synchronized (mList) {
             for (int i = (mList.size() - 1); i >= 0; i--) {
                 if (message.getMessageUid() != null && message.getMessageUid().equals(mList.get(i).getMessageUid())) {
-                    if(message instanceof FileMessage || message instanceof VideoMessage){
+                    BaseMessage mMessage = message;
+                    if(message instanceof CommunityMessage){
+                        mMessage = ((CommunityMessage) message).getContent();
+                    }
+                    if (mMessage instanceof FileMessage || mMessage instanceof VideoMessage || message instanceof TagCommuMessage) {
                         mList.get(i).setSendProgress(progress);
                         notifyItemChanged(i);
                     }
@@ -478,14 +657,27 @@ public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.BaseMess
         }
     }
 
+    public void addHistoryChat(List<CommunityMessEntity> communityMessEntities) {
+        synchronized (mList) {
+            List<ChatMessage> chatMessages = new HistoryChatConverter().converter(communityMessEntities);
+            if (chatMessages.size() > 0 && mList.size() > 1 && (mList.get(0) instanceof DateMessage) &&
+                    !DateUtil.isDiffDay(chatMessages.get(chatMessages.size() - 1).getSendTime(), mList.get(1).getSendTime())) {
+                mList.remove(0);
+                notifyItemRemoved(0);
+            }
+            mList.addAll(0, chatMessages);
+            this.notifyItemRangeInserted(0, chatMessages.size());
+        }
+    }
+
     public void addHistoryChat(ArrayList<Message> messages) {
         /**
          * 添加时间检测
          * */
-        synchronized (mList){
+        synchronized (mList) {
             List<ChatMessage> chatMessages = new HistoryChatConverter().converter(messages);
-            if(chatMessages.size() > 0 && mList.size() > 1 && (mList.get(0) instanceof DateMessage) &&
-                    !DateUtil.isDiffDay(chatMessages.get(chatMessages.size() -1).getSendTime(), mList.get(1).getSendTime())){
+            if (chatMessages.size() > 0 && mList.size() > 1 && (mList.get(0) instanceof DateMessage) &&
+                    !DateUtil.isDiffDay(chatMessages.get(chatMessages.size() - 1).getSendTime(), mList.get(1).getSendTime())) {
                 mList.remove(0);
                 notifyItemRemoved(0);
             }
@@ -499,7 +691,7 @@ public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.BaseMess
          * 添加时间检测
          * */
         synchronized (mList) {
-            if(isDiffDayWithPrev(message)){
+            if (isDiffDayWithPrev(message)) {
                 mList.add(new DateMessage(DateUtil.transformToRoughDate(message.getSendTime())));
                 notifyItemInserted((mList.size() - 1));
             }
@@ -513,7 +705,7 @@ public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.BaseMess
          * 添加时间检测
          * */
         synchronized (mList) {
-            if(isDiffDayWithPrev(message)){
+            if (isDiffDayWithPrev(message)) {
                 mList.add(new DateMessage(DateUtil.transformToRoughDate(message.getSendTime())));
                 notifyItemInserted((mList.size() - 1));
             }
@@ -522,13 +714,13 @@ public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.BaseMess
         }
     }
 
-    public boolean isDiffDayWithPrev(ChatMessage message){
-        if(mList.size() == 0){
+    public boolean isDiffDayWithPrev(ChatMessage message) {
+        if (mList.size() == 0) {
             return true;
         }
-        if(DateUtil.isDiffDay(message.getSendTime(), mList.get((mList.size() -1)).getSendTime())){
+        if (DateUtil.isDiffDay(message.getSendTime(), mList.get((mList.size() - 1)).getSendTime())) {
             return true;
-        }else{
+        } else {
             return false;
         }
     }

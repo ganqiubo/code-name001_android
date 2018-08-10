@@ -6,11 +6,18 @@ import android.media.MediaMetadataRetriever;
 import android.support.annotation.NonNull;
 import android.util.Log;
 
+import com.pojul.fastIM.message.chat.AudioCommuMessage;
 import com.pojul.fastIM.message.chat.AudioMessage;
 import com.pojul.fastIM.message.chat.ChatMessage;
+import com.pojul.fastIM.message.chat.CommunityMessage;
 import com.pojul.fastIM.message.chat.FileMessage;
+import com.pojul.fastIM.message.chat.NetPicCommuMessage;
+import com.pojul.fastIM.message.chat.NetPicMessage;
+import com.pojul.fastIM.message.chat.PicCommuMessage;
 import com.pojul.fastIM.message.chat.PicMessage;
 import com.pojul.fastIM.message.chat.TextChatMessage;
+import com.pojul.fastIM.message.chat.TextCommuMessage;
+import com.pojul.fastIM.message.chat.VideoCommuMessage;
 import com.pojul.fastIM.message.chat.VideoMessage;
 import com.pojul.objectsocket.constant.StorageType;
 import com.pojul.objectsocket.utils.FileClassUtil;
@@ -33,25 +40,45 @@ public class ChatMessageFcctory {
     private final static String TAG = "ChatMessageFcctory";
 
     public ChatMessage create(int messageType, @NonNull String filePath, int chatRoomType){
+        ChatMessage chatMessage;
+        CommunityMessage communityMessage = null;
         switch (messageType){
             case TYPE_PIC:
-                return createPicMessage(filePath, chatRoomType);
+                chatMessage =  createPicMessage(filePath, chatRoomType);
+                communityMessage = new PicCommuMessage();
+                break;
             case TYPE_AUDIO:
-                return createAudioMessage(filePath, chatRoomType);
+                chatMessage = createAudioMessage(filePath, chatRoomType);
+                communityMessage = new AudioCommuMessage();
+                break;
             case TYPE_VIDEO:
-                return createVideoMessage(filePath, chatRoomType);
+                chatMessage =  createVideoMessage(filePath, chatRoomType);
+                communityMessage = new VideoCommuMessage();
+                break;
             case TYPE_FILE:
                 if(FileClassUtil.isPathPicFile(filePath)){
-                    return createPicMessage(filePath, chatRoomType);
+                    chatMessage =  createPicMessage(filePath, chatRoomType);
+                    communityMessage = new PicCommuMessage();
                 } else if(FileClassUtil.isPathAudioFile(filePath)){
-                    return createAudioMessage(filePath, chatRoomType);
+                    chatMessage =  createAudioMessage(filePath, chatRoomType);
+                    communityMessage = new AudioCommuMessage();
                 } else if(FileClassUtil.isPathVideoFile(filePath)){
-                    return createVideoMessage(filePath, chatRoomType);
+                    chatMessage =  createVideoMessage(filePath, chatRoomType);
+                    communityMessage = new VideoCommuMessage();
                 } else {
-                    return createFileMessage(filePath, chatRoomType);
+                    chatMessage = createFileMessage(filePath, chatRoomType);
                 }
+                break;
             default:
-                return new ChatMessage();
+                chatMessage =  new ChatMessage();
+                break;
+        }
+        if(chatRoomType == 3 && communityMessage != null){
+            communityMessage.setContent(chatMessage);
+            communityMessage.setChatType(chatRoomType);
+            return communityMessage;
+        }else{
+            return chatMessage;
         }
     }
 
@@ -111,6 +138,22 @@ public class ChatMessageFcctory {
         textChatMessage.setChatType(chatRoomType);
         textChatMessage.setText(text);
         return textChatMessage;
+    }
+
+    public CommunityMessage createCommunityMessage(ChatMessage baseTypeMessage){
+        CommunityMessage communityMessage = null;
+        if(baseTypeMessage instanceof TextChatMessage){
+            communityMessage = new TextCommuMessage();
+        }else if(baseTypeMessage instanceof NetPicMessage){
+            communityMessage = new NetPicCommuMessage();
+        }
+        if(communityMessage == null){
+            communityMessage = new CommunityMessage();
+        }
+        baseTypeMessage.setChatType(3);
+        communityMessage.setContent(baseTypeMessage);
+        communityMessage.setChatType(3);
+        return communityMessage;
     }
 
 }

@@ -1,8 +1,11 @@
 package com.pojul.fastIM.entity;
 
-import com.pojul.objectsocket.message.StringFile;
-
 import java.sql.ResultSet;
+
+import com.google.gson.Gson;
+import com.pojul.fastIM.utils.ServerConstant;
+import com.pojul.objectsocket.message.StringFile;
+import com.pojul.objectsocket.utils.Constant;
 
 public class User extends BaseEntity{
 
@@ -13,6 +16,12 @@ public class User extends BaseEntity{
 	protected String registDate;
 	protected StringFile photo;
 	protected String autograph;
+	protected int sex;
+	protected int certificate;
+	protected int credit;
+	protected int age;
+	protected int ban;
+	private int showCommunityLoc; //0: 显示; 1: 不显示
 	
 	public User() {
 		super();
@@ -62,12 +71,8 @@ public class User extends BaseEntity{
 		this.registDate = registDate;
 	}
 	
-	public String getPhoto() {
-		if(photo != null){
-			return photo.getFilePath();
-		}else{
-			return null;
-		}
+	public StringFile getPhoto() {
+		return photo;
 	}
 
 	public void setPhoto(StringFile photo) {
@@ -82,12 +87,57 @@ public class User extends BaseEntity{
 		this.autograph = autograph;
 	}
 
-	
+	public int getSex() {
+		return sex;
+	}
+
+	public void setSex(int sex) {
+		this.sex = sex;
+	}
+
+	public int getCertificate() {
+		return certificate;
+	}
+
+	public void setCertificate(int certificate) {
+		this.certificate = certificate;
+	}
+
+	public int getCredit() {
+		return credit;
+	}
+
+	public void setCredit(int credit) {
+		this.credit = credit;
+	}
+
+	public int getAge() {
+		return age;
+	}
+
+	public void setAge(int age) {
+		this.age = age;
+	}
+
+	public int getBan() {
+		return ban;
+	}
+
+	public void setBan(int ban) {
+		this.ban = ban;
+	}
 
 	@Override
 	public String toString() {
-		return "User [id=" + id + ", userName=" + userName + ", passwd=" + passwd + ", nickName=" + nickName
-				+ ", registDate=" + registDate + ", photo=" + photo + ", autograph=" + autograph + "]";
+		return new Gson().toJson(this);
+	}
+
+	public int getShowCommunityLoc() {
+		return showCommunityLoc;
+	}
+
+	public void setShowCommunityLoc(int showCommunityLoc) {
+		this.showCommunityLoc = showCommunityLoc;
 	}
 
 	@Override
@@ -102,7 +152,14 @@ public class User extends BaseEntity{
 		nickName = getString(rs, "nick_name");
 		registDate = getString(rs, "regist_date");
 		photo = getStringFile(rs, "photo");
+		photo.setFilePath(Constant.BASE_URL + photo.getFilePath());
 		autograph = getString(rs, "autograph");
+		sex = getInt(rs, "sex");
+		certificate = getInt(rs, "certificate");
+		credit = getInt(rs, "credit");
+		age = getInt(rs, "age");
+		ban = getInt(rs, "ban");
+		showCommunityLoc = getInt(rs, "show_community_loc");
 	}
 
 	

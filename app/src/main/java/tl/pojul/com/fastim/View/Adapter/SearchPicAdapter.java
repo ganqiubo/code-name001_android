@@ -14,6 +14,7 @@ import android.widget.Toast;
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.bumptech.glide.request.RequestOptions;
+import com.pojul.fastIM.message.chat.CommunityMessage;
 import com.pojul.fastIM.message.chat.NetPicMessage;
 import com.pojul.objectsocket.constant.FileType;
 
@@ -27,6 +28,7 @@ import butterknife.ButterKnife;
 import okhttp3.Call;
 import okhttp3.Callback;
 import okhttp3.Response;
+import tl.pojul.com.fastim.Factory.ChatMessageFcctory;
 import tl.pojul.com.fastim.MyApplication;
 import tl.pojul.com.fastim.R;
 import tl.pojul.com.fastim.View.activity.ChatRoomActivity;
@@ -98,8 +100,13 @@ public class SearchPicAdapter extends RecyclerView.Adapter<SearchPicAdapter.View
             }catch(Exception e){}
         });
         holder.send.setOnClickListener(v->{
-            netPicMessage.setChatType(1);
-            ((ChatRoomActivity)mContext).sendChatMessage(netPicMessage);
+            if (chatRoomType == 3){
+                CommunityMessage communityMessage = new ChatMessageFcctory().createCommunityMessage(netPicMessage);
+                ((ChatRoomActivity)mContext).sendChatMessage(communityMessage);
+            }else{
+                netPicMessage.setChatType(chatRoomType);
+                ((ChatRoomActivity)mContext).sendChatMessage(netPicMessage);
+            }
         });
 
     }

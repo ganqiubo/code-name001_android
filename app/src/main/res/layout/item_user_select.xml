@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:background="#ffffff"
+    android:orientation="vertical">
+
+    <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+        xmlns:app="http://schemas.android.com/apk/res-auto"
+        android:layout_width="match_parent"
+        android:layout_height="66dp">
+
+        <tl.pojul.com.fastim.View.widget.PolygonImage.view.PolygonImageView
+            android:id="@+id/photo"
+            android:layout_width="58dp"
+            android:layout_height="58dp"
+            android:layout_marginLeft="5dp"
+            android:layout_centerVertical="true"
+            android:padding="6dp"
+            android:src="@drawable/photo_default"
+            app:poly_border="true"
+            app:poly_border_color="#44b8e2"
+            app:poly_border_width="1dp"
+            app:poly_corner_radius="10"
+            app:poly_rotation_angle="10"
+            app:poly_shadow_color="#ff000000"
+            app:poly_shadow="true"
+            app:poly_vertices="0" />
+
+        <TextView
+            android:id="@+id/nick_name"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerVertical="true"
+            android:layout_marginLeft="1dp"
+            android:layout_toRightOf="@+id/photo"
+            android:text="韩信"
+            android:textColor="#454545"
+            android:textSize="17sp"
+            android:textStyle="italic" />
+
+        <ImageView
+            android:id="@+id/sex"
+            android:layout_width="15dp"
+            android:layout_height="15dp"
+            android:layout_centerVertical="true"
+            android:padding="2dp"
+            android:layout_marginLeft="2dp"
+            android:layout_toRightOf="@+id/nick_name"
+            android:src="@drawable/man" />
+
+        <RelativeLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentRight="true"
+            android:layout_centerVertical="true"
+            android:layout_marginRight="20dp">
+
+            <ImageView
+                android:id="@+id/select"
+                android:layout_width="31dp"
+                android:layout_height="31dp"
+                android:padding="7dp"
+                android:clickable="true"
+                android:layout_toRightOf="@+id/remove"
+                android:src="@drawable/selector_radio_yellow" />
+
+            <ImageView
+                android:id="@+id/remove"
+                android:layout_width="31dp"
+                android:layout_height="31dp"
+                android:padding="4dp"
+                android:clickable="true"
+                android:src="@drawable/pressed_remove" />
+        </RelativeLayout>
+
+    </RelativeLayout>
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="1px"
+        android:background="#e2e2e2" />
+
+</LinearLayout>

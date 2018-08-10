@@ -1,14 +1,81 @@
 <?xml version="1.0" encoding="utf-8"?>
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".View.fragment.CommunityFragment">
+    android:orientation="vertical"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
 
-    <!-- TODO: Update blank fragment layout -->
-    <TextView
+    <RelativeLayout
+        android:id="@+id/header"
+        android:layout_width="match_parent"
+        android:layout_height="50dp">
+
+        <ImageView
+            android:id="@+id/community_set"
+            android:layout_width="62dp"
+            android:layout_height="match_parent"
+            android:layout_centerVertical="true"
+            android:layout_alignParentLeft="true"
+            android:paddingTop="12dp"
+            android:paddingBottom="12dp"
+            android:background="@drawable/ripple_normal"
+            android:src="@drawable/selector_home_set"
+            android:clickable="true"
+            />
+
+        <ImageView
+            android:id="@+id/community_mode"
+            android:layout_width="62dp"
+            android:layout_height="match_parent"
+            android:layout_centerVertical="true"
+            android:layout_alignParentRight="true"
+            android:paddingTop="14dp"
+            android:paddingBottom="14dp"
+            android:background="@drawable/ripple_normal"
+            android:tint="#787878"
+            android:src="@drawable/show_inmap_normal"
+            android:clickable="true"
+            />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:layout_centerHorizontal="true"
+            android:gravity="center"
+            android:text="社区"
+            android:textColor="#676767"
+            android:textSize="16sp" />
+    </RelativeLayout>
+
+    <View
+        android:id="@+id/header_line"
+        android:layout_width="match_parent"
+        android:layout_height="2px"
+        android:background="#e1e1e1"
+        android:layout_below="@id/header"/>
+
+    <android.support.design.widget.TabLayout
+        android:id="@+id/page_tabs"
+        android:layout_width="match_parent"
+        android:layout_height="32dp"
+        android:layout_gravity="top"
+        app:tabGravity="fill"
+        app:tabIndicatorHeight="1dp"
+        app:tabIndicatorColor="#1296db"
+        app:tabMode="fixed"
+        app:tabSelectedTextColor="#1296db"
+        app:tabTextColor="#aaaaaa"
+        android:background="#ffffff"
+        android:fillViewport="false" />
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="1px"
+        android:background="#e1e1e1" />
+
+    <tl.pojul.com.fastim.View.widget.MyViewPager
+        android:id="@+id/container"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:text="@string/hello_blank_fragment" />
-
-</FrameLayout>
+        android:layout_weight="1" />
+</LinearLayout>

@@ -70,7 +70,6 @@ public class FriendsFragment extends BaseFragment {
 
         friendsList.setSwipeMenuCreator(swipeMenuCreator);
         friendsList.setSwipeMenuItemClickListener(mMenuItemClickListener);
-        smartRefresh.setEnableLoadmore(true);
         smartRefresh.setOnRefreshListener(new OnRefreshListener() {
             @Override
             public void onRefresh(RefreshLayout refreshlayout) {

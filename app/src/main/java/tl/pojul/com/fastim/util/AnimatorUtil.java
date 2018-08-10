@@ -6,6 +6,7 @@ import android.animation.ObjectAnimator;
 import android.animation.ValueAnimator;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 
 import tl.pojul.com.fastim.MyApplication;
 
@@ -60,7 +61,7 @@ public class AnimatorUtil {
         animator.start();
     }
 
-    public static void startPopObjAnimator(View view, AnimatorListener animatoviewrListener){
+    public static void startPopObjAnimator(ImageView view, AnimatorListener animatoviewrListener){
         ViewGroup.LayoutParams layoutParams = view.getLayoutParams();
         float rawX = view.getX();
         float rawY = view.getY();
@@ -74,7 +75,11 @@ public class AnimatorUtil {
         float scale;
         float dy;
         float dx;
-        if(scalex <= scaley){
+
+        dx =  - view.getX();
+        dy = - view.getY() + (scaley - scalex) * rawHeight *0.5f;
+        scale = scalex;
+        /*if(scalex <= scaley){
             dx =  - view.getX();
             dy = - view.getY() + (scaley - scalex) * rawHeight *0.5f;
             scale = scalex;
@@ -82,7 +87,7 @@ public class AnimatorUtil {
             dx =  - view.getX() + (scalex - scaley) * rawWidth *0.5f;
             dy = - view.getY();
             scale = scaley;
-        }
+        }*/
         view.setPivotX(0);
         view.setPivotY(0);
 
@@ -91,8 +96,8 @@ public class AnimatorUtil {
         ObjectAnimator objectAnimator3 = ObjectAnimator.ofFloat(view, "scaleX", scale);
         ObjectAnimator objectAnimator4 = ObjectAnimator.ofFloat(view, "scaleY", scale);
         AnimatorSet animatorSet = new AnimatorSet();
-        animatorSet.setDuration(380);
-        animatorSet.setStartDelay(30);
+        animatorSet.setDuration(400);
+        //animatorSet.setStartDelay(30);
         animatorSet.play(objectAnimator1).with(objectAnimator2).with(objectAnimator3).with(objectAnimator4);
         animatorSet.addListener(new Animator.AnimatorListener() {
             @Override

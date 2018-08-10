@@ -18,6 +18,7 @@ import com.pojul.fastIM.entity.Conversation;
 import com.pojul.fastIM.entity.Friend;
 import com.pojul.fastIM.message.chat.AudioMessage;
 import com.pojul.fastIM.message.chat.ChatMessage;
+import com.pojul.fastIM.message.chat.CommunityMessage;
 import com.pojul.fastIM.message.chat.FileMessage;
 import com.pojul.fastIM.message.chat.NetPicMessage;
 import com.pojul.fastIM.message.chat.PicMessage;
@@ -123,6 +124,9 @@ public class ConversationAdapter extends RecyclerView.Adapter<ConversationAdapte
     }
 
     public void receiveMessage(BaseMessage message) {
+        if(message instanceof CommunityMessage){
+            return;
+        }
         synchronized (mList){
             if (mList == null) {
                 return;

@@ -32,6 +32,9 @@ public class MyViewPager extends ViewPager {
                 return true;
             }
         }
+        if(this.getCurrentItem() == 3){
+            return true;
+        }
         return super.canScroll(v, checkV, dx, x, y);
     }
 

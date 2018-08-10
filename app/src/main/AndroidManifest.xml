@@ -65,7 +65,15 @@
             android:theme="@style/AppTheme.NoActionBar" />
         <activity android:name=".View.activity.UploadPicActivity" />
         <activity android:name=".View.activity.SavedPicActivity" />
-        <activity android:name=".View.activity.UploadingPicActivity"></activity>
+        <activity android:name=".View.activity.UploadingPicActivity" />
+        <activity android:name=".View.activity.CommunitySetActivity" />
+        <activity android:name=".View.activity.CommunityChatActivity" />
+        <activity android:name=".View.activity.CommunityMapActivity" />
+        <activity android:name=".View.activity.TagMessageActivity" />
+        <activity android:name=".View.activity.WhiteBlackActivity" />
+        <activity android:name=".View.activity.UserSelectActivity" />
+        <activity android:name=".View.activity.WhiteBlackListActivity" />
+        <activity android:name=".View.activity.UserSearchActivity"></activity>
     </application>
 
 </manifest>

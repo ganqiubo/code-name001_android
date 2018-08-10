@@ -16,11 +16,7 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.pojul.fastIM.entity.Pic;
 import com.pojul.fastIM.entity.UploadPic;
-import com.pojul.fastIM.message.request.UploadPicReq;
-import com.pojul.objectsocket.message.ResponseMessage;
-import com.pojul.objectsocket.socket.SocketRequest;
 
-import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -29,9 +25,10 @@ import butterknife.ButterKnife;
 import butterknife.OnClick;
 import tl.pojul.com.fastim.MyApplication;
 import tl.pojul.com.fastim.R;
-import tl.pojul.com.fastim.View.Adapter.UploadImgAdapter;
+import tl.pojul.com.fastim.View.Adapter.PicPickerAdapter;
 import tl.pojul.com.fastim.View.widget.FlowTagView;
 import tl.pojul.com.fastim.dao.UploadPicDao;
+import tl.pojul.com.fastim.map.baidu.LocationManager;
 import tl.pojul.com.fastim.socket.upload.PicUploadManager;
 import tl.pojul.com.fastim.util.ArrayUtil;
 import tl.pojul.com.fastim.util.DateUtil;
@@ -65,7 +62,7 @@ public class UploadPicActivity extends BaseActivity {
     @BindView(R.id.self_label)
     EditText selfLabelEt;
 
-    private UploadImgAdapter uploadImgAdapter;
+    private PicPickerAdapter picPickerAdapter;
     //private UploadPic uploadPic;
     private int uploadPicType;//1: 普通图片 2: 位置图片
     private BDLocation mBDLocation;
@@ -137,8 +134,8 @@ public class UploadPicActivity extends BaseActivity {
                 }).commit();
         showAccurate.setChecked(true);
         uploadImgs.setLayoutManager(new GridLayoutManager(this, 3));
-        uploadImgAdapter = new UploadImgAdapter(this, pics);
-        uploadImgs.setAdapter(uploadImgAdapter);
+        picPickerAdapter = new PicPickerAdapter(this, pics);
+        uploadImgs.setAdapter(picPickerAdapter);
 
         if (uploadPicType == 1) {
             locationLl.setVisibility(View.GONE);
@@ -186,7 +183,7 @@ public class UploadPicActivity extends BaseActivity {
                 savedPics.add(pic.getUploadPicUrl().getFilePath());
             }
             pics.addAll(0, savedPics);
-            uploadImgAdapter.notifyDataSetChanged();
+            picPickerAdapter.notifyDataSetChanged();
         }
 
         //地理位置
@@ -235,9 +232,7 @@ public class UploadPicActivity extends BaseActivity {
                         "模糊位是置指图片将会显示在地图附近范围内的随机位置上;\n精确位置将会按照图片的实际地理位置显示");
                 break;
             case R.id.get_location:
-                MyApplication.getApplication().registerLocationListener(iLocationListener);
-                MyApplication.getApplication().requireLocAddr(true);
-                MyApplication.getApplication().mLocationClient.restart();
+                LocationManager.getInstance().registerLocationListener(iLocationListener);
                 getLocation.setText("获取中...");
                 break;
             case R.id.upload:
@@ -278,25 +273,25 @@ public class UploadPicActivity extends BaseActivity {
         }
     }
 
-    private MyApplication.ILocationListener iLocationListener = new MyApplication.ILocationListener() {
+    private LocationManager.ILocationListener iLocationListener = new LocationManager.ILocationListener() {
         @Override
         public void onReceive(BDLocation bdLocation) {
             location.setText(bdLocation.getAddrStr());
-            MyApplication.getApplication().unRegisterLocationListener(iLocationListener);
+            LocationManager.getInstance().unRegisterLocationListener(iLocationListener);
             mBDLocation = bdLocation;
             getLocation.setText("获取位置");
         }
 
         @Override
         public void onFail(String msg) {
-            MyApplication.getApplication().unRegisterLocationListener(iLocationListener);
+            LocationManager.getInstance().unRegisterLocationListener(iLocationListener);
             getLocation.setText("重新获取");
             showShortToas("位置获取失败");
         }
     };
 
     public UploadPic getUploadPic(){
-        List<Pic> pics = uploadImgAdapter.getPics();
+        List<Pic> pics = picPickerAdapter.getPics();
         UploadPic uploadPic = new UploadPic();
         uploadPic.setUploadPicType(uploadPicType);
         uploadPic.setUplodPicTheme(uploadPicTheme.getText().toString());
@@ -345,7 +340,7 @@ public class UploadPicActivity extends BaseActivity {
             showShortToas("与服务器已断开连接");
             return;
         }
-        List<Pic> pics = uploadImgAdapter.getPics();
+        List<Pic> pics = picPickerAdapter.getPics();
         if (pics.size() <= 0) {
             showShortToas("上传图片不能为空");
             return;
@@ -370,41 +365,18 @@ public class UploadPicActivity extends BaseActivity {
         showShortToas("已添加到上传任务中");
         finish();
 
-        /*new SocketRequest().resuest(MyApplication.ClientSocket, uploadPicReq, new SocketRequest.IRequest() {
-            @Override
-            public void onError(String msg) {
-                runOnUiThread(() -> {
-                    showShortToas(msg);
-                });
-            }
-
-            @Override
-            public void onFinished(ResponseMessage mResponse) {
-                runOnUiThread(() -> {
-                    if (mResponse.getCode() == 200) {
-                        showShortToas("上传成功");
-                        if((uploadPicEditMode == 1 || uploadPicEditMode == 3) && savedUploadPic != null){
-                            new UploadPicDao().deleteUploadPic(savedUploadPic.getId());
-                        }
-                    } else {
-                        showShortToas(mResponse.getMessage());
-                    }
-                });
-            }
-        });*/
-
     }
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-        uploadImgAdapter.onActivityResult(requestCode, resultCode, data);
+        picPickerAdapter.onActivityResult(requestCode, resultCode, data);
     }
 
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        MyApplication.getApplication().unRegisterLocationListener(iLocationListener);
+        LocationManager.getInstance().unRegisterLocationListener(iLocationListener);
     }
 
     class LocationInfo{

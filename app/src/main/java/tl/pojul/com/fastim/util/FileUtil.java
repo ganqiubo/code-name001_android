@@ -1,12 +1,17 @@
 package tl.pojul.com.fastim.util;
 
 import android.graphics.Bitmap;
+import android.os.Environment;
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
+import android.text.TextUtils;
 import android.util.Log;
 
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.RandomAccessFile;
 import java.text.DecimalFormat;
 
 public class FileUtil {
@@ -153,6 +158,34 @@ public class FileUtil {
             Log.e(TAG, "saveBitmap fail");
         }
 
+    }
+
+    public static void writeTextToFile(String str, String path) {
+        if(str == null || "".equals(str) || path == null){
+            return;
+        }
+        File file = new File(path);
+        if(!file.getParentFile().exists() && !file.getParentFile().mkdirs()){
+            Log.e(TAG, "创建写入文件失败");
+            return;
+        }
+        if(file.exists()){
+            file.delete();
+        }
+        FileOutputStream out = null;
+        try{
+            out = new FileOutputStream(file);
+            out.write(str.getBytes("utf-8"));
+            out.flush();
+        }catch (Exception e){
+        } finally {
+            try {
+                if (out != null) {
+                    out.close();
+                }
+            } catch (IOException e) {
+            }
+        }
     }
 
 }

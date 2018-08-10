@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<selector xmlns:android="http://schemas.android.com/apk/res/android">
+    <item
+        android:state_pressed="false">
+        <bitmap android:src="@drawable/my_location_normal"
+            android:tint="#9a9a9a"/>
+
+    </item>
+    <item
+        android:state_pressed="true">
+        <bitmap android:src="@drawable/my_location_normal"
+            android:tint="#1296db"/>
+    </item>
+</selector>

@@ -1,0 +1,272 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:orientation="vertical">
+
+    <CheckBox
+        android:id="@+id/all_cb"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textColor="#787878"
+        android:padding="5dp"
+        android:textSize="13sp"
+        android:layout_marginLeft="12dp"
+        android:button="@drawable/selector_radio_square"
+        android:text=" 所有人都可以看到"/>
+
+    <RelativeLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content">
+
+        <CheckBox
+            android:id="@+id/white_black_cb"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textColor="#787878"
+            android:padding="5dp"
+            android:textSize="13sp"
+            android:layout_marginLeft="12dp"
+            android:button="@drawable/selector_radio_square"
+            android:text=" 黑白名单"/>
+
+        <TextView
+            android:id="@+id/white_black_note"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="说明>"
+            android:textColor="@color/selector_text_gray_yellow"
+            android:layout_alignParentRight="true"
+            android:layout_centerVertical="true"
+            android:layout_marginRight="20dp"
+            android:clickable="true"
+            android:padding="5dp"
+            android:textSize="12sp"/>
+    </RelativeLayout>
+
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
+
+        <RadioButton
+            android:id="@+id/white_list_rb"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="35dp"
+            android:layout_gravity="center"
+            android:textColor="#787878"
+            android:textSize="13sp"
+            android:padding="5dp"
+            android:button="@drawable/checked_radio_yellow"
+            android:text=" 白名单"/>
+
+        <TextView
+            android:id="@+id/white_list_tv"
+            android:layout_width="180dp"
+            android:layout_height="28dp"
+            android:background="@drawable/shape_et"
+            android:textSize="13sp"
+            android:textColor="#787878"
+            android:layout_gravity="center"
+            android:paddingLeft="5dp"
+            android:textCursorDrawable="@null"
+            android:padding="5dp"
+            android:textColorHint="#aaaaaa"
+            android:maxLength="25"
+            android:singleLine="true"
+            android:ellipsize="end"
+            android:layout_marginLeft="5dp"
+            android:clickable="true"/>
+
+        <ImageView
+            android:id="@+id/white_list_iv"
+            android:layout_width="30dp"
+            android:layout_height="30dp"
+            android:layout_gravity="center"
+            android:padding="6dp"
+            android:layout_marginLeft="4dp"
+            android:src="@drawable/selector_add_user"
+            android:clickable="true"/>
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="6dp"
+        android:orientation="horizontal">
+
+        <RadioButton
+            android:id="@+id/black_list_rb"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="35dp"
+            android:layout_gravity="center"
+            android:textColor="#787878"
+            android:textSize="13sp"
+            android:padding="5dp"
+            android:button="@drawable/checked_radio_yellow"
+            android:text=" 黑名单"/>
+
+        <TextView
+            android:id="@+id/black_list_tv"
+            android:layout_width="180dp"
+            android:layout_height="28dp"
+            android:background="@drawable/shape_et"
+            android:textSize="13sp"
+            android:textColor="#787878"
+            android:layout_gravity="center"
+            android:paddingLeft="5dp"
+            android:textCursorDrawable="@null"
+            android:padding="5dp"
+            android:singleLine="true"
+            android:ellipsize="end"
+            android:textColorHint="#aaaaaa"
+            android:maxLength="25"
+            android:layout_marginLeft="5dp"/>
+
+        <ImageView
+            android:id="@+id/black_list_iv"
+            android:layout_width="30dp"
+            android:layout_height="30dp"
+            android:layout_gravity="center"
+            android:padding="6dp"
+            android:layout_marginLeft="4dp"
+            android:src="@drawable/selector_add_user"
+            android:clickable="true"/>
+    </LinearLayout>
+
+    <CheckBox
+        android:id="@+id/age_range_cb"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textColor="#787878"
+        android:padding="5dp"
+        android:textSize="13sp"
+        android:layout_marginLeft="12dp"
+        android:button="@drawable/selector_radio_square"
+        android:layout_marginTop="5dp"
+        android:text=" 年龄段"/>
+
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
+
+        <tl.pojul.com.fastim.View.widget.RangeSeekBar
+            android:id="@+id/age_range_rsb"
+            android:layout_width="220dp"
+            android:layout_height="25dp"
+            android:layout_marginLeft="35dp"
+            app:lineColorSelected="#dd7711"
+            app:max="120"
+            app:min="0" />
+
+        <TextView
+            android:id="@+id/age_range_tv"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:layout_marginLeft="2dp"
+            android:text="18-25岁"
+            android:textColor="#787878"
+            android:textSize="12sp" />
+    </LinearLayout>
+
+    <CheckBox
+        android:id="@+id/sex_cb"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textColor="#787878"
+        android:padding="5dp"
+        android:textSize="13sp"
+        android:layout_marginLeft="12dp"
+        android:button="@drawable/selector_radio_square"
+        android:layout_marginTop="5dp"
+        android:text=" 性 别"/>
+
+    <RadioGroup
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="50dp"
+        android:orientation="horizontal">
+
+        <RadioButton
+            android:id="@+id/sex_man_rb"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:layout_marginLeft="35dp"
+            android:button="@drawable/checked_radio_yellow"
+            android:padding="5dp"
+            android:text="男生"
+            android:textColor="#787878"
+            android:textSize="13sp" />
+
+        <RadioButton
+            android:id="@+id/sex_woman_rb"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:layout_marginLeft="30dp"
+            android:button="@drawable/checked_radio_yellow"
+            android:padding="5dp"
+            android:text="女生"
+            android:textColor="#787878"
+            android:textSize="13sp" />
+    </RadioGroup>
+
+    <CheckBox
+        android:id="@+id/credit_cb"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textColor="#787878"
+        android:padding="5dp"
+        android:textSize="13sp"
+        android:layout_marginLeft="12dp"
+        android:button="@drawable/selector_radio_square"
+        android:layout_marginTop="5dp"
+        android:text="信用度"/>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
+
+        <tl.pojul.com.fastim.View.widget.MySeekBar
+            android:id="@+id/credit_msb"
+            android:layout_width="220dp"
+            android:layout_height="25dp"
+            android:layout_marginLeft="35dp"
+            app:lineColorSelected="#dd7711"
+            app:max="100"/>
+
+        <TextView
+            android:id="@+id/credit_tv"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:layout_marginLeft="2dp"
+            android:text="> 0"
+            android:textColor="#787878"
+            android:textSize="12sp"
+            />
+
+    </LinearLayout>
+
+
+    <CheckBox
+        android:id="@+id/certification_cb"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textColor="#787878"
+        android:padding="5dp"
+        android:textSize="13sp"
+        android:layout_marginLeft="12dp"
+        android:button="@drawable/selector_radio_square"
+        android:layout_marginTop="5dp"
+        android:text=" 实名认证"/>
+
+</LinearLayout>
+

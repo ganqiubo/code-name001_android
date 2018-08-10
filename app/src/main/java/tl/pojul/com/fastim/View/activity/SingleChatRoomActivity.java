@@ -189,7 +189,7 @@ public class SingleChatRoomActivity extends ChatRoomActivity {
         smartRefresh.setOnRefreshListener(new OnRefreshListener() {
             @Override
             public void onRefresh(RefreshLayout refreshlayout) {
-                getHistoryChat(6);
+                getHistoryChat(10);
             }
         });
 

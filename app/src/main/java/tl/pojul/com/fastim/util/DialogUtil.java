@@ -6,23 +6,31 @@ import android.app.Dialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.graphics.drawable.BitmapDrawable;
+import android.graphics.drawable.Drawable;
 import android.os.Handler;
 import android.os.Looper;
+import android.support.annotation.Nullable;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.MediaController;
 import android.widget.PopupWindow;
 import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 import android.widget.VideoView;
 
 import com.bm.library.PhotoView;
 import com.bumptech.glide.Glide;
+import com.bumptech.glide.load.DataSource;
+import com.bumptech.glide.load.engine.GlideException;
+import com.bumptech.glide.request.RequestListener;
 import com.bumptech.glide.request.RequestOptions;
+import com.bumptech.glide.request.target.Target;
 import com.pojul.fastIM.message.chat.ChatMessage;
 import com.pojul.fastIM.message.chat.NetPicMessage;
 import com.pojul.fastIM.message.chat.PicMessage;
@@ -46,6 +54,7 @@ public class DialogUtil {
     private LoadingDialog mLoadingDialog;
     private Dialog dialog;
     private DialogClick dialogClick;
+    private boolean isAnim;
 
     public static final int POP_TYPR_IMG = 1;
     public static final int POP_TYPR_VIDEO = 2;
@@ -81,6 +90,10 @@ public class DialogUtil {
     }
 
     public void showDetailImgDialogPop(Context context, ChatMessage message , ImageView rawView, int popType){
+        if(isAnim){
+            return;
+        }
+        isAnim = true;
         ImageView photoView = (ImageView) LayoutInflater.from(context).inflate(R.layout.dialog_detail_img, null);
         PopupWindow popUpWin1 = new PopupWindow(photoView, MyApplication.SCREEN_WIDTH, MyApplication.SCREEN_HEIGHT);
         popUpWin1.setBackgroundDrawable(new BitmapDrawable());
@@ -106,10 +119,34 @@ public class DialogUtil {
             RequestOptions options = new RequestOptions();
             options.error(R.drawable.pic);
             if(FileClassUtil.isHttpUrl(rawPath)){
-                Glide.with(context).load(rawPath).apply(options).into(photoView);
+                String finalPath = path;
+                Glide.with(context).load(rawPath).thumbnail(0.1f).apply(options).listener(new RequestListener<Drawable>() {
+                    @Override
+                    public boolean onLoadFailed(@Nullable GlideException e, Object model, Target<Drawable> target, boolean isFirstResource) {
+                        //加载失败 移除监听
+                        return false;
+                    }
+
+                    @Override
+                    public boolean onResourceReady(Drawable resource, Object model, Target<Drawable> target, DataSource dataSource, boolean isFirstResource) {
+                        //成功 移除监
+                        if(isFirstResource){
+                            return false;
+                        }
+                        switch (popType) {
+                            case POP_TYPR_IMG:
+                                showDetailImgPop(popUpWin1, photoView, context, finalPath, rawView);
+                                break;
+                            case POP_TYPR_VIDEO:
+                                showDetailVideoPop(popUpWin1, photoView, context, (VideoMessage) message, rawView);
+                                break;
+                        }
+                        return false;
+                    }
+                }).into(photoView);
             }else{
                 File file = new File(rawPath);
-                Glide.with(context).load(file).apply(options).into(photoView);
+                Glide.with(context).load(file).thumbnail(0.1f).apply(options).into(photoView);
             }
         }else{
             Glide.with(context).load(rawView.getDrawable()).into(photoView);
@@ -132,13 +169,15 @@ public class DialogUtil {
         }
         photoView.setLayoutParams(layoutParams);
 
-        switch (popType){
-            case POP_TYPR_IMG:
-                showDetailImgPop(popUpWin1, photoView, context, path, rawView);
-                break;
-            case POP_TYPR_VIDEO:
-                showDetailVideoPop(popUpWin1, photoView, context, (VideoMessage)message ,rawView);
-                break;
+        if(rawPath == null || !FileClassUtil.isHttpUrl(rawPath)) {
+            switch (popType) {
+                case POP_TYPR_IMG:
+                    showDetailImgPop(popUpWin1, photoView, context, path, rawView);
+                    break;
+                case POP_TYPR_VIDEO:
+                    showDetailVideoPop(popUpWin1, photoView, context, (VideoMessage) message, rawView);
+                    break;
+            }
         }
         //startAnimator(photoView, popUpWin1, popUpWin2, rawView, context, path, photoView2);
     }
@@ -189,6 +228,7 @@ public class DialogUtil {
                 video.setMediaController(controller);
                 controller.setMediaPlayer(video);
                 video.start();
+                isAnim = false;
             }
         });
     }
@@ -222,6 +262,7 @@ public class DialogUtil {
                         popUpWin1.dismiss();
                     }
                 }, 55);
+                isAnim = false;
             }
         });
     }
@@ -276,6 +317,45 @@ public class DialogUtil {
         });
         promptDialog.show();
     }
+
+    public void showSaveWhiteBlackDialog(Context context, String type){
+        String typeName;
+        if("white".equals(type)){
+            typeName = "白名单";
+        }else{
+            typeName = "黑名单";
+        }
+        AlertDialog.Builder promptDialogBuilder = new AlertDialog.Builder(context);
+        View view = View .inflate(context, R.layout.dialog_save_whiteblack, null);
+        ((TextView)view.findViewById(R.id.prompt_title)).setText(("保存" + typeName));
+        ((TextView)view.findViewById(R.id.name_note)).setText((typeName + "名："));
+        EditText nameEt = view.findViewById(R.id.name);
+        promptDialogBuilder.setView(view);
+        AlertDialog promptDialog = promptDialogBuilder.create();
+        view.findViewById(R.id.left_button).setOnClickListener(v ->{
+            if(dialogClick != null){
+                String name = nameEt.getText().toString();
+                if(name.isEmpty()){
+                    Toast.makeText(context, ("name_note" + "名不能为空"), Toast.LENGTH_SHORT).show();
+                    return;
+                }
+                if(SPUtil.getInstance().containWhiteBlack(name)){
+                    Toast.makeText(context, "该名称已存在黑白名单中，请选取其他名称", Toast.LENGTH_SHORT).show();
+                    return;
+                }
+                dialogClick.onclick(name);
+            }
+            promptDialog.dismiss();
+        });
+        view.findViewById(R.id.right_button).setOnClickListener(v ->{
+            if(dialogClick != null){
+                dialogClick.onclick("取消");
+            }
+            promptDialog.dismiss();
+        });
+        promptDialog.show();
+    }
+
 
     public void setDialogClick(DialogClick dialogClick) {
         this.dialogClick = dialogClick;

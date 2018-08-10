@@ -72,10 +72,6 @@ public class MainActivity extends BaseActivity {
         wakeLock.acquire();
 
         applyPermission();
-
-        if("".equals(SPUtil.getInstance().getString(Constant.BASE_STORAGE_PATH))){
-            SPUtil.getInstance().putString(Constant.BASE_STORAGE_PATH, (Environment.getExternalStorageDirectory().getAbsolutePath()));
-        }
         
         initView();
     }

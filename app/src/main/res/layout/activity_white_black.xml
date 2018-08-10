@@ -1,0 +1,183 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:background="#ffffff">
+
+    <RelativeLayout
+        android:id="@+id/header"
+        android:layout_width="match_parent"
+        android:layout_height="50dp">
+
+        <ImageView
+            android:id="@+id/back"
+            android:layout_width="62dp"
+            android:layout_height="match_parent"
+            android:layout_centerVertical="true"
+            android:layout_alignParentLeft="true"
+            android:padding="16dp"
+            android:paddingTop="12dp"
+            android:paddingBottom="12dp"
+            android:background="@drawable/ripple_normal"
+            android:rotation="180"
+            android:src="@drawable/back_mormal"
+            android:tint="#787878"
+            android:clickable="true"
+            />
+
+        <ImageView
+            android:id="@+id/search"
+            android:layout_width="62dp"
+            android:layout_height="match_parent"
+            android:layout_centerVertical="true"
+            android:layout_alignParentRight="true"
+            android:paddingTop="14dp"
+            android:paddingBottom="14dp"
+            android:padding="15dp"
+            android:background="@drawable/ripple_normal"
+            android:tint="#787878"
+            android:src="@drawable/selector_search_gray_yellow"
+            android:clickable="true"
+            />
+
+        <TextView
+            android:id="@+id/title"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:layout_alignParentTop="true"
+            android:layout_centerHorizontal="true"
+            android:gravity="center"
+            android:text="白名单"
+            android:textColor="#676767"
+            android:textSize="16sp" />
+    </RelativeLayout>
+
+    <View
+        android:id="@+id/header_line"
+        android:layout_width="match_parent"
+        android:layout_height="2px"
+        android:background="#e1e1e1"/>
+
+    <RelativeLayout
+        android:id="@+id/friend_list"
+        android:layout_width="match_parent"
+        android:layout_height="46dp"
+        android:clickable="true"
+        android:background="@drawable/ripple_normal">
+
+        <TextView
+            android:id="@+id/friend_list_tv"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:padding="12dp"
+            android:textSize="14sp"
+            android:textColor="#787878"
+            android:gravity="center"
+            android:text="好友列表"/>
+
+        <ImageView
+            android:layout_width="50dp"
+            android:layout_height="match_parent"
+            android:layout_alignParentRight="true"
+            android:padding="15dp"
+            android:src="@drawable/back_mormal"/>
+    </RelativeLayout>
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="1px"
+        android:background="#e1e1e1"/>
+
+    <RelativeLayout
+        android:id="@+id/local_list"
+        android:layout_width="match_parent"
+        android:layout_height="46dp"
+        android:clickable="true"
+        android:background="@drawable/ripple_normal">
+
+        <TextView
+            android:id="@+id/local_list_tv"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:padding="12dp"
+            android:textSize="14sp"
+            android:textColor="#787878"
+            android:gravity="center"
+            android:text="本地白名单"/>
+
+        <ImageView
+            android:layout_width="50dp"
+            android:layout_height="match_parent"
+            android:layout_alignParentRight="true"
+            android:padding="15dp"
+            android:src="@drawable/back_mormal"/>
+    </RelativeLayout>
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="1px"
+        android:background="#e1e1e1"/>
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="40dp" >
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:padding="12dp"
+            android:textSize="13sp"
+            android:textColor="#787878"
+            android:gravity="center"
+            android:text="名单列表："/>
+
+        <TextView
+            android:id="@+id/save_tv"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:textSize="12sp"
+            android:textColor="@color/pressed_text_gray_yellow"
+            android:padding="10dp"
+            android:gravity="center"
+            android:layout_alignParentRight="true"
+            android:layout_marginRight="16dp"
+            android:clickable="true"
+            android:text="保存"/>
+    </RelativeLayout>
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="#ffffff">
+
+        <android.support.v7.widget.RecyclerView
+            android:id="@+id/list"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_marginBottom="2px"
+            android:layout_above="@+id/line2">
+        </android.support.v7.widget.RecyclerView>
+
+        <View
+            android:id="@+id/line2"
+            android:layout_width="match_parent"
+            android:layout_height="2px"
+            android:layout_above="@+id/sure"
+            android:background="#e1e1e1"/>
+
+        <TextView
+            android:id="@+id/sure"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_alignParentBottom="true"
+            android:padding="13dp"
+            android:gravity="center"
+            android:background="@drawable/ripple_normal"
+            android:clickable="true"
+            android:textSize="13sp"
+            android:textColor="#787878"
+            android:text="确定"/>
+    </RelativeLayout>
+
+</LinearLayout>

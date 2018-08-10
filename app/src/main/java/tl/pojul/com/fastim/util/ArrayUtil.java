@@ -1,5 +1,8 @@
 package tl.pojul.com.fastim.util;
 
+import com.pojul.fastIM.entity.User;
+
+import java.util.ArrayList;
 import java.util.List;
 
 public class ArrayUtil {
@@ -24,6 +27,55 @@ public class ArrayUtil {
             sb.append(strs.get(i));
         }
         return sb.toString();
+    }
+
+    public static List<String> toCommaSplitList(String str){
+        List<String> arrays = new ArrayList<>();
+        if(str == null){
+            return arrays;
+        }
+        String[] strs = str.split(",");
+        for (int i = 0; i < strs.length; i++) {
+            arrays.add(strs[i]);
+        }
+        return arrays;
+    }
+
+    public static String getUserNicknames(List<User> users){
+        if(users == null || users.size() <= 0){
+            return "";
+        }
+        StringBuilder sb = new StringBuilder();
+        for (int i = 0; i < users.size(); i++) {
+            if(i > 0){
+                sb.append(",");
+            }
+            sb.append(users.get(i).getNickName());
+        }
+        return sb.toString();
+    }
+
+    public static List<String> getUserNames(List<User> users){
+        List<String> userNames = new ArrayList<>() ;
+        if(users == null || users.size() <= 0){
+            return userNames;
+        }
+        for (int i = 0; i < users.size(); i++) {
+            userNames.add(users.get(i).getUserName());
+        }
+        return userNames;
+    }
+
+    public static boolean containsStringVal(List<String> strs, String str){
+        if(strs == null || str == null){
+            return false;
+        }
+        for (int i = 0; i < strs.size(); i++) {
+            if(strs.get(i).equals(str)){
+                return true;
+            }
+        }
+        return false;
     }
 
 }

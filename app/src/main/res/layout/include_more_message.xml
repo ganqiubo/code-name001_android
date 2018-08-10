@@ -1,0 +1,128 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+android:layout_width="match_parent"
+android:layout_height="wrap_content"
+android:layout_alignParentBottom="true"
+android:background="#ffffff"
+android:orientation="horizontal">
+
+<View
+    android:layout_width="match_parent"
+    android:layout_height="1px"
+    android:background="#dedede"/>
+
+<RelativeLayout
+    android:id="@+id/input1_rl"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:paddingTop="15dp"
+    android:paddingBottom="15dp">
+
+    <ImageView
+        android:id="@+id/add"
+        android:layout_width="30dp"
+        android:layout_height="30dp"
+        android:padding="1dp"
+        android:layout_centerVertical="true"
+        android:src="@drawable/add_normal"
+        android:layout_marginLeft="8dp"
+        />
+
+    <EditText
+        android:id="@+id/input"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:paddingTop="5dp"
+        android:paddingBottom="5dp"
+        android:layout_marginLeft="8dp"
+        android:background="@drawable/shape_et"
+        android:layout_toLeftOf="@+id/send"
+        android:layout_centerVertical="true"
+        android:textSize="16sp"
+        android:textColorHint="#888888"
+        android:textColor="#666666"
+        android:layout_toRightOf="@+id/add"
+        android:hint="请输入..."/>
+
+    <Button
+        android:id="@+id/send"
+        android:layout_width="56dp"
+        android:layout_height="30dp"
+        android:text="发送"
+        android:background="@drawable/selector_shap_bt"
+        android:layout_marginLeft="10dp"
+        android:layout_marginRight="10dp"
+        android:textColor="#ffffff"
+        android:layout_alignParentRight="true"
+        android:layout_centerVertical="true"
+        />
+</RelativeLayout>
+
+<android.support.v7.widget.RecyclerView
+    android:visibility="gone"
+    android:id="@+id/more_message"
+    android:layout_width="match_parent"
+    android:layout_height="140dp"
+    android:layout_below="@+id/input1_rl"
+    android:background="#fafafa"
+    />
+
+<RelativeLayout
+    android:visibility="gone"
+    android:id="@+id/rl_search_pic"
+    android:layout_width="match_parent"
+    android:layout_height="300dp"
+    android:background="#efefef"
+    android:layout_below="@+id/input1_rl">
+
+    <RelativeLayout
+        android:id="@+id/search_pic_title"
+        android:layout_width="250dp"
+        android:layout_height="32dp"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="5dp">
+
+        <EditText
+            android:id="@+id/search_content"
+            android:layout_width="180dp"
+            android:layout_height="28dp"
+            android:background="@drawable/shape_search_edit"
+            android:hint=" 搜索"
+            android:textSize="12sp"
+            android:textColor="#454545"
+            android:paddingLeft="4dp"
+            />
+
+        <TextView
+            android:id="@+id/search_submit"
+            android:layout_width="66dp"
+            android:layout_height="28dp"
+            android:text="百度搜索"
+            android:textColor="#ffffff"
+            android:textSize="12sp"
+            android:gravity="center"
+            android:clickable="true"
+            android:layout_toRightOf="@+id/search_content"
+            android:background="@drawable/selector_search_button"/>
+
+        <TextView
+            android:id="@+id/search_engine"
+            android:layout_width="20dp"
+            android:layout_height="20dp"
+            android:background="@drawable/selector_search_engine"
+            android:clickable="true"
+            android:layout_alignParentBottom="true"
+            android:layout_alignParentRight="true">
+        </TextView>
+
+    </RelativeLayout>
+
+    <android.support.v7.widget.RecyclerView
+        android:id="@+id/search_pics"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="#efefef"
+        android:layout_below="@+id/search_pic_title"
+        />
+</RelativeLayout>
+</RelativeLayout>

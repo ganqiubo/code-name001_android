@@ -19,9 +19,16 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.google.gson.Gson;
+import com.google.gson.JsonObject;
 import com.pojul.fastIM.message.chat.ChatMessage;
+import com.pojul.fastIM.message.chat.CommunityMessage;
+import com.pojul.fastIM.message.chat.TagCommuMessage;
 import com.tbruyelle.rxpermissions2.Permission;
 import com.tbruyelle.rxpermissions2.RxPermissions;
+
+import org.json.JSONArray;
+
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
@@ -31,7 +38,9 @@ import io.reactivex.functions.Consumer;
 import tl.pojul.com.fastim.Media.AudioManager;
 import tl.pojul.com.fastim.Factory.ChatMessageFcctory;
 import tl.pojul.com.fastim.R;
+import tl.pojul.com.fastim.View.activity.BaseActivity;
 import tl.pojul.com.fastim.View.activity.ChatRoomActivity;
+import tl.pojul.com.fastim.View.activity.TagMessageActivity;
 import tl.pojul.com.fastim.util.Constant;
 import tl.pojul.com.fastim.util.FileUtil;
 import tl.pojul.com.fastim.util.SPUtil;
@@ -43,6 +52,7 @@ public class MoreMessageAdapter extends RecyclerView.Adapter<MoreMessageAdapter.
     private int REQUEST_CODE_IMAGE = 1;
     private int REQUEST_CODE_FILE = 3;
     private int REQUEST_CODE_RECORD_VIDEO = 4;
+    private static final int REQUEST_CODE_TAG = 5;
     private Context mContext;
     private List<Integer> typeIconList = new ArrayList<Integer>() {{
         add(R.drawable.pic);
@@ -50,7 +60,7 @@ public class MoreMessageAdapter extends RecyclerView.Adapter<MoreMessageAdapter.
         add(R.drawable.take_pic);
         add(R.drawable.record_video);
         add(R.drawable.pic_net);
-        add(R.drawable.file);
+        //add(R.drawable.file);
     }};
 
     private List<String> typeNoteList = new ArrayList<String>() {{
@@ -59,7 +69,7 @@ public class MoreMessageAdapter extends RecyclerView.Adapter<MoreMessageAdapter.
         add("拍照");
         add("视频");
         add("搜图");
-        add("文件");
+        //add("文件");
     }};
 
     private boolean isRecordering;
@@ -71,6 +81,13 @@ public class MoreMessageAdapter extends RecyclerView.Adapter<MoreMessageAdapter.
     public MoreMessageAdapter(Context mContext, int chatRoomType) {
         this.mContext = mContext;
         this.chatRoomType = chatRoomType;
+        if(chatRoomType == 3){
+            typeIconList.add(R.drawable.label);
+            typeNoteList.add("标签");
+        }else{
+            typeIconList.add(R.drawable.file);
+            typeNoteList.add("文件");
+        }
         checkRecordRermission(false);
         checkRecordVideoRermission(false);
     }
@@ -144,6 +161,10 @@ public class MoreMessageAdapter extends RecyclerView.Adapter<MoreMessageAdapter.
         }else if(requestCode == REQUEST_CODE_RECORD_VIDEO && resultCode == Activity.RESULT_OK) {
             createMessage(ChatMessageFcctory.TYPE_VIDEO, recorderVideoPath);
             recorderVideoPath = "";
+        }else if(requestCode == REQUEST_CODE_TAG && resultCode == Activity.RESULT_OK){
+            String result = data.getExtras().getString("TagCommuMessage");
+            TagCommuMessage communityMessage = new Gson().fromJson(result, TagCommuMessage.class);
+            ((ChatRoomActivity) mContext).sendChatMessage(communityMessage);
         }
     }
 
@@ -187,9 +208,13 @@ public class MoreMessageAdapter extends RecyclerView.Adapter<MoreMessageAdapter.
                 ((ChatRoomActivity)mContext).showSearchPic();
                 break;
             case 5:
-                intent = new Intent(Intent.ACTION_GET_CONTENT);
-                intent.setType("*/*");//设置类型，我这里是任意类型，任意后缀的可以这样写。
-                ((Activity)mContext).startActivityForResult(intent,REQUEST_CODE_FILE);
+                if(chatRoomType == 3){
+                    ((BaseActivity)mContext).startActivityForResult(TagMessageActivity.class, null, REQUEST_CODE_TAG);
+                }else{
+                    intent = new Intent(Intent.ACTION_GET_CONTENT);
+                    intent.setType("*/*");//设置类型，我这里是任意类型，任意后缀的可以这样写。
+                    ((Activity)mContext).startActivityForResult(intent,REQUEST_CODE_FILE);
+                }
                 break;
         }
     }
