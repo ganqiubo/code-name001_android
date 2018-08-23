@@ -20,6 +20,7 @@ import java.util.List;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
+import tl.pojul.com.fastim.MyApplication;
 import tl.pojul.com.fastim.R;
 import tl.pojul.com.fastim.View.Adapter.PicPickerAdapter;
 import tl.pojul.com.fastim.View.widget.FlowTagView;
@@ -52,21 +53,23 @@ public class TagMessageActivity extends BaseActivity {
     private TagCommuMessage tagCommuMessage;
     private User user;
 
-    private List<String> labels = new ArrayList<String>() {{
+    private List<String> labels = MyApplication.tagMessLabels;
+
+    /*private List<String> labels = new ArrayList<String>() {{
         add("运动");
         add("求助");
         add("旅游");
         add("找室友");
-        /*add("交友");
+        *//*add("交友");
         add("无聊");
         add("找CP");
         add("找女友");
-        add("找男友");*/
+        add("找男友");*//*
         add("房屋出租");
         add("租房");
         add("招聘");
         add("宠物");
-    }};
+    }};*/
     private PicPickerAdapter picPickerAdapter;
     private List<String> pics = new ArrayList<String>() {{
         add("添加");
@@ -97,8 +100,8 @@ public class TagMessageActivity extends BaseActivity {
     }
 
     @Override
-    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        super.onActivityResult(requestCode, resultCode, data);
+        protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+            super.onActivityResult(requestCode, resultCode, data);
         if(requestCode < 100){
             userFilterView.onActivityResult(requestCode, resultCode, data);
         }else{
@@ -110,8 +113,11 @@ public class TagMessageActivity extends BaseActivity {
     public void onViewClicked(View v) {
         switch (v.getId()) {
             case R.id.sure:
-                if ("".equals(messageNote.getText().toString()) && "".equals(messageTitle.getText().toString()) &&
-                        picPickerAdapter.getPics().size() <= 0) {
+                if ("".equals(messageTitle.getText().toString()) ) {
+                    showShortToas("标题不能为空");
+                    return;
+                }
+                if("".equals(messageNote.getText().toString()) && picPickerAdapter.getPics().size() <= 0){
                     showShortToas("内容不能为空");
                     return;
                 }
@@ -122,6 +128,11 @@ public class TagMessageActivity extends BaseActivity {
                 finish();
                 break;
         }
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
     }
 
     private TagCommuMessage setCommunityMessage() {

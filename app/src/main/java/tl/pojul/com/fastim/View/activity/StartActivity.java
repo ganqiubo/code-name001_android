@@ -11,6 +11,7 @@ import com.bumptech.glide.Glide;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
+import tl.pojul.com.fastim.MyApplication;
 import tl.pojul.com.fastim.R;
 import tl.pojul.com.fastim.util.CustomTimeDown;
 
@@ -31,6 +32,11 @@ public class StartActivity extends BaseActivity implements CustomTimeDown.OnTime
         setContentView(R.layout.activity_start);
         ButterKnife.bind(this);
 
+        if(MyApplication.getApplication().isConnected() || MyApplication.getApplication().getMainActivity() != null){
+            startActivityAndFinish(MainActivity.class);
+            return;
+        }
+
         mCustomTimeDown = new CustomTimeDown(2000, 1000);
         mCustomTimeDown.setOnTimeDownListener(this);
         mCustomTimeDown.start();
@@ -47,6 +53,10 @@ public class StartActivity extends BaseActivity implements CustomTimeDown.OnTime
         //Intent intent = new Intent(this, LoginActivity.class);
         /*Intent intent = new Intent(this, MainActivity.class);
         startActivity(intent);*/
-        startActivityAndFinish(LoginActivity.class);
+        if(MyApplication.getApplication().isConnected()){
+            startActivityAndFinish(MainActivity.class);
+        }else{
+            startActivityAndFinish(LoginActivity.class);
+        }
     }
 }

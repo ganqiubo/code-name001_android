@@ -4,6 +4,7 @@ import android.animation.Animator;
 import android.animation.AnimatorSet;
 import android.animation.ObjectAnimator;
 import android.animation.ValueAnimator;
+import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
@@ -97,7 +98,7 @@ public class AnimatorUtil {
         ObjectAnimator objectAnimator4 = ObjectAnimator.ofFloat(view, "scaleY", scale);
         AnimatorSet animatorSet = new AnimatorSet();
         animatorSet.setDuration(400);
-        //animatorSet.setStartDelay(30);
+        //animatorSet.setStartDelay(50);
         animatorSet.play(objectAnimator1).with(objectAnimator2).with(objectAnimator3).with(objectAnimator4);
         animatorSet.addListener(new Animator.AnimatorListener() {
             @Override
@@ -115,6 +116,34 @@ public class AnimatorUtil {
             @Override
             public void onAnimationRepeat(Animator animation) {}
         });
+        animatorSet.start();
+    }
+
+    public static void startThumbUpAnimator(View view){
+        ObjectAnimator objectAnimator1 = ObjectAnimator.ofFloat(view, "translationX", 35);
+        ObjectAnimator objectAnimator2 = ObjectAnimator.ofFloat(view, "translationY", -35);
+        ObjectAnimator objectAnimator3 = ObjectAnimator.ofFloat(view, "scaleX", 1.5f);
+        ObjectAnimator objectAnimator4 = ObjectAnimator.ofFloat(view, "scaleY", 1.5f);
+        AnimatorSet animatorSet = new AnimatorSet();
+        animatorSet.setDuration(700);
+        animatorSet.play(objectAnimator1).with(objectAnimator2).with(objectAnimator3).with(objectAnimator4);
+        animatorSet.addListener(new Animator.AnimatorListener() {
+            @Override
+            public void onAnimationStart(Animator animation) {}
+            @Override
+            public void onAnimationEnd(Animator animation) {
+                view.setVisibility(View.GONE);
+                view.setTranslationX(0);
+                view.setTranslationY(0);
+            }
+
+            @Override
+            public void onAnimationCancel(Animator animation) {}
+
+            @Override
+            public void onAnimationRepeat(Animator animation) {}
+        });
+        view.setVisibility(View.VISIBLE);
         animatorSet.start();
     }
 

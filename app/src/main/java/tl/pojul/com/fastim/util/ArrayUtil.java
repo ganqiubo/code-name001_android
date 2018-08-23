@@ -3,6 +3,7 @@ package tl.pojul.com.fastim.util;
 import com.pojul.fastIM.entity.User;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 
 public class ArrayUtil {
@@ -18,6 +19,9 @@ public class ArrayUtil {
     }
 
     public static String toCommaSplitStr(List<String> strs){
+        if(strs == null || strs.size() <= 0){
+            return "";
+        }
         StringBuilder sb = new StringBuilder();
         sb.append("");
         for(int i = 0; i < strs.size(); i++){
@@ -36,6 +40,9 @@ public class ArrayUtil {
         }
         String[] strs = str.split(",");
         for (int i = 0; i < strs.length; i++) {
+            if(strs[i] == null || "".equals(strs[i])){
+                continue;
+            }
             arrays.add(strs[i]);
         }
         return arrays;
@@ -72,6 +79,35 @@ public class ArrayUtil {
         }
         for (int i = 0; i < strs.size(); i++) {
             if(strs.get(i).equals(str)){
+                return true;
+            }
+        }
+        return false;
+    }
+
+    public static HashMap<String, List<String>> getSelfLabel(List<String> allLabel, List<String> labels){
+        HashMap<String, List<String>> maps = new HashMap<String, List<String>>();
+        List<String> selfLabels = new ArrayList<>();
+        List<String> normalLabels = new ArrayList<>();
+        for (int i = 0; i < labels.size(); i++) {
+            String label = labels.get(i);
+            if(label == null){
+                continue;
+            }
+            if(containsStringVal(allLabel, label)){
+                normalLabels.add(label);
+            }else{
+                selfLabels.add(label);
+            }
+        }
+        maps.put("selfLabels", selfLabels);
+        maps.put("normalLabels", normalLabels);
+        return maps;
+    }
+
+    public static boolean hasIntersecte(List<String> labels1, List<String> labels2){
+        for (int i = 0; i < labels2.size(); i++) {
+            if(containsStringVal(labels1, labels2.get(i))){
                 return true;
             }
         }

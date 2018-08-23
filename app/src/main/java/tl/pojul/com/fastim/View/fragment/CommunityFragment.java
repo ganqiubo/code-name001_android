@@ -67,6 +67,12 @@ public class CommunityFragment extends BaseFragment {
         initView();
     }
 
+    @Override
+    public void setUserVisibleHint(boolean isVisibleToUser) {
+        super.setUserVisibleHint(isVisibleToUser);
+        NearByCommunityFragment.paretnVisiable = isVisibleToUser;
+    }
+
     private void initView() {
         fragments.add(null);
         fragments.add(null);

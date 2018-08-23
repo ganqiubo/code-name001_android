@@ -18,9 +18,11 @@ public class AudioManager {
     private SoundPool soundPool;
     private MediaPlayer mediaPlayer = new MediaPlayer();
     private final String TAG = "AudioManager";
+    private android.media.AudioManager sysAudioManager;
 
     private AudioManager(Context mContext) {
         this.mContext = mContext;
+        sysAudioManager = (android.media.AudioManager) mContext.getSystemService(Context.AUDIO_SERVICE);
     }
 
     public static void Instance(Context context) {
@@ -139,5 +141,26 @@ public class AudioManager {
         }
     }
 
+    public void setNotifySoundLevel(int volume){
+        if(sysAudioManager == null){
+            return;
+        }
+        sysAudioManager.setStreamVolume(android.media.AudioManager.STREAM_NOTIFICATION,
+                volume, 0);
+    }
+
+    public int getMaxNotifiVolume(){
+        if(sysAudioManager == null){
+            return 0;
+        }
+        return sysAudioManager.getStreamMaxVolume( android.media.AudioManager.STREAM_NOTIFICATION);
+    }
+
+    public int getNotifiVolume(){
+        if(sysAudioManager == null){
+            return 0;
+        }
+        return sysAudioManager.getStreamVolume( android.media.AudioManager.STREAM_NOTIFICATION);
+    }
 
 }

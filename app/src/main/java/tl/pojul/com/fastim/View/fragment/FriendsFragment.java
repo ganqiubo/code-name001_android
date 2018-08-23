@@ -81,7 +81,7 @@ public class FriendsFragment extends BaseFragment {
 
     private void getFriends(boolean showDialog) {
         if (!MyApplication.getApplication().isConnected()) {
-            //重新连接服务器，暂不做处理
+            smartRefresh.finishRefresh(false);
             showShortToas("请重新连接服务器");
             return;
         }

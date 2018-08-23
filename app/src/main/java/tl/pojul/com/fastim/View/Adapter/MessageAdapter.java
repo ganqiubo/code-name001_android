@@ -1,8 +1,12 @@
 package tl.pojul.com.fastim.View.Adapter;
 
+import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Build;
+import android.os.Bundle;
+import android.os.Handler;
+import android.os.Looper;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.Gravity;
@@ -22,6 +26,7 @@ import com.google.gson.Gson;
 import com.pojul.fastIM.entity.CommunityMessEntity;
 import com.pojul.fastIM.entity.Friend;
 import com.pojul.fastIM.entity.Message;
+import com.pojul.fastIM.entity.MessageFilter;
 import com.pojul.fastIM.entity.Pic;
 import com.pojul.fastIM.entity.User;
 import com.pojul.fastIM.message.chat.AudioMessage;
@@ -31,11 +36,17 @@ import com.pojul.fastIM.message.chat.DateMessage;
 import com.pojul.fastIM.message.chat.FileMessage;
 import com.pojul.fastIM.message.chat.NetPicMessage;
 import com.pojul.fastIM.message.chat.PicMessage;
+import com.pojul.fastIM.message.chat.ReplyMessage;
 import com.pojul.fastIM.message.chat.TagCommuMessage;
 import com.pojul.fastIM.message.chat.TextChatMessage;
 import com.pojul.fastIM.message.chat.VideoMessage;
+import com.pojul.fastIM.message.request.CommunThumbReq;
 import com.pojul.objectsocket.constant.StorageType;
 import com.pojul.objectsocket.message.BaseMessage;
+import com.pojul.objectsocket.message.ResponseMessage;
+import com.pojul.objectsocket.socket.SocketRequest;
+
+import org.w3c.dom.Text;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -45,15 +56,22 @@ import java.util.List;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import tl.pojul.com.fastim.Media.AudioManager;
+import tl.pojul.com.fastim.MyApplication;
 import tl.pojul.com.fastim.R;
+import tl.pojul.com.fastim.View.activity.BaseActivity;
 import tl.pojul.com.fastim.View.activity.ChatFileDownloadActivity;
+import tl.pojul.com.fastim.View.activity.TagMessageActivity;
+import tl.pojul.com.fastim.View.activity.TagReplyActivity;
 import tl.pojul.com.fastim.View.activity.VideoActivity;
 import tl.pojul.com.fastim.View.widget.PolygonImage.view.PolygonImageView;
 import tl.pojul.com.fastim.socket.Converter.HistoryChatConverter;
+import tl.pojul.com.fastim.util.AnimatorUtil;
+import tl.pojul.com.fastim.util.ArrayUtil;
 import tl.pojul.com.fastim.util.DateUtil;
 import tl.pojul.com.fastim.util.DensityUtil;
 import tl.pojul.com.fastim.util.DialogUtil;
 import tl.pojul.com.fastim.util.GlideUtil;
+import tl.pojul.com.fastim.util.NumberUtil;
 
 /**
  * Created by gqb on 2018/6/13.
@@ -67,6 +85,9 @@ public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.BaseMess
     private Friend friend;
     private static final String TAG = "MessageAdapter";
     private HashMap<Integer, Integer> progressWidths = new HashMap<>();
+    private MessageFilter messageFilter;
+
+    private static final int START_TAG_ACTIVITY = 121;
 
     public MessageAdapter(Context mContext, List<ChatMessage> mList, User user, Friend friend) {
         this.mContext = mContext;
@@ -394,36 +415,56 @@ public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.BaseMess
     private void bindTagMessageHolder(TagMessageHolder holder, int position) {
         TagCommuMessage tagMessage = (TagCommuMessage) mList.get(holder.getAdapterPosition());
         bindBaseMessageHolder(holder, holder.getAdapterPosition());
-        if(tagMessage.getHasReport() == 1){
-            holder.reportTv.setText("已举报");
-            holder.reportRl.setOnClickListener(null);
-            holder.reportTv.setSelected(true);
-            holder.reportIv.setSelected(true);
-        }else{
+        if(tagMessage.getHasReport() == 0){
             holder.reportTv.setText("举报");
             holder.reportTv.setSelected(false);
             holder.reportIv.setSelected(false);
             holder.reportRl.setOnClickListener(v -> {
-                holder.reportTv.setSelected(true);
-                holder.reportIv.setSelected(true);
+                DialogUtil.getInstance().showReportDialog(mContext, tagMessage);
+                DialogUtil.getInstance().setDialogClick(str -> {
+                    if("report_sucesses".equals(str)){
+                        tagMessage.setHasReport(1);
+                        holder.reportTv.setText("已举报");
+                        holder.reportRl.setOnClickListener(null);
+                        holder.reportTv.setSelected(true);
+                        holder.reportIv.setSelected(true);
+                    }
+                });
             });
-        }
-        if(tagMessage.getHsaThumbsUp() == 1){
-            holder.thumbUpTv.setSelected(true);
-            holder.thumbUpIv.setSelected(true);
-            holder.thumbUpRl.setOnClickListener(null);
         }else{
+            holder.reportTv.setText("已举报");
+            holder.reportRl.setOnClickListener(null);
+            holder.reportTv.setSelected(true);
+            holder.reportIv.setSelected(true);
+        }
+        holder.thumbUpTv.setText(NumberUtil.getNumStr(tagMessage.getThumbsUps()));
+        if(tagMessage.isThumbsUping){
+            AnimatorUtil.startThumbUpAnimator(holder.addOne);
+        }else{
+            holder.addOne.setVisibility(View.GONE);
+        }
+        if(tagMessage.getHsaThumbsUp() == 0){
             holder.thumbUpTv.setSelected(false);
             holder.thumbUpIv.setSelected(false);
             holder.thumbUpRl.setOnClickListener(v -> {
-                holder.thumbUpTv.setSelected(true);
-                holder.thumbUpIv.setSelected(true);
+                if(tagMessage.isThumbsUping){
+                    return;
+                }
+                requestCommuThumbUp(holder.getAdapterPosition());
             });
+        }else{
+            holder.thumbUpTv.setSelected(true);
+            holder.thumbUpIv.setSelected(true);
+            holder.thumbUpRl.setOnClickListener(null);
         }
         holder.replyRl.setOnClickListener(v -> {
             holder.replyIv.performClick();
             holder.replyNumTv.performClick();
+            Bundle bundle = new Bundle();
+            bundle.putString("TagCommuMessage", new Gson().toJson(tagMessage));
+            ((BaseActivity)mContext).startActivityForResult(TagReplyActivity.class, bundle, START_TAG_ACTIVITY);
         });
+        holder.replyNumTv.setText((tagMessage.getReplysNum() + ""));
         if (tagMessage.getTitle() == null || tagMessage.getTitle().isEmpty()) {
             holder.title.setText("");
         } else {
@@ -453,9 +494,6 @@ public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.BaseMess
                     holder.pics.setAdapter(new TagPicAdapter(mContext, pics));
                 }
             }
-            /**
-             *
-             * */
         }
         if (tagMessage.getText() == null || tagMessage.getText().isEmpty()) {
             holder.note.setVisibility(View.GONE);
@@ -463,19 +501,84 @@ public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.BaseMess
             holder.note.setVisibility(View.VISIBLE);
             holder.note.setText("\u3000" + tagMessage.getText());
         }
-        if (tagMessage.getIsEffective() == 0) {
-            holder.isEffective.setText("有效");
-        } else {
+        if (tagMessage.getIsEffective() == 1) {
             holder.isEffective.setText("已失效");
+        } else {
+            holder.isEffective.setText("有效");
         }
         holder.progressBar1.setProgress(tagMessage.getSendProgress());
-
+        if(tagMessage.getReplys() == null || tagMessage.getReplys().size() <= 0){
+            holder.replys.setVisibility(View.GONE);
+        }else{
+            ReplyMessage replyMessage = tagMessage.getReplys().get(0);
+            holder.replys.setVisibility(View.VISIBLE);
+            holder.reply1.setText((replyMessage.getNickName() + "："));
+            holder.reply1Text.setText(replyMessage.getText());
+        }
     }
 
     private void bindDateMessageHolder(DateMessageHolder holder, int position) {
         DateMessage dateMessage = (DateMessage) mList.get(position);
         holder.llTextMessage.setVisibility(View.GONE);
         holder.date.setText(dateMessage.getDate());
+    }
+
+    public void clearData() {
+        synchronized (mList){
+            mList.clear();
+            notifyDataSetChanged();
+        }
+    }
+
+    private void requestCommuThumbUp(int position){
+        if(!(mList.get(position) instanceof TagCommuMessage)){
+            return;
+        }
+        TagCommuMessage tagCommuMessage = (TagCommuMessage) mList.get(position);
+        tagCommuMessage.setThumbsUping(true);
+        notifyItemChanged(position);
+        CommunThumbReq communThumbReq = new CommunThumbReq();
+        communThumbReq.setCommunMessageUid(tagCommuMessage.getMessageUid());
+        new SocketRequest().request(MyApplication.ClientSocket, communThumbReq, new SocketRequest.IRequest() {
+            @Override
+            public void onError(String msg) {
+                new Handler(Looper.getMainLooper()).post(()->{
+                    tagCommuMessage.setThumbsUping(false);
+                    Toast.makeText(mContext, "点赞失败", Toast.LENGTH_SHORT).show();
+                });
+            }
+
+            @Override
+            public void onFinished(ResponseMessage mResponse) {
+                new Handler(Looper.getMainLooper()).post(()->{
+                    if(mResponse.getCode() == 200){
+                        tagCommuMessage.setThumbsUping(false);
+                        tagCommuMessage.setThumbsUps((tagCommuMessage.getThumbsUps() + 1));
+                        tagCommuMessage.setHsaThumbsUp(1);
+                        notifyItemChanged(position);
+                    }else{
+                        Toast.makeText(mContext, "点赞失败", Toast.LENGTH_SHORT).show();
+                    }
+                });
+            }
+        });
+    }
+
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        if(requestCode == START_TAG_ACTIVITY && resultCode == Activity.RESULT_OK){
+            String tagMessUid = data.getStringExtra("tagMessUid");
+            int isEffictive = data.getIntExtra("isEffictive", 1);
+            synchronized (mList){
+                for (int i = 0; i < mList.size(); i++) {
+                    ChatMessage chatMessage = mList.get(i);
+                    if(chatMessage instanceof TagCommuMessage && chatMessage.getMessageUid().equals(tagMessUid)){
+                        ((TagCommuMessage)chatMessage).setIsEffective(isEffictive);
+                        notifyItemChanged(i);
+                        break;
+                    }
+                }
+            }
+        }
     }
 
     class BaseMessageHolder extends RecyclerView.ViewHolder {
@@ -582,6 +685,8 @@ public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.BaseMess
         RelativeLayout contentLl;
         @BindView(R.id.reply1)
         TextView reply1;
+        @BindView(R.id.reply1_text)
+        TextView reply1Text;
         @BindView(R.id.replys)
         LinearLayout replys;
         @BindView(R.id.report_iv)
@@ -608,6 +713,10 @@ public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.BaseMess
         TextView detail;
         @BindView(R.id.img)
         ImageView img;
+        @BindView(R.id.thumb_progress)
+        ProgressBar thumbProgress;
+        @BindView(R.id.add_one)
+        TextView addOne;
 
         public TagMessageHolder(View itemView) {
             super(itemView);
@@ -659,7 +768,7 @@ public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.BaseMess
 
     public void addHistoryChat(List<CommunityMessEntity> communityMessEntities) {
         synchronized (mList) {
-            List<ChatMessage> chatMessages = new HistoryChatConverter().converter(communityMessEntities);
+            List<ChatMessage> chatMessages = new HistoryChatConverter().converter(communityMessEntities, messageFilter);
             if (chatMessages.size() > 0 && mList.size() > 1 && (mList.get(0) instanceof DateMessage) &&
                     !DateUtil.isDiffDay(chatMessages.get(chatMessages.size() - 1).getSendTime(), mList.get(1).getSendTime())) {
                 mList.remove(0);
@@ -687,6 +796,9 @@ public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.BaseMess
     }
 
     public void receiveMessage(ChatMessage message) {
+        if((message instanceof CommunityMessage) && !messageFilter((CommunityMessage) message, messageFilter)){
+            return;
+        }
         /**
          * 添加时间检测
          * */
@@ -725,4 +837,29 @@ public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.BaseMess
         }
     }
 
+    public boolean messageFilter(CommunityMessage communityMessage, MessageFilter messageFilter) {
+        if(messageFilter == null){
+            return true;
+        }
+        if(messageFilter.getLabels() != null && messageFilter.getLabels().size() > 0){
+            if(!(communityMessage instanceof TagCommuMessage)){
+                return false;
+            }
+            TagCommuMessage tagCommuMessage = (TagCommuMessage) communityMessage;
+            if(!ArrayUtil.hasIntersecte(messageFilter.getLabels(), tagCommuMessage.getLabels())){
+                return false;
+            }
+        }
+        if(messageFilter.getCertificat() != -1 && communityMessage.getCertificate() != 1){
+            return false;
+        }
+        if(messageFilter.getSex() != -1 && messageFilter.getSex() != communityMessage.getUserSex()){
+            return false;
+        }
+        return true;
+    }
+
+    public void setMessageFilter(MessageFilter messageFilter) {
+        this.messageFilter = messageFilter;
+    }
 }

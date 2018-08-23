@@ -11,12 +11,13 @@ public class MySQLiteHelper extends SQLiteOpenHelper {
     private static int DATABASE_VERSION = 3;
     private static final String CREATE_CONVERSATION_TABLE = "create table conversation ("
             + "conversation_name varchar(20) not null, "
-            + "conversation_from varchar(20) primary key, "
+            + "conversation_from varchar(20) , "
             + "conversation_owner varchar(20) not null, "
             + "conversation_photo varchar(80) not null, "
-            + "conversation_last_chat varchar(80) not null, "
+            + "conversation_last_chat varchar(180) not null, "
             + "unread_message int(4) not null default 0, "
-            + "conversation_type int(4) not null default 0, "
+            + "conversation_type int(4) not null default 0, " // 1: 好友聊天消息; 2: 群组聊天消息; 3: 标签消息回复【公开】; 4:标签消息回复【私密】
+            + "conversation_uid varchar(40) not null default '', "
             + "conversation_last_chattime varchar(20) not null)";
 
     private static final String CREATE_UPLOAD_PIC_TABLE = "create table upload_pic("

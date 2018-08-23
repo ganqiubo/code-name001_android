@@ -56,4 +56,31 @@ public class DateUtil {
         }catch (Exception e){return  false;}
     }
 
+    public static String getHeadway(long timeMilli){
+        long dsTimeMilli = System.currentTimeMillis() - timeMilli;
+        long l;
+        if(dsTimeMilli <= 20 * 1000){
+            return "刚刚";
+        }else if(dsTimeMilli <= 60 * 1000){
+            return "1分钟前";
+        }else if(dsTimeMilli <= 30 * 60 * 1000){
+            int mins = (int) (dsTimeMilli / (60 * 1000)) + 1;
+            return (mins + "分钟前");
+        }else if(dsTimeMilli <= 24 * 60 * 60 * 1000){
+            int hours = (int) (dsTimeMilli / (60 * 60 * 1000)) + 1;
+            return (hours + "小时前");
+        }else if(dsTimeMilli <= (31L * 24L * 60L * 60L * 1000L)){
+            int days = (int) (dsTimeMilli / ( 24 * 60 * 60 * 1000L)) + 1;
+            return (days + "天前");
+        }else if(dsTimeMilli <= (12L * 31L * 24L * 60L * 60L * 1000L)){
+            int months = (int) (dsTimeMilli / ( 31L * 24L * 60L * 60L * 1000L)) + 1;
+            return (months + "个月前");
+        }else if(dsTimeMilli <= (1000L * 12L * 31L * 24L * 60L * 60L * 1000L)){
+            int years = (int) (dsTimeMilli / ( 12L * 31L * 24L * 60L * 60L * 1000L)) + 1;
+            return (years + "年前");
+        }else{
+            return ("千年以前");
+        }
+    }
+
 }

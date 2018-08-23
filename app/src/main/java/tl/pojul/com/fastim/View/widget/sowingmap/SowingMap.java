@@ -24,6 +24,7 @@ import tl.pojul.com.fastim.View.widget.TransitImage.Transit.Transit;
 import tl.pojul.com.fastim.View.widget.TransitImage.TransitImageView;
 import tl.pojul.com.fastim.util.CustomTimeDown;
 import tl.pojul.com.fastim.util.DensityUtil;
+import tl.pojul.com.fastim.util.GlideUtil;
 
 public class SowingMap extends RelativeLayout implements CustomTimeDown.OnTimeDownListener{
 
@@ -104,10 +105,13 @@ public class SowingMap extends RelativeLayout implements CustomTimeDown.OnTimeDo
         containers[0].setTranslationX(0);
         containers[1].setTranslationX(0);
         containers[2].setTranslationX(0);
-        Glide.with(this).load(imgs.get(currentPosition)).into(containers[1]);
+        GlideUtil.setImageBitmapNoOptions(imgs.get(currentPosition), containers[1]);
+        //Glide.with(this).load(imgs.get(currentPosition)).into(containers[1]);
         if(imgs.size() >= 2){
-            Glide.with(this).load(imgs.get(1)).into(containers[2]);
-            Glide.with(this).load(imgs.get((imgs.size() -1))).into(containers[0]);
+            GlideUtil.setImageBitmapNoOptions(imgs.get(1), containers[2]);
+            GlideUtil.setImageBitmapNoOptions(imgs.get((imgs.size() -1)), containers[0]);
+            //Glide.with(this).load(imgs.get(1)).into(containers[2]);
+            //Glide.with(this).load(imgs.get((imgs.size() -1))).into(containers[0]);
         }
         containers[2].setVisibility(View.INVISIBLE);
         containers[0].setVisibility(View.INVISIBLE);
@@ -212,11 +216,14 @@ public class SowingMap extends RelativeLayout implements CustomTimeDown.OnTimeDo
                 case "current":
                     if(positionAdd != 0){
                         currentPosition = ((currentPosition + positionAdd) < 0? (imgs.size() -1) : (currentPosition + positionAdd))%imgs.size();
-                        Glide.with(SowingMap.this).load(imgs.get(currentPosition)).into(containers[1]);
+                        GlideUtil.setImageBitmapNoOptions(imgs.get(currentPosition), containers[1]);
+                        //Glide.with(SowingMap.this).load(imgs.get(currentPosition)).into(containers[1]);
                         int nextPosition = (currentPosition + 1)%imgs.size();
-                        Glide.with(SowingMap.this).load(imgs.get(nextPosition)).into(containers[2]);
+                        GlideUtil.setImageBitmapNoOptions(imgs.get(nextPosition), containers[2]);
+                        //Glide.with(SowingMap.this).load(imgs.get(nextPosition)).into(containers[2]);
                         int prevPosition = ((currentPosition - 1) < 0? (imgs.size() -1) : (currentPosition - 1))%imgs.size();
-                        Glide.with(SowingMap.this).load(imgs.get(prevPosition)).into(containers[0]);
+                        GlideUtil.setImageBitmapNoOptions(imgs.get(prevPosition), containers[0]);
+                        //Glide.with(SowingMap.this).load(imgs.get(prevPosition)).into(containers[0]);
                     }
                     containers[1].setTranslationX(0);
                     containers[2].setTranslationX(0);

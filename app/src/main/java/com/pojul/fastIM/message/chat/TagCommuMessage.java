@@ -17,6 +17,8 @@ public class TagCommuMessage extends CommunityMessage{
     private UserFilter userFilter;
     private int hsaThumbsUp;
     private int hasReport;
+    public boolean isThumbsUping;
+    private int replysNum;
 
     public List<ReplyMessage> getReplys() {
         return replys;
@@ -96,6 +98,22 @@ public class TagCommuMessage extends CommunityMessage{
 
     public void setHasReport(int hasReport) {
         this.hasReport = hasReport;
+    }
+
+    public boolean isThumbsUping() {
+        return isThumbsUping;
+    }
+
+    public void setThumbsUping(boolean thumbsUping) {
+        isThumbsUping = thumbsUping;
+    }
+
+    public int getReplysNum() {
+        return replysNum;
+    }
+
+    public void setReplysNum(int replysNum) {
+        this.replysNum = replysNum;
     }
 
     @Override

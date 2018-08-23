@@ -19,7 +19,7 @@
             android:layout_height="wrap_content"
             android:layout_alignParentTop="true"
             android:layout_centerHorizontal="true"
-            android:padding="10dp"
+            android:padding="12dp"
             android:text="好友"
             android:textColor="#787878"
             android:textSize="20dp" />
@@ -43,7 +43,7 @@
             android:id="@+id/chat_message_list"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:background="#f5f5f5"
+            android:background="#f8f8f8"
             >
         </com.yanzhenjie.recyclerview.swipe.SwipeMenuRecyclerView>
     </com.scwang.smartrefresh.layout.SmartRefreshLayout>

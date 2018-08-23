@@ -3,11 +3,17 @@ package tl.pojul.com.fastim.View.activity;
 import android.animation.Animator;
 import android.animation.AnimatorInflater;
 import android.content.Intent;
+import android.graphics.Color;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Message;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.StaggeredGridLayoutManager;
+import android.text.Spannable;
+import android.text.SpannableString;
+import android.text.style.ForegroundColorSpan;
 import android.util.Log;
 import android.view.KeyEvent;
 import android.view.View;
@@ -17,19 +23,24 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.baidu.location.BDLocation;
-import com.baidu.mapapi.map.MapView;
 import com.bumptech.glide.Glide;
+import com.dalong.marqueeview.MarqueeView;
 import com.google.gson.Gson;
+import com.pojul.fastIM.entity.CommunityMessEntity;
 import com.pojul.fastIM.entity.CommunityRoom;
+import com.pojul.fastIM.entity.MessageFilter;
 import com.pojul.fastIM.entity.User;
 import com.pojul.fastIM.message.chat.ChatMessage;
 import com.pojul.fastIM.message.chat.CommunityMessage;
-import com.pojul.fastIM.message.chat.DateMessage;
+import com.pojul.fastIM.message.chat.TagCommuMessage;
 import com.pojul.fastIM.message.chat.TextChatMessage;
 import com.pojul.fastIM.message.request.CommunityMessageReq;
+import com.pojul.fastIM.message.request.GetTopMessReq;
 import com.pojul.fastIM.message.request.HistoryCommunReq;
+import com.pojul.fastIM.message.response.GetTopMessResp;
 import com.pojul.fastIM.message.response.HistoryCommunResp;
 import com.pojul.objectsocket.message.BaseMessage;
 import com.pojul.objectsocket.message.ResponseMessage;
@@ -38,7 +49,7 @@ import com.scwang.smartrefresh.layout.SmartRefreshLayout;
 import com.scwang.smartrefresh.layout.api.RefreshLayout;
 import com.scwang.smartrefresh.layout.listener.OnRefreshListener;
 
-import java.io.File;
+import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -52,29 +63,29 @@ import tl.pojul.com.fastim.View.Adapter.MessageAdapter;
 import tl.pojul.com.fastim.View.Adapter.MoreMessageAdapter;
 import tl.pojul.com.fastim.View.Adapter.SearchPicAdapter;
 import tl.pojul.com.fastim.View.widget.SmoothLinearLayoutManager;
+import tl.pojul.com.fastim.View.widget.marqueeview.SimpleMF;
+import tl.pojul.com.fastim.View.widget.marqueeview.SimpleMarqueeView;
+import tl.pojul.com.fastim.View.widget.marqueeview.util.OnItemClickListener;
 import tl.pojul.com.fastim.map.baidu.LocationManager;
+import tl.pojul.com.fastim.socket.Converter.HistoryChatConverter;
 import tl.pojul.com.fastim.util.ArrayUtil;
-import tl.pojul.com.fastim.util.Constant;
 import tl.pojul.com.fastim.util.CustomTimeDown;
+import tl.pojul.com.fastim.util.DialogUtil;
 import tl.pojul.com.fastim.util.MyDistanceUtil;
 import tl.pojul.com.fastim.util.SPUtil;
 
-public class CommunityChatActivity extends ChatRoomActivity implements CustomTimeDown.OnTimeDownListener{
+public class CommunityChatActivity extends ChatRoomActivity implements CustomTimeDown.OnTimeDownListener {
 
     @BindView(R.id.back)
     ImageView back;
-    @BindView(R.id.set)
-    ImageView set;
+    @BindView(R.id.screen)
+    ImageView screen;
     @BindView(R.id.community_name)
     TextView communityName;
     @BindView(R.id.header)
     RelativeLayout header;
     @BindView(R.id.header_line)
     View headerLine;
-    @BindView(R.id.stick_note)
-    TextView stickNote;
-    @BindView(R.id.stick_message)
-    TextView stickMessage;
     @BindView(R.id.stick_ll)
     LinearLayout stickLl;
     @BindView(R.id.add)
@@ -105,6 +116,10 @@ public class CommunityChatActivity extends ChatRoomActivity implements CustomTim
     RelativeLayout rlSearchPic;
     @BindView(R.id.input_rl)
     RelativeLayout inputRl;
+    @BindView(R.id.community_chat_root)
+    RelativeLayout communityChatRoot;
+    @BindView(R.id.marquee_view)
+    SimpleMarqueeView marqueeView;
 
     private MessageAdapter messageAdapter;
     private MoreMessageAdapter moreMessageAdapter;
@@ -116,24 +131,33 @@ public class CommunityChatActivity extends ChatRoomActivity implements CustomTim
     private CommunityRoom communityRoom;
     private String chatRoomName;
     private String chatRoomUid;
-    private List<ChatMessage> messages =  new ArrayList<>();
+    private List<ChatMessage> messages = new ArrayList<>();
     private CustomTimeDown customTimeDown;
     private BDLocation mBDLocation;
+    private MessageFilter messageFilter;
+    private String lastMessageUid;
+    private boolean isLoading;
+    private static final int INIT = 1001;
+
+    private List<TagCommuMessage> topMessages = new ArrayList<>();
+    private long lastTopMessMilli = System.currentTimeMillis();
+    private long topMessInterval = 5 * 60 * 1000;
+    private boolean isResume;
+    private List<SpannableString> topMessSpan;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        File file = new File((SPUtil.getInstance().getString(Constant.BASE_STORAGE_PATH) + "/BaiduMap/custom_config"));
+        /*File file = new File((SPUtil.getInstance().getString(Constant.BASE_STORAGE_PATH) + "/BaiduMap/custom_config"));
         if (file.exists()) {
             MapView.setCustomMapStylePath((SPUtil.getInstance().getString(Constant.BASE_STORAGE_PATH) + "/BaiduMap/custom_config"));
-        }
+        }*/
         setContentView(R.layout.activity_community_chat);
         ButterKnife.bind(this);
-        MapView.setMapCustomEnable(true);
+        //MapView.setMapCustomEnable(true);
 
-        smartRefresh.setEnableLoadmore(false);
-
-        initData();
+        //initData();
+        mHandler.sendEmptyMessageDelayed(INIT, 100);
     }
 
     private void initData() {
@@ -147,6 +171,7 @@ public class CommunityChatActivity extends ChatRoomActivity implements CustomTim
             finish();
             return;
         }
+        smartRefresh.setEnableLoadmore(false);
         chatRoomName = communityRoom.getName();
         chatRoomUid = communityRoom.getCommunityUid();
         communityName.setText(chatRoomName);
@@ -172,14 +197,14 @@ public class CommunityChatActivity extends ChatRoomActivity implements CustomTim
             @Override
             public void onScrollStateChanged(RecyclerView recyclerView, int newState) {
                 super.onScrollStateChanged(recyclerView, newState);
-                switch (newState){
+                switch (newState) {
                     case RecyclerView.SCROLL_STATE_IDLE:
                         Glide.with(CommunityChatActivity.this).resumeRequests();
                         int[] lastPositions = new int[staggeredGridLayoutManager.getSpanCount()];
                         staggeredGridLayoutManager.findLastVisibleItemPositions(lastPositions);
                         int lastPosition = ArrayUtil.findMax(lastPositions);
-                        if(lastPosition >= (staggeredGridLayoutManager.getItemCount() - 1)){
-                            if(!"".equals(searchPicWord)){
+                        if (lastPosition >= (staggeredGridLayoutManager.getItemCount() - 1)) {
+                            if (!"".equals(searchPicWord)) {
                                 searchPicAdapter.searchNetPic(searchPicWord);
                             }
                         }
@@ -199,7 +224,7 @@ public class CommunityChatActivity extends ChatRoomActivity implements CustomTim
         smartRefresh.setOnRefreshListener(new OnRefreshListener() {
             @Override
             public void onRefresh(RefreshLayout refreshlayout) {
-                getHistoryChat(20);
+                getHistoryChat(20, false);
             }
         });
 
@@ -207,36 +232,108 @@ public class CommunityChatActivity extends ChatRoomActivity implements CustomTim
         customTimeDown.setOnTimeDownListener(this);
         customTimeDown.start();
 
+        messageFilter = new MessageFilter();
+
         MyApplication.getApplication().registerReceiveMessage(iReceiveMessage);
         MyApplication.getApplication().registerSendMessage(iSendMessage);
         MyApplication.getApplication().registerSendProgress(iSendProgress);
+
+        getHistoryChat(20, true);
+
+        getTopMess(6);
+
+        marqueeView.setOnItemClickListener((OnItemClickListener<TextView, SpannableString>) (mView, mData, mPosition) -> {
+            //showShortToas("marqueeView position: " + mPosition);
+            if(mPosition == -1 || mPosition >= topMessages.size()){
+                return;
+            }
+            Intent intent = new Intent(CommunityChatActivity.this, TagReplyActivity.class);
+            Bundle bundle=new Bundle();
+            bundle.putString("tagMessUid", topMessages.get(mPosition).getMessageUid());
+            intent.putExtras(bundle);
+            startActivity(intent);
+        });
+
     }
 
-    private void getHistoryChat(int num) {
-        String lastMessageUid = null;
-        if(messageAdapter.getChatMessages() != null && messageAdapter.getChatMessages().size() > 0){
-            if(messageAdapter.getChatMessages().get(0) instanceof DateMessage && messageAdapter.getChatMessages().size() > 1){
-                lastMessageUid = messageAdapter.getChatMessages().get(1).getMessageUid();
-            }else if(!(messageAdapter.getChatMessages().get(0) instanceof DateMessage)){
-                lastMessageUid = messageAdapter.getChatMessages().get(0).getMessageUid();
+    @Override
+    protected void onResume() {
+        super.onResume();
+        isResume = true;
+        if((System.currentTimeMillis() - lastTopMessMilli) > topMessInterval){
+            getTopMess(6);
+        }
+        /*if(topMessStr != null && topMessStr.size() >0 && currTopMess < topMessStr.size()){
+            marqueeView.setText(topMessStr.get(currTopMess));
+            marqueeView.startScroll();
+        }*/
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        isResume = false;
+    }
+
+    private void getTopMess(int num) {
+        GetTopMessReq getTopMessReq = new GetTopMessReq();
+        getTopMessReq.setCommunityUid(communityRoom.getCommunityUid());
+        getTopMessReq.setNum(num);
+        lastTopMessMilli = System.currentTimeMillis();
+        new SocketRequest().request(MyApplication.ClientSocket, getTopMessReq, new SocketRequest.IRequest() {
+            @Override
+            public void onError(String msg) {
             }
+
+            @Override
+            public void onFinished(ResponseMessage mResponse) {
+                runOnUiThread(()->{
+                    if (mResponse.getCode() == 200) {
+                        List<TagCommuMessage> tempTopMessages = new HistoryChatConverter()
+                                .getTopMess(((GetTopMessResp) mResponse).getCommunityMessEntities());
+                        setTopMess(tempTopMessages);
+                    }
+                });
+            }
+        });
+    }
+
+    private void getHistoryChat(int num, boolean newStart) {
+        if (isLoading) {
+            smartRefresh.finishRefresh(true);
+            return;
+        }
+        isLoading = true;
+        if (newStart) {
+            lastMessageUid = null;
+            DialogUtil.getInstance().showLoadingSimple(this, communityChatRoot);
         }
         HistoryCommunReq historyCommunReq = new HistoryCommunReq(chatRoomUid, lastMessageUid, num);
+        historyCommunReq.setMessageFilter(messageFilter);
         new SocketRequest().request(MyApplication.ClientSocket, historyCommunReq, new SocketRequest.IRequest() {
             @Override
             public void onError(String msg) {
                 runOnUiThread(() -> {
+                    isLoading = false;
+                    DialogUtil.getInstance().dimissLoadingDialog();
                     smartRefresh.finishRefresh(false);
                     showShortToas(msg);
                 });
             }
+
             @Override
             public void onFinished(ResponseMessage mResponse) {
                 runOnUiThread(() -> {
+                    isLoading = false;
+                    DialogUtil.getInstance().dimissLoadingDialog();
                     smartRefresh.finishRefresh(true);
-                    if(mResponse.getCode() == 200){
-                        messageAdapter.addHistoryChat(((HistoryCommunResp)mResponse).getHistoryCommuMessList());
-                    }else{
+                    if (mResponse.getCode() == 200) {
+                        List<CommunityMessEntity> reponses = ((HistoryCommunResp) mResponse).getHistoryCommuMessList();
+                        if (reponses != null && reponses.size() > 0) {
+                            messageAdapter.addHistoryChat(reponses);
+                            lastMessageUid = reponses.get(0).getMessageUid();
+                        }
+                    } else {
                         showShortToas(mResponse.getMessage());
                     }
                 });
@@ -285,17 +382,33 @@ public class CommunityChatActivity extends ChatRoomActivity implements CustomTim
         add.setSelected(false);
     }
 
-    @OnClick({R.id.back, R.id.set, R.id.add, R.id.send, R.id.search_submit})
+    @OnClick({R.id.back, R.id.screen, R.id.add, R.id.send, R.id.search_submit})
     public void onViewClicked(View view) {
         switch (view.getId()) {
             case R.id.back:
+                if (DialogUtil.getInstance().isScreenPopShow()) {
+                    DialogUtil.getInstance().dimissScreenPop();
+                    return;
+                }
                 finish();
                 break;
-            case R.id.set:
+            case R.id.screen:
+                if (DialogUtil.getInstance().isScreenPopShow()) {
+                    return;
+                }
+                DialogUtil.getInstance().showScreenPop(CommunityChatActivity.this, screen, messageFilter);
+                DialogUtil.getInstance().setScreenPopClick((DialogUtil.ScreenPopClick) messageFilter -> {
+                    if (messageFilter != null) {
+                        CommunityChatActivity.this.messageFilter = messageFilter;
+                        messageAdapter.clearData();
+                        messageAdapter.setMessageFilter(messageFilter);
+                        getHistoryChat(20, true);
+                    }
+                });
                 break;
             case R.id.add:
                 if (add.isSelected()) {
-                    if(rlSearchPic.getVisibility() == View.VISIBLE){
+                    if (rlSearchPic.getVisibility() == View.VISIBLE) {
                         hideSearchPic();
                         return;
                     }
@@ -308,7 +421,7 @@ public class CommunityChatActivity extends ChatRoomActivity implements CustomTim
                 if (input.getText() == null || "".equals(input.getText().toString().trim())) {
                     return;
                 }
-                TextChatMessage textChatMessage = new ChatMessageFcctory().createTextMessage(input.getText().toString(),3);
+                TextChatMessage textChatMessage = new ChatMessageFcctory().createTextMessage(input.getText().toString(), 3);
                 sendChatMessage(new ChatMessageFcctory().createCommunityMessage(textChatMessage));
                 input.setText("");
                 break;
@@ -324,21 +437,77 @@ public class CommunityChatActivity extends ChatRoomActivity implements CustomTim
         }
     }
 
+    private MyHandler mHandler = new MyHandler(this);
+
+    public void setTopMess(List<TagCommuMessage> tempTopMess) {
+        if(tempTopMess.size() > 0){
+            topMessages = tempTopMess;
+            topMessSpan = new ArrayList<>();
+            for (int i = 0; i < topMessages.size(); i++) {
+                String text;
+                if(topMessages.get(i).getText() != null && !topMessages.get(i).getText().isEmpty()){
+                    text = topMessages.get(i).getNickName() + ": " + topMessages.get(i).getText();
+                }else{
+                    text = topMessages.get(i).getNickName() + ": " + topMessages.get(i).getTitle();
+                }
+                SpannableString spannableString = new SpannableString(text);
+                int split = text.indexOf(":");
+                if(split == -1){
+                    topMessSpan.add(spannableString);
+                    continue;
+                }
+                ForegroundColorSpan colorSpan = new ForegroundColorSpan(Color.parseColor("#1296db"));
+                spannableString.setSpan(colorSpan, 0, split, Spannable.SPAN_INCLUSIVE_INCLUSIVE);
+                topMessSpan.add(spannableString);
+            }
+            SimpleMF<SpannableString> marqueeFactory = new SimpleMF(this);
+            marqueeFactory.setData(topMessSpan);
+            marqueeView.setMarqueeFactory(marqueeFactory);
+            if(topMessSpan.size() <= 1){
+                marqueeView.stopFlipping();
+            }else{
+                marqueeView.startFlipping();
+            }
+        }
+    }
+
+    static class MyHandler extends Handler {
+        //注意下面的“”类是MyHandler类所在的外部类，即所在的activity或者fragment
+        WeakReference<CommunityChatActivity> activity;
+
+        MyHandler(CommunityChatActivity activity) {
+            this.activity = new WeakReference<>(activity);
+        }
+
+        @Override
+        public void handleMessage(Message msg) {
+            super.handleMessage(msg);
+            if (activity.get() == null) {
+                return;
+            }
+            switch (msg.what) {
+                case INIT:
+                    activity.get().initData();
+                    break;
+            }
+        }
+    }
+
     @Override
     public void sendChatMessage(ChatMessage chatMessage) {
         if (!MyApplication.getApplication().isConnected()) {
             showShortToas("与服务器已断开连接");
             return;
         }
-        if(!(chatMessage instanceof CommunityMessage)){
+        if (!(chatMessage instanceof CommunityMessage)) {
             showShortToas("发送数据格式错误");
             return;
         }
-        if(mBDLocation == null){
+        if (mBDLocation == null) {
             showShortToas("获取不到位置信息");
             return;
         }
-        CommunityMessage communityMessage = ((CommunityMessage)chatMessage);
+        CommunityMessage communityMessage = ((CommunityMessage) chatMessage);
         communityMessage.setCommunityName(chatRoomName);
         communityMessage.setFrom(user.getUserName());
         communityMessage.setTo(chatRoomUid);
@@ -348,6 +517,7 @@ public class CommunityChatActivity extends ChatRoomActivity implements CustomTim
         communityMessage.setCertificate(user.getCertificate());
         communityMessage.setNickName(user.getNickName());
         communityMessage.setPhoto(user.getPhoto());
+        communityMessage.setTimeMill(System.currentTimeMillis());
 
         MyApplication.ClientSocket.sendData(communityMessage);
         messageAdapter.addMessage(communityMessage);
@@ -371,8 +541,12 @@ public class CommunityChatActivity extends ChatRoomActivity implements CustomTim
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-        hideMoreMessage();
-        moreMessageAdapter.onActivityResult(requestCode, resultCode, data);
+        if (requestCode == 121) {
+            messageAdapter.onActivityResult(requestCode, resultCode, data);
+        } else {
+            hideMoreMessage();
+            moreMessageAdapter.onActivityResult(requestCode, resultCode, data);
+        }
     }
 
     @Override
@@ -399,7 +573,7 @@ public class CommunityChatActivity extends ChatRoomActivity implements CustomTim
 
         @Override
         public void onSendFinish(BaseMessage message) {
-            if(!(message instanceof CommunityMessage)){
+            if (!(message instanceof CommunityMessage)) {
                 return;
             }
             messageAdapter.onSendFinish(message);
@@ -407,7 +581,7 @@ public class CommunityChatActivity extends ChatRoomActivity implements CustomTim
 
         @Override
         public void onSendFail(BaseMessage message) {
-            if(!(message instanceof CommunityMessage)){
+            if (!(message instanceof CommunityMessage)) {
                 return;
             }
             messageAdapter.onSendFail(message);
@@ -417,16 +591,18 @@ public class CommunityChatActivity extends ChatRoomActivity implements CustomTim
     private MyApplication.ISendProgress iSendProgress = new MyApplication.ISendProgress() {
         @Override
         public void progress(BaseMessage message, int progress) {
-            if(!(message instanceof CommunityMessage)){
+            if (!(message instanceof CommunityMessage)) {
                 return;
             }
-            if(progress > 100){
+            if (progress > 100) {
                 progress = 100;
             }
             messageAdapter.updateSendProgress(message, progress);
         }
+
         @Override
-        public void finish(BaseMessage message) {}
+        public void finish(BaseMessage message) {
+        }
     };
 
     @Override
@@ -447,6 +623,9 @@ public class CommunityChatActivity extends ChatRoomActivity implements CustomTim
     public void onTick(long l) {
         Log.e("onTick", "onTick");
         LocationManager.getInstance().registerLocationListener(iLocationListener);
+        if(isResume && (System.currentTimeMillis() - lastTopMessMilli) > topMessInterval){
+            getTopMess(6);
+        }
     }
 
     @Override
@@ -456,16 +635,18 @@ public class CommunityChatActivity extends ChatRoomActivity implements CustomTim
 
     @Override
     protected void onDestroy() {
-        super.onDestroy();
+        DialogUtil.getInstance().dimissLoadingDialog();
         CommunityMessageReq request = new CommunityMessageReq();
         request.setUid(communityRoom.getCommunityUid());
         request.setReqCode(2);
         new SocketRequest().request(MyApplication.ClientSocket, request, new SocketRequest.IRequest() {
             @Override
-            public void onError(String msg) {}
+            public void onError(String msg) {
+            }
 
             @Override
-            public void onFinished(ResponseMessage mResponse) {}
+            public void onFinished(ResponseMessage mResponse) {
+            }
         });
         LocationManager.getInstance().unRegisterLocationListener(iLocationListener);
         MyApplication.getApplication().unRegisterReceiveMessage(iReceiveMessage);
@@ -473,5 +654,6 @@ public class CommunityChatActivity extends ChatRoomActivity implements CustomTim
         MyApplication.getApplication().unRegisterSendProgress(iSendProgress);
         customTimeDown.cancel();
         customTimeDown = null;
+        super.onDestroy();
     }
 }

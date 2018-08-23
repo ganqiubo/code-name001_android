@@ -197,11 +197,13 @@ public class HomeFragment extends BaseFragment {
 
     @Override
     public void onDestroyView() {
+        try{
+            unbinder.unbind();
+            sowingProgressLis = null;
+            chiosenessPics.onDestory();
+            ((BaseActivity) getActivity()).unResisterPauseListener(pauseListener);
+        }catch (Exception e){}
         super.onDestroyView();
-        unbinder.unbind();
-        sowingProgressLis = null;
-        chiosenessPics.onDestory();
-        ((BaseActivity) getActivity()).unResisterPauseListener(pauseListener);
     }
 
     @Override

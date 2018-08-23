@@ -5,6 +5,8 @@ import android.graphics.Color;
 import android.os.Build;
 import android.os.Bundle;
 import android.text.InputType;
+import android.util.Log;
+import android.view.KeyEvent;
 import android.view.View;
 import android.widget.Button;
 import android.widget.CheckBox;
@@ -60,10 +62,15 @@ public class LoginActivity extends BaseActivity {
     }
 
     private void conn() {
+        if(MyApplication.isConnecting){
+            return;
+        }
+        MyApplication.isConnecting = true;
         DialogUtil.getInstance().showLoadingDialog(this, "连接服务器中...");
         new SocketRequest().requestConn(new SocketRequest.IRequestConn() {
             @Override
             public void onError(String msg) {
+                MyApplication.isConnecting = false;
                 runOnUiThread(() -> {
                     DialogUtil.getInstance().dimissLoadingDialog();
                     showLongToas(msg);
@@ -100,6 +107,7 @@ public class LoginActivity extends BaseActivity {
         new SocketRequest().request(MyApplication.ClientSocket, mLoginMessage, new SocketRequest.IRequest() {
             @Override
             public void onError(String msg) {
+                MyApplication.isConnecting = false;
                 runOnUiThread(() -> {
                     DialogUtil.getInstance().dimissLoadingDialog();
                     showShortToas("网络连接失败");
@@ -108,14 +116,18 @@ public class LoginActivity extends BaseActivity {
 
             @Override
             public void onFinished(ResponseMessage mResponse) {
+                MyApplication.isConnecting = false;
                 runOnUiThread(() -> {
                     DialogUtil.getInstance().dimissLoadingDialog();
                     LoginResponse loginResponse = (LoginResponse) mResponse;
                     showShortToas(mResponse.getMessage());
                     if (loginResponse.getCode() == 200) {
                         SPUtil.getInstance().putUser(loginResponse.getUser());
+                        SPUtil.getInstance().putArrays(loginResponse.getTokenId(), loginResponse.getUser().getUserName());
                         MyApplication.ClientSocket.setTokenId(loginResponse.getTokenId());
-                        startActivity(new Intent(LoginActivity.this, MainActivity.class));
+                        if(MyApplication.getApplication().getMainActivity() == null){
+                            startActivity(new Intent(LoginActivity.this, MainActivity.class));
+                        }
                         finish();
                     }
                 });
@@ -146,4 +158,18 @@ public class LoginActivity extends BaseActivity {
                 break;
         }
     }
+
+    @Override
+    public boolean onKeyUp(int keyCode, KeyEvent event) {
+        if (keyCode == KeyEvent.KEYCODE_BACK && event.getAction() == KeyEvent.ACTION_UP && MyApplication.isConnecting) {
+            Intent home = new Intent(Intent.ACTION_MAIN);
+            home.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+            home.addCategory(Intent.CATEGORY_HOME);
+            startActivity(home);
+            return true;
+        }
+        return super.onKeyUp(keyCode, event);
+    }
+
+
 }

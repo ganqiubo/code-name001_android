@@ -128,25 +128,25 @@
                         <android.support.v7.widget.RecyclerView
                             android:visibility="gone"
                             android:id="@+id/pics"
-                            android:layout_width="220dp"
+                            android:layout_width="200dp"
                             android:layout_height="wrap_content">
                         </android.support.v7.widget.RecyclerView>
 
                         <ImageView
                             android:visibility="gone"
                             android:id="@+id/img"
-                            android:layout_width="220dp"
+                            android:layout_width="200dp"
                             android:layout_height="wrap_content"
                             android:layout_gravity="center"
                             android:adjustViewBounds="true"
                             android:clickable="true"/>
                     </LinearLayout>
 
-                    <TextView
+                    <tl.pojul.com.fastim.View.widget.JustifyTextView
                         android:id="@+id/note"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:maxWidth="220dp"
+                        android:maxWidth="190dp"
                         android:padding="3dp"
                         android:layout_marginLeft="5dp"
                         android:layout_marginRight="5dp"
@@ -179,7 +179,9 @@
                         android:layout_height="wrap_content"
                         android:layout_marginLeft="1dp"
                         android:ellipsize="middle"
-                        android:padding="2dp"
+                        android:paddingBottom="2dp"
+                        android:paddingTop="2dp"
+                        android:paddingLeft="2dp"
                         android:singleLine="true"
                         android:text="你大爷:"
                         android:textColor="#1296db"
@@ -189,9 +191,10 @@
                         android:id="@+id/reply1_text"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:layout_marginLeft="1dp"
                         android:ellipsize="middle"
-                        android:padding="2dp"
+                        android:paddingBottom="2dp"
+                        android:paddingTop="2dp"
+                        android:paddingRight="2dp"
                         android:singleLine="true"
                         android:text="我可以吗"
                         android:textColor="#909090"
@@ -287,6 +290,17 @@
                                 android:text="1.3万"
                                 android:textColor="@color/selector_text_gray_yellow"
                                 android:textSize="11sp" />
+
+                            <ProgressBar
+                                android:visibility="gone"
+                                android:id="@+id/thumb_progress"
+                                android:layout_width="12dp"
+                                android:layout_height="12dp"
+                                android:layout_marginTop="2dp"
+                                android:layout_gravity="center_vertical"
+                                android:indeterminateBehavior="repeat"
+                                android:indeterminateDrawable="@drawable/dialog_loading"
+                                android:indeterminateOnly="true" />
                         </LinearLayout>
                     </RelativeLayout>
 
@@ -346,6 +360,21 @@
                     android:max="100"
                     android:progress="0"
                     android:progressDrawable="@drawable/progress_file_download" />
+
+                <TextView
+                    android:id="@+id/add_one"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="+1"
+                    android:textSize="9sp"
+                    android:textStyle="bold"
+                    android:visibility="gone"
+                    android:layout_marginTop="4dp"
+                    android:paddingLeft="2dp"
+                    android:textColor="@color/yellow_pressed"
+                    android:layout_below="@+id/line3"
+                    android:layout_centerInParent="true"/>
+
             </RelativeLayout>
 
         </LinearLayout>
@@ -367,4 +396,5 @@
             app:poly_shadow_color="#ff000000"
             app:poly_vertices="0" />
     </LinearLayout>
+
 </RelativeLayout>

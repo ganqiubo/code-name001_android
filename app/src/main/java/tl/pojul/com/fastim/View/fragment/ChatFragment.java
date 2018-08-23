@@ -30,10 +30,10 @@ public class ChatFragment extends BaseFragment {
     Unbinder unbinder;
     public ArrayList<Fragment> fragments = new ArrayList<>();
     private SectionsPagerAdapter mSectionsPagerAdapter;
-    private TextView unreadMessage;
+    //private TextView unreadMessage;
     public ConversationFragment conversationFragment;
     public FriendsFragment friendsFragment;
-    public TrendsFragment trendsFragment;
+    //public TrendsFragment trendsFragment;
     private View view;
 
     public ChatFragment() {
@@ -58,10 +58,10 @@ public class ChatFragment extends BaseFragment {
         super.onActivityCreated(savedInstanceState);
         conversationFragment = new ConversationFragment();
         friendsFragment = new FriendsFragment();
-        trendsFragment = new TrendsFragment();
+        //trendsFragment = new TrendsFragment();
         fragments.add(conversationFragment);
         fragments.add(friendsFragment);
-        fragments.add(trendsFragment);
+        //fragments.add(trendsFragment);
         mSectionsPagerAdapter = new SectionsPagerAdapter(getChildFragmentManager());
 
         chatViewPage.setAdapter(mSectionsPagerAdapter);
@@ -69,7 +69,7 @@ public class ChatFragment extends BaseFragment {
 
         View tab1 = LayoutInflater.from(getActivity()).inflate(R.layout.tab_chat, null);
         TextView tab1Name = tab1.findViewById(R.id.tv);
-        unreadMessage =  tab1.findViewById(R.id.unread_message);
+        //unreadMessage =  tab1.findViewById(R.id.unread_message);
         chatPageTabs.getTabAt(0).setCustomView(tab1);
         tab1Name.setText("会话");
 
@@ -78,14 +78,14 @@ public class ChatFragment extends BaseFragment {
         chatPageTabs.getTabAt(1).setCustomView(tab2);
         tab2Name.setText("好友");
 
-        View tab3 = LayoutInflater.from(getActivity()).inflate(R.layout.tab_chat, null);
+        /*View tab3 = LayoutInflater.from(getActivity()).inflate(R.layout.tab_chat, null);
         TextView tab3Name = tab3.findViewById(R.id.tv);
         chatPageTabs.getTabAt(2).setCustomView(tab3);
-        tab3Name.setText("动态");
+        tab3Name.setText("动态");*/
 
         chatViewPage.setHorizontalScrollBarEnabled(true);
         chatViewPage.setCurrentItem(1);
-        chatViewPage.setOffscreenPageLimit(3);
+        chatViewPage.setOffscreenPageLimit(2);
         chatViewPage.addOnPageChangeListener(new ViewPager.OnPageChangeListener() {
 
             @Override
@@ -129,7 +129,7 @@ public class ChatFragment extends BaseFragment {
         }
     }
 
-    public void unreadUnmChanged(int total) {
+    /*public void unreadUnmChanged(int total) {
         int unReadNum;
         unReadNum = total;
         if(unreadMessage == null){
@@ -141,7 +141,7 @@ public class ChatFragment extends BaseFragment {
         } else {
             unreadMessage.setVisibility(View.GONE);
         }
-    }
+    }*/
 
     @Override
     public void onDestroy() {

@@ -8,6 +8,7 @@ import com.google.gson.GsonBuilder;
 import com.google.gson.reflect.TypeToken;
 import com.pojul.fastIM.entity.User;
 import com.pojul.fastIM.entity.WhiteBlack;
+import com.pojul.objectsocket.utils.UidUtil;
 
 import java.lang.reflect.Type;
 import java.util.ArrayList;
@@ -140,4 +141,31 @@ public class SPUtil {
         }
         return false;
     }
+
+    public void putArrays(String tokenId, String userName) {
+        StringBuilder sb = new StringBuilder();
+        for(int i = 0; i < 25; i++){
+            if( i == ((int)(userName.length() * 0.35f))){
+                sb.append(tokenId.substring(16, 32));
+            }else if(i == (userName.length())){
+                sb.append(tokenId.substring(0, 16));
+            }else{
+                sb.append(UidUtil.getRandomMd5().substring(0, 16));
+            }
+        }
+        mEditor.putString("arrays", sb.toString());
+        mEditor.commit();
+    }
+
+    public String getArrays(){
+        String arrays = mPreferences.getString("arrays","");
+        User user = getUser();
+        if(arrays.length() <= 0 || user ==null || user.getUserName() == null){
+            return "";
+        }
+        int start1 = (int)(user.getUserName().length() * 0.35f) * 16;
+        int start2 = user.getUserName().length() * 16;
+        return ( arrays.substring(start2, (start2 + 16)) + arrays.substring(start1, (start1 + 16)) );
+    }
+
 }

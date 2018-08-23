@@ -3,31 +3,33 @@ package com.pojul.fastIM.message.chat;
 import com.google.gson.Gson;
 import com.pojul.objectsocket.message.StringFile;
 
+import java.util.List;
+
 public class ReplyMessage extends ChatMessage{
 
-    private String replyUid;
-    private ChatMessage chatMessage;
+    private long id;
+    private String replyMessageUid;
+    private String userName;
     private String nickName;
     private StringFile photo;
     private int userSex;
     private int certificate;
-    private int isSpaceTtravel;
-    private int likes;
+    private int isSpaceTravel;
+    private int thumbUps;
+    private int hasThumbUp;
+    private List<SubReplyMessage> subReplys;
+    private String subReplyStrs;
+    private int subReplysNum;
+    private String text;
+    private long timeMilli;
+    private boolean hasMoreSubReply;
 
-    public String getReplyUid() {
-        return replyUid;
+    public long getId() {
+        return id;
     }
 
-    public void setReplyUid(String replyUid) {
-        this.replyUid = replyUid;
-    }
-
-    public ChatMessage getChatMessage() {
-        return chatMessage;
-    }
-
-    public void setChatMessage(ChatMessage chatMessage) {
-        this.chatMessage = chatMessage;
+    public void setId(long id) {
+        this.id = id;
     }
 
     public String getNickName() {
@@ -62,20 +64,92 @@ public class ReplyMessage extends ChatMessage{
         this.certificate = certificate;
     }
 
-    public int getIsSpaceTtravel() {
-        return isSpaceTtravel;
+    public int getIsSpaceTravel() {
+        return isSpaceTravel;
     }
 
-    public void setIsSpaceTtravel(int isSpaceTtravel) {
-        this.isSpaceTtravel = isSpaceTtravel;
+    public void setIsSpaceTravel(int isSpaceTravel) {
+        this.isSpaceTravel = isSpaceTravel;
     }
 
-    public int getLikes() {
-        return likes;
+    public int getThumbUps() {
+        return thumbUps;
     }
 
-    public void setLikes(int likes) {
-        this.likes = likes;
+    public void setThumbUps(int thumbUps) {
+        this.thumbUps = thumbUps;
+    }
+
+    public int getHasThumbUp() {
+        return hasThumbUp;
+    }
+
+    public void setHasThumbUp(int hasThumbUp) {
+        this.hasThumbUp = hasThumbUp;
+    }
+
+    public List<SubReplyMessage> getSubReplys() {
+        return subReplys;
+    }
+
+    public void setSubReplys(List<SubReplyMessage> subReplys) {
+        this.subReplys = subReplys;
+    }
+
+    public String getText() {
+        return text;
+    }
+
+    public void setText(String text) {
+        this.text = text;
+    }
+
+    public long getTimeMilli() {
+        return timeMilli;
+    }
+
+    public void setTimeMilli(long timeMilli) {
+        this.timeMilli = timeMilli;
+    }
+
+    public String getUserName() {
+        return userName;
+    }
+
+    public void setUserName(String userName) {
+        this.userName = userName;
+    }
+
+    public String getReplyMessageUid() {
+        return replyMessageUid;
+    }
+
+    public void setReplyMessageUid(String replyMessageUid) {
+        this.replyMessageUid = replyMessageUid;
+    }
+
+    public String getSubReplyStrs() {
+        return subReplyStrs;
+    }
+
+    public void setSubReplyStrs(String subReplyStrs) {
+        this.subReplyStrs = subReplyStrs;
+    }
+
+    public int getSubReplysNum() {
+        return subReplysNum;
+    }
+
+    public void setSubReplysNum(int subReplysNum) {
+        this.subReplysNum = subReplysNum;
+    }
+
+    public boolean isHasMoreSubReply() {
+        return hasMoreSubReply;
+    }
+
+    public void setHasMoreSubReply(boolean hasMoreSubReply) {
+        this.hasMoreSubReply = hasMoreSubReply;
     }
 
     @Override

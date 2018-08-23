@@ -9,12 +9,17 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_below="@+id/header_line">
-        <android.support.v7.widget.RecyclerView
-            android:id="@+id/community_list"
+        <ScrollView
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:background="#ffffff">
-        </android.support.v7.widget.RecyclerView>
+            <android.support.v7.widget.RecyclerView
+                android:id="@+id/community_list"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:background="#ffffff">
+            </android.support.v7.widget.RecyclerView>
+        </ScrollView>
     </com.scwang.smartrefresh.layout.SmartRefreshLayout>
 
 </LinearLayout>

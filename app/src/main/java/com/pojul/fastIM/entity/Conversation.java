@@ -15,6 +15,7 @@ public class Conversation extends BaseEntity {
     private String conversationOwner;
 	private int unreadMessage;
 	private int conversationType;
+	private String conversionUid = "";
 	
 	public Conversation() {
 		super();
@@ -74,6 +75,14 @@ public class Conversation extends BaseEntity {
 		this.conversationType = conversationType;
 	}
 
+	public String getConversionUid() {
+		return conversionUid;
+	}
+
+	public void setConversionUid(String conversionUid) {
+		this.conversionUid = conversionUid;
+	}
+
 	@Override
 	public void setBySql(Cursor cursor) {
 		// TODO Auto-generated method stub
@@ -89,6 +98,7 @@ public class Conversation extends BaseEntity {
 		conversationOwner = getString(cursor, "conversation_owner");
 		unreadMessage = getInt(cursor, "unread_message");
 		conversationType = getInt(cursor, "conversation_type");
+		conversionUid = getString(cursor, "conversation_uid");
 	}
 	
 }

@@ -1,5 +1,6 @@
 package com.pojul.fastIM.message.request;
 
+import com.pojul.fastIM.entity.MessageFilter;
 import com.pojul.objectsocket.message.RequestMessage;
 
 /**
@@ -10,6 +11,7 @@ public class HistoryCommunReq  extends RequestMessage {
     private String roomUid;
     private String lastMessageUid;
     private int num;
+    private MessageFilter messageFilter;
 
     public HistoryCommunReq() {
         super();
@@ -21,6 +23,14 @@ public class HistoryCommunReq  extends RequestMessage {
         this.lastMessageUid = lastMessageUid;
         this.num = num;
         setRequestUrl("HistoryCommunMessReq");
+    }
+
+    public MessageFilter getMessageFilter() {
+        return messageFilter;
+    }
+
+    public void setMessageFilter(MessageFilter messageFilter) {
+        this.messageFilter = messageFilter;
     }
 
     public String getRoomUid() {

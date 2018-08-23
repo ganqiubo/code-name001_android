@@ -2,6 +2,8 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/community_chat_root"
     android:orientation="vertical"
     android:background="#ffffff">
 
@@ -27,17 +29,17 @@
             />
 
         <ImageView
-            android:id="@+id/set"
+            android:id="@+id/screen"
             android:layout_width="62dp"
             android:layout_height="match_parent"
             android:layout_centerVertical="true"
             android:layout_alignParentRight="true"
             android:paddingTop="14dp"
             android:paddingBottom="14dp"
-            android:padding="13dp"
+            android:padding="15dp"
             android:background="@drawable/ripple_normal"
             android:tint="#787878"
-            android:src="@drawable/setting_normal"
+            android:src="@drawable/pressed_screen"
             android:clickable="true"
             />
 
@@ -70,28 +72,30 @@
         android:id="@+id/stick_ll"
         >
 
-        <TextView
-            android:id="@+id/stick_note"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="置顶消息:"
-            android:textColor="#787878"
-            android:textSize="11sp"
+        <ImageView
+            android:layout_width="40dp"
+            android:layout_height="30dp"
             android:padding="8dp"
-            />
+            android:src="@drawable/horn_blue"
+            android:background="#ffffff"
+            android:elevation="4dp"/>
 
-        <TextView
-            android:id="@+id/stick_message"
+
+        <tl.pojul.com.fastim.View.widget.marqueeview.SimpleMarqueeView
+            android:id="@+id/marquee_view"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:padding="8dp"
-            android:gravity="center"
-            android:focusable="true"
-            android:textSize="11sp"
-            android:textColor="#787878"
-            android:focusableInTouchMode="true"
-            android:layout_below="@+id/header_line"
-            />
+            android:layout_height="30dp"
+            android:flipInterval="8000"
+            android:inAnimation="@anim/in_bottom"
+            android:outAnimation="@anim/out_top"
+            app:marqueeAnimDuration="900"
+            app:smvTextColor="@color/pressed_text_gray_yellow"
+            app:smvTextEllipsize="end"
+            app:smvTextGravity="center_vertical"
+            app:smvTextSingleLine="true"
+            android:clickable="true"
+            android:layout_marginLeft="5dp"
+            app:smvTextSize="11sp" />
     </LinearLayout>
 
     <com.scwang.smartrefresh.layout.SmartRefreshLayout

@@ -17,6 +17,13 @@ public class CommunityMessEntity extends BaseEntity{
     private String messageContent;
     private long timeMill;
 
+    private int thumbUps;
+    private int isEffective;
+    private int hasThumbUp;
+    private int hasReport;
+    private String lastReply;
+    private int replyNum;
+
     public long getId() {
         return id;
     }
@@ -97,7 +104,55 @@ public class CommunityMessEntity extends BaseEntity{
 		this.timeMill = timeMill;
 	}
 
-	@Override
+    public int getThumbUps() {
+        return thumbUps;
+    }
+
+    public void setThumbUps(int thumbUps) {
+        this.thumbUps = thumbUps;
+    }
+
+    public int getIsEffective() {
+        return isEffective;
+    }
+
+    public void setIsEffective(int isEffective) {
+        this.isEffective = isEffective;
+    }
+
+    public int getHasThumbUp() {
+        return hasThumbUp;
+    }
+
+    public void setHasThumbUp(int hasThumbUp) {
+        this.hasThumbUp = hasThumbUp;
+    }
+
+    public int getHasReport() {
+        return hasReport;
+    }
+
+    public void setHasReport(int hasReport) {
+        this.hasReport = hasReport;
+    }
+
+    public int getReplyNum() {
+        return replyNum;
+    }
+
+    public void setReplyNum(int replyNum) {
+        this.replyNum = replyNum;
+    }
+
+    public String getLastReply() {
+        return lastReply;
+    }
+
+    public void setLastReply(String lastReply) {
+        this.lastReply = lastReply;
+    }
+
+    @Override
     public String toString() {
         return new Gson().toJson(this);
     }

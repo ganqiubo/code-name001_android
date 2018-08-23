@@ -14,6 +14,7 @@
     <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
     <uses-permission android:name="android.permission.CHANGE_WIFI_STATE" />
     <uses-permission android:name="android.permission.READ_PHONE_STATE" />
+    <uses-permission android:name="android.permission.ACCESS_NOTIFICATION_POLICY" />
 
     <application
         android:name=".MyApplication"
@@ -32,14 +33,19 @@
 
         <activity
             android:name=".View.activity.MainActivity"
+            android:process=":process1"
             android:screenOrientation="portrait"
+            android:launchMode="singleTask"
             android:theme="@style/AppTheme.NoActionBar" />
         <activity
             android:name=".View.activity.LoginActivity"
+            android:process=":process1"
             android:screenOrientation="portrait"
             android:theme="@style/AppTheme.NoActionBar" />
         <activity
             android:name=".View.activity.StartActivity"
+            android:excludeFromRecents="true"
+            android:process=":process1"
             android:screenOrientation="portrait"
             android:theme="@style/AppTheme.NoActionBar">
             <intent-filter>
@@ -51,29 +57,89 @@
         <activity
             android:name=".View.activity.BaseActivity"
             android:label="@string/title_activity_base"
+            android:process=":process1"
             android:theme="@style/AppTheme.NoActionBar" />
         <activity
             android:name=".View.activity.SingleChatRoomActivity"
+            android:process=":process1"
             android:theme="@style/AppTheme.NoActionBar" />
-        <activity android:name=".View.activity.MultipleChatRoomActivity" />
-        <activity android:name=".View.activity.ChatRoomActivity" />
+        <activity
+            android:name=".View.activity.MultipleChatRoomActivity"
+            android:process=":process1" />
+        <activity
+            android:name=".View.activity.ChatRoomActivity"
+            android:process=":process1" />
         <activity
             android:name=".View.activity.ChatFileDownloadActivity"
+            android:process=":process1"
             android:theme="@style/AppTheme.NoActionBar" />
         <activity
             android:name=".View.activity.VideoActivity"
+            android:process=":process1"
             android:theme="@style/AppTheme.NoActionBar" />
-        <activity android:name=".View.activity.UploadPicActivity" />
-        <activity android:name=".View.activity.SavedPicActivity" />
-        <activity android:name=".View.activity.UploadingPicActivity" />
-        <activity android:name=".View.activity.CommunitySetActivity" />
-        <activity android:name=".View.activity.CommunityChatActivity" />
-        <activity android:name=".View.activity.CommunityMapActivity" />
-        <activity android:name=".View.activity.TagMessageActivity" />
-        <activity android:name=".View.activity.WhiteBlackActivity" />
-        <activity android:name=".View.activity.UserSelectActivity" />
-        <activity android:name=".View.activity.WhiteBlackListActivity" />
-        <activity android:name=".View.activity.UserSearchActivity"></activity>
+        <activity
+            android:name=".View.activity.UploadPicActivity"
+            android:process=":process1" />
+        <activity
+            android:name=".View.activity.SavedPicActivity"
+            android:process=":process1" />
+        <activity
+            android:name=".View.activity.UploadingPicActivity"
+            android:process=":process1" />
+        <activity
+            android:name=".View.activity.CommunitySetActivity"
+            android:process=":process1" />
+        <activity
+            android:name=".View.activity.CommunityChatActivity"
+            android:process=":process1" />
+        <activity
+            android:name=".View.activity.CommunityMapActivity"
+            android:process=":process1" />
+        <activity
+            android:name=".View.activity.TagMessageActivity"
+            android:process=":process1" />
+        <activity
+            android:name=".View.activity.WhiteBlackActivity"
+            android:process=":process1" />
+        <activity
+            android:name=".View.activity.UserSelectActivity"
+            android:process=":process1" />
+        <activity
+            android:name=".View.activity.WhiteBlackListActivity"
+            android:process=":process1" />
+        <activity android:name=".View.activity.UserSearchActivity" />
+        <activity
+            android:name=".View.activity.TagReplyActivity"
+            android:process=":process1" />
+        <activity
+            android:name=".View.activity.MoreSubReplyActivity"
+            android:process=":process1" />
+
+        <service
+            android:name=".View.service.SocketConnService"
+            android:enabled="true"
+            android:exported="true"
+            android:process=":process1" />
+        <service
+            android:name=".View.service.MarsDaemonService2"
+            android:enabled="true"
+            android:exported="true"
+            android:process=":process2" />
+
+        <receiver
+            android:name=".View.broadcast.MarsDaemonReceiver1"
+            android:enabled="true"
+            android:exported="true"
+            android:process=":process1" />
+        <receiver
+            android:name=".View.broadcast.MarsDaemonReceiver2"
+            android:enabled="true"
+            android:exported="true"
+            android:process=":process2" />
+        <receiver
+            android:name=".View.broadcast.NetWorkStateReceiver"
+            android:enabled="true"
+            android:exported="true"></receiver>
     </application>
 
 </manifest>

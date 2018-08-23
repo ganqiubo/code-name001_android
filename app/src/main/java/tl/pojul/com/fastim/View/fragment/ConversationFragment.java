@@ -10,6 +10,10 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Toast;
 
+import com.pojul.fastIM.message.chat.CommunityMessage;
+import com.pojul.fastIM.message.chat.ReplyMessage;
+import com.pojul.fastIM.message.chat.SubReplyMessage;
+import com.pojul.fastIM.message.chat.TagCloseMessage;
 import com.pojul.objectsocket.message.BaseMessage;
 import com.scwang.smartrefresh.layout.SmartRefreshLayout;
 import com.scwang.smartrefresh.layout.api.RefreshLayout;
@@ -145,9 +149,13 @@ public class ConversationFragment extends BaseFragment {
     private MyApplication.IReceiveMessage iReceiveMessage = new MyApplication.IReceiveMessage() {
         @Override
         public void receiveMessage(BaseMessage message) {
-            showLongToas("iReceiveMessage--->" + message.getFrom());
             if(conversationAdapter != null){
+                if((message instanceof ReplyMessage) || (message instanceof SubReplyMessage)
+                        || (message instanceof CommunityMessage) || (message instanceof TagCloseMessage)){
+                    return;
+                }
                 conversationAdapter.receiveMessage(message);
+                showLongToas("iReceiveMessage--->" + message.getFrom());
             }
         }
     };

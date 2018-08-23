@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical">
+
+    <TextView
+        android:id="@+id/title"
+        android:layout_width="wrap_content"
+        android:layout_height="match_parent"
+        android:layout_marginBottom="8dp"
+        android:layout_marginLeft="14dp"
+        android:layout_marginRight="14dp"
+        android:layout_marginTop="11dp"
+        android:text="打球的有木有呀"
+        android:textColor="#454545"
+        android:textSize="15sp" />
+
+    <tl.pojul.com.fastim.View.widget.sowingmap.SowingMap
+        android:id="@+id/message_pics"
+        android:layout_width="match_parent"
+        android:layout_height="280dp"
+        android:clickable="true"></tl.pojul.com.fastim.View.widget.sowingmap.SowingMap>
+
+    <tl.pojul.com.fastim.View.widget.JustifyTextView
+        android:id="@+id/message_content"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="9dp"
+        android:layout_marginLeft="14dp"
+        android:layout_marginRight="14dp"
+        android:layout_marginTop="5dp"
+        android:padding="2dp"
+        android:text="\u3000\u3000打球，下午五点半，学校体育馆，已预约球场，素来"
+        android:textColor="#787878"
+        android:textSize="14sp" />
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="1px"
+        android:background="#e1e1e1" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="5dp"
+        android:layout_marginTop="5dp"
+        android:padding="8dp"
+        android:text="回复"
+        android:textColor="#787878"
+        android:textSize="12sp" />
+
+</LinearLayout>

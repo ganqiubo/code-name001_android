@@ -17,6 +17,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import tl.pojul.com.fastim.R;
+import tl.pojul.com.fastim.util.ArrayUtil;
 import tl.pojul.com.fastim.util.DensityUtil;
 
 
@@ -54,7 +55,7 @@ public class FlowTagView extends View {
     private int startX;
     private int startY;
     //Tag显示的文本
-    private List<String> datas;
+    private List<String> datas = new ArrayList<>();
     private List<Tag> tags = new ArrayList<>();
 
     //点击事件的滑动距离阈值
@@ -267,6 +268,9 @@ public class FlowTagView extends View {
 
     public List<String> getSelectTags(){
         List<String> selectTags = new ArrayList<>();
+        if(tags == null){
+            return selectTags;
+        }
         for (int i = 0; i < tags.size(); i++) {
             if (tags.get(i).isSelected) {
                 selectTags.add(datas.get(i));
@@ -276,10 +280,28 @@ public class FlowTagView extends View {
     }
 
     public void setSelectedTags(List<Integer> selectedTags){
+        if(tags == null){
+            return;
+        }
         for(int i = 0; i < selectedTags.size(); i++){
             if(i < tags.size()){
                 int position = selectedTags.get(i);
                 tags.get(position).isSelected = true;
+            }
+        }
+        invalidate();
+    }
+
+    public void setSelectedTagStrs(List<String> selectedTags){
+        if(tags == null){
+            return;
+        }
+        for(int i = 0; i < tags.size(); i++){
+            Tag tag = tags.get(i);
+            if(ArrayUtil.containsStringVal(selectedTags, tag.text)){
+                tag.isSelected = true;
+            }else{
+                tag.isSelected = false;
             }
         }
         invalidate();

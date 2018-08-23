@@ -1,6 +1,8 @@
 package tl.pojul.com.fastim.View.fragment;
 
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Looper;
 import android.support.annotation.Nullable;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -27,22 +29,30 @@ import com.baidu.mapapi.search.poi.PoiSearch;
 import com.baidu.mapapi.search.poi.PoiSortType;
 import com.baidu.mapapi.utils.DistanceUtil;
 import com.pojul.fastIM.entity.CommunityRoom;
+import com.pojul.fastIM.message.chat.TagCommuMessage;
+import com.pojul.fastIM.message.request.GetTopMessMultiReq;
+import com.pojul.fastIM.message.response.GetTopMessMultiResp;
+import com.pojul.objectsocket.message.ResponseMessage;
+import com.pojul.objectsocket.socket.SocketRequest;
 import com.scwang.smartrefresh.layout.SmartRefreshLayout;
 import com.scwang.smartrefresh.layout.api.RefreshLayout;
 import com.scwang.smartrefresh.layout.listener.OnRefreshListener;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.Unbinder;
+import tl.pojul.com.fastim.MyApplication;
 import tl.pojul.com.fastim.R;
 import tl.pojul.com.fastim.View.Adapter.CommunityAdapter;
 import tl.pojul.com.fastim.map.baidu.LocationManager;
-import tl.pojul.com.fastim.util.MyDistanceUtil;
+import tl.pojul.com.fastim.socket.Converter.HistoryChatConverter;
+import tl.pojul.com.fastim.util.CustomTimeDown;
 
-public class NearByCommunityFragment extends BaseFragment {
+public class NearByCommunityFragment extends BaseFragment implements CustomTimeDown.OnTimeDownListener{
 
 
     @BindView(R.id.community_list)
@@ -56,6 +66,7 @@ public class NearByCommunityFragment extends BaseFragment {
     private List<CommunityRoom> communityRooms = new ArrayList<>();
     private CommunityAdapter communityAdapter;
     private int locReqTag; //1: 获取附近社区
+    private boolean isFirstTick = true;
 
     //for test
     public static LatLng testLatLng;
@@ -64,6 +75,14 @@ public class NearByCommunityFragment extends BaseFragment {
     private GeoCoder geoCoder;
     private BDLocation myBDLocation;
     private List<PoiDetailResult> tempPoiDetails = new ArrayList<>();
+    private CustomTimeDown customTimeDown;
+
+    private HashMap<String, List<String>> topmesses = new HashMap<>();
+    private long lastTopMessMilli = System.currentTimeMillis();
+    public static boolean paretnVisiable = false;
+    public static boolean visiable = true;
+    private static boolean isResume;
+    private long topMessInterval = 20 * 60 * 1000;
 
     public NearByCommunityFragment() {
         // Required empty public constructor
@@ -113,6 +132,9 @@ public class NearByCommunityFragment extends BaseFragment {
                 }else{
                     LocationManager.getInstance().registerLocationListener(iLocationListener);
                     locReqTag = 1;
+                    new Handler(Looper.getMainLooper()).postDelayed(()->{
+                        reqTopMesses();
+                    }, 10 * 1000);
                 }
             }
         });
@@ -127,6 +149,17 @@ public class NearByCommunityFragment extends BaseFragment {
             LocationManager.getInstance().registerLocationListener(iLocationListener);
             locReqTag = 1;
         }
+
+        customTimeDown = new CustomTimeDown(Long.MAX_VALUE, topMessInterval);
+        customTimeDown.setOnTimeDownListener(this);
+        customTimeDown.start();
+
+        communityList.setNestedScrollingEnabled(false);
+
+        new Handler(Looper.getMainLooper()).postDelayed(()->{
+            reqTopMesses();
+        }, 10 * 1000);
+        
     }
 
     private OnGetGeoCoderResultListener geoListener = new OnGetGeoCoderResultListener() {
@@ -471,9 +504,82 @@ public class NearByCommunityFragment extends BaseFragment {
     }
 
     @Override
+    public void setUserVisibleHint(boolean isVisibleToUser) {
+        super.setUserVisibleHint(isVisibleToUser);
+        visiable = isVisibleToUser;
+        if(paretnVisiable && visiable && isResume){
+            if((System.currentTimeMillis() - lastTopMessMilli) > topMessInterval){
+                reqTopMesses();
+            }
+        }
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        isResume = true;
+        if(paretnVisiable && visiable && isResume) {
+            if ((System.currentTimeMillis() - lastTopMessMilli) > topMessInterval) {
+                reqTopMesses();
+            }
+        }
+    }
+
+    @Override
+    public void onPause() {
+        super.onPause();
+        isResume = false;
+    }
+
+    @Override
     public void onDestroyView() {
         super.onDestroyView();
         unbinder.unbind();
         mPoiSearch.destroy();
+        customTimeDown.setOnTimeDownListener(null);
+        customTimeDown = null;
     }
+
+    @Override
+    public void onTick(long l) {
+        if(isFirstTick){
+            isFirstTick = false;
+            return;
+        }
+        if(paretnVisiable && visiable && isResume){
+            //showLongToas("ontick visiable: " + true);
+            reqTopMesses();
+        }
+    }
+
+    private void reqTopMesses() {
+        List<String> communityUids = communityAdapter.getCommunityUids();
+        if(communityUids.size() <= 0){
+            return;
+        }
+        GetTopMessMultiReq req = new GetTopMessMultiReq();
+        req.setCommunityUids(communityUids);
+        req.setNum(6);
+        lastTopMessMilli = System.currentTimeMillis();
+        new SocketRequest().request(MyApplication.ClientSocket, req, new SocketRequest.IRequest() {
+            @Override
+            public void onError(String msg) {}
+
+            @Override
+            public void onFinished(ResponseMessage mResponse) {
+                new Handler(Looper.getMainLooper()).post(()->{
+                    if(mResponse.getCode() == 200){
+                        topmesses = new HistoryChatConverter().getTopMessMulyi(((GetTopMessMultiResp)mResponse).getCommunityMessEntities());
+                        communityAdapter.refreshTops(topmesses);
+                    }
+                });
+            }
+        });
+    }
+
+    @Override
+    public void OnFinish() {
+
+    }
+
 }

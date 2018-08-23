@@ -8,7 +8,11 @@ public class LoginResponse extends ResponseMessage{
 	private String chatId;
 	private User user;
 	private String tokenId;
-	
+
+	public LoginResponse() {
+		super();
+	}
+
 	public LoginResponse(int code, String message, String chatId, String messageUid, User user, String tokenId) {
 		super(code, message, messageUid);
 		// TODO Auto-generated constructor stub

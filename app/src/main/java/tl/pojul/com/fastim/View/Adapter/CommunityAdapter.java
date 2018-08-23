@@ -1,8 +1,12 @@
 package tl.pojul.com.fastim.View.Adapter;
 
 import android.content.Context;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.support.v7.widget.RecyclerView;
+import android.text.Spannable;
+import android.text.SpannableString;
+import android.text.style.ForegroundColorSpan;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -12,9 +16,13 @@ import android.widget.TextView;
 
 import com.google.gson.Gson;
 import com.pojul.fastIM.entity.CommunityRoom;
+import com.pojul.fastIM.message.chat.TagCommuMessage;
 
+import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Random;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -22,13 +30,17 @@ import tl.pojul.com.fastim.R;
 import tl.pojul.com.fastim.View.activity.BaseActivity;
 import tl.pojul.com.fastim.View.activity.CommunityChatActivity;
 import tl.pojul.com.fastim.View.widget.PolygonImage.view.PolygonImageView;
+import tl.pojul.com.fastim.View.widget.marqueeview.SimpleMF;
+import tl.pojul.com.fastim.View.widget.marqueeview.SimpleMarqueeView;
 import tl.pojul.com.fastim.util.MyDistanceUtil;
+import tl.pojul.com.fastim.util.RandomUtil;
 
 public class CommunityAdapter extends RecyclerView.Adapter<CommunityAdapter.MyViewHolder> {
 
     private Context mContext;
     private List<CommunityRoom> mList;
     private OnItemClickListener mOnItemClickListener;
+    private HashMap<String, List<String>> topmesses;
 
     public CommunityAdapter(Context mContext, List<CommunityRoom> mList) {
         this.mContext = mContext;
@@ -53,6 +65,38 @@ public class CommunityAdapter extends RecyclerView.Adapter<CommunityAdapter.MyVi
             ((BaseActivity)mContext).startActivity(CommunityChatActivity.class, bundle);
         });
         holder.communityDistance.setText(MyDistanceUtil.getDisttanceStr(communityRoom.getDistance()));
+
+        List<String> topMess;
+        if(topmesses == null || topmesses.size() <= 0
+                || topmesses.get(communityRoom.getCommunityUid()) == null || topmesses.get(communityRoom.getCommunityUid()).size() <= 0){
+            topMess = new ArrayList<String>(){{add("暂无置顶消息");}};
+        }else{
+            topMess = topmesses.get(communityRoom.getCommunityUid());
+        }
+
+        List<SpannableString> topMessSpan = new ArrayList<>();
+        for (int i = 0; i < topMess.size(); i++) {
+            SpannableString spannableString = new SpannableString(topMess.get(i));
+            int split = topMess.get(i).indexOf(":");
+            if(split == -1){
+                topMessSpan.add(spannableString);
+                continue;
+            }
+            ForegroundColorSpan colorSpan = new ForegroundColorSpan(Color.parseColor("#1296db"));
+            spannableString.setSpan(colorSpan, 0, split, Spannable.SPAN_INCLUSIVE_INCLUSIVE);
+            topMessSpan.add(spannableString);
+        }
+        SimpleMF<SpannableString> marqueeFactory = new SimpleMF(mContext);
+        marqueeFactory.setData(topMessSpan);
+        //marqueeFactory.setData(new ArrayList<String>(){{add("说的是几乎都是巍峨u挖卡卡卡是");add("是觉得合适的时间毫无");}});
+        holder.communityTopMessage.setMarqueeFactory(marqueeFactory);
+        if(topMess.size() <= 1){
+            holder.communityTopMessage.stopFlipping();
+        }else{
+            holder.communityTopMessage.startFlipping();
+            holder.communityTopMessage.setFlipInterval(RandomUtil.getRandomRange(6000, 15 * 1000));
+        }
+
     }
 
     @Override
@@ -67,7 +111,7 @@ public class CommunityAdapter extends RecyclerView.Adapter<CommunityAdapter.MyVi
         @BindView(R.id.community_name)
         TextView communityName;
         @BindView(R.id.community_top_message)
-        TextView communityTopMessage;
+        SimpleMarqueeView communityTopMessage;
         @BindView(R.id.community_distance)
         TextView communityDistance;
         @BindView(R.id.community_type)
@@ -111,6 +155,23 @@ public class CommunityAdapter extends RecyclerView.Adapter<CommunityAdapter.MyVi
             Collections.sort(mList);
             notifyDataSetChanged();
         }
+    }
+
+    public List<String> getCommunityUids() {
+        List<String> communityUids = new ArrayList<>();
+        for (int i =0; i < mList.size(); i ++){
+            CommunityRoom communityRoom = mList.get(i);
+            if(communityRoom == null || communityRoom.getCommunityUid() == null){
+                return communityUids;
+            }
+            communityUids.add(communityRoom.getCommunityUid());
+        }
+        return communityUids;
+    }
+
+    public void refreshTops(HashMap<String, List<String>> topmesses) {
+        this.topmesses = topmesses;
+        notifyDataSetChanged();
     }
 
 }

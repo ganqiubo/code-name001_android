@@ -16,13 +16,9 @@ import com.bumptech.glide.Glide;
 import com.google.gson.Gson;
 import com.pojul.fastIM.entity.Conversation;
 import com.pojul.fastIM.entity.Friend;
-import com.pojul.fastIM.message.chat.AudioMessage;
 import com.pojul.fastIM.message.chat.ChatMessage;
 import com.pojul.fastIM.message.chat.CommunityMessage;
-import com.pojul.fastIM.message.chat.FileMessage;
-import com.pojul.fastIM.message.chat.NetPicMessage;
-import com.pojul.fastIM.message.chat.PicMessage;
-import com.pojul.fastIM.message.chat.TextChatMessage;
+import com.pojul.fastIM.message.other.NotifyReplyMess;
 import com.pojul.fastIM.message.request.GetConversionInfoRequest;
 import com.pojul.fastIM.message.response.GetConversionInfoResponse;
 import com.pojul.objectsocket.message.BaseMessage;
@@ -36,16 +32,19 @@ import java.util.List;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
+import tl.pojul.com.fastim.Media.VibrateManager;
 import tl.pojul.com.fastim.MyApplication;
 import tl.pojul.com.fastim.R;
 import tl.pojul.com.fastim.View.activity.MainActivity;
 import tl.pojul.com.fastim.View.activity.SingleChatRoomActivity;
-import tl.pojul.com.fastim.View.fragment.ChatFragment;
+import tl.pojul.com.fastim.View.activity.TagReplyActivity;
 import tl.pojul.com.fastim.View.fragment.FriendsFragment;
 import tl.pojul.com.fastim.View.widget.PolygonImage.view.PolygonImageView;
 import tl.pojul.com.fastim.dao.ConversationDao;
 import tl.pojul.com.fastim.socket.Converter.HistoryChatConverter;
+import tl.pojul.com.fastim.util.ConversationUtil;
 import tl.pojul.com.fastim.util.DateUtil;
+import tl.pojul.com.fastim.util.NotifyUtil;
 import tl.pojul.com.fastim.util.SPUtil;
 
 public class ConversationAdapter extends RecyclerView.Adapter<ConversationAdapter.MyViewHolder> {
@@ -71,14 +70,14 @@ public class ConversationAdapter extends RecyclerView.Adapter<ConversationAdapte
 
     @Override
     public void onBindViewHolder(MyViewHolder holder, int position) {
-        holder.itemRl.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Conversation conversation = mList.get(position);
+        Conversation conversation = mList.get(position);
+        holder.itemRl.setOnClickListener(v -> {
+            if(conversation.getConversationType() == 1){
                 startChatRoom(conversation);
+            }else if(conversation.getConversationType() == 3){
+                startTagReplyRoom(conversation);
             }
         });
-        Conversation conversation = mList.get(position);
 
         if (conversation.getConversationPhoto() != null && !"".equals(conversation.getConversationPhoto())
                 && !"null".equals(conversation.getConversationPhoto())) {
@@ -127,6 +126,10 @@ public class ConversationAdapter extends RecyclerView.Adapter<ConversationAdapte
         if(message instanceof CommunityMessage){
             return;
         }
+        if(message instanceof NotifyReplyMess){
+            onRecNotifyReplyMess((NotifyReplyMess)message);
+            return;
+        }
         synchronized (mList){
             if (mList == null) {
                 return;
@@ -140,13 +143,16 @@ public class ConversationAdapter extends RecyclerView.Adapter<ConversationAdapte
             boolean containConversation = false;
             for (int i = 0; i < mList.size(); i++) {
                 Conversation conversation = mList.get(i);
-                if (conversation.getConversationFrom().equals(message.getFrom())) {
+                if (conversation.getConversationFrom().equals(message.getFrom())
+                        && conversation.getConversationOwner().equals(MyApplication.getApplication().getUser().getUserName())
+                        && conversation.getConversationType() == 1) {
                     int unReadUum = new ConversationDao().getUnreadNum(message.getFrom(), SPUtil.getInstance().getUser().getUserName());
                     conversation.setUnreadMessage(unReadUum + 1);
-                    setNoteText(message, conversation);
+                    conversation.setConversationLastChat(ConversationUtil.getNoteText(message));
                     conversation.setConversationLastChattime(message.getSendTime());
                     new ConversationDao().updateConversationChat(conversation);
                     this.notifyDataSetChanged();
+                    notyfyMess(conversation);
                     containConversation = true;
                     notifyUnReadNum();
                     break;
@@ -166,11 +172,44 @@ public class ConversationAdapter extends RecyclerView.Adapter<ConversationAdapte
         }
     }
 
+    private void onRecNotifyReplyMess(NotifyReplyMess message) {
+        Conversation conversation = getReplyCon(message.getReplyTagMessUid());
+        if(conversation != null){
+            ConversationUtil.updateNotifyReply(message, new ConversationDao(), conversation);
+            notifyDataSetChanged();
+        }else{
+            conversation = ConversationUtil.insertNotifyReply(message, new ConversationDao());
+            synchronized (mList){
+                mList.add(conversation);
+                notifyItemInserted((mList.size() - 1));
+            }
+        }
+        notyfyMess(conversation);
+    }
+
+    private void notyfyMess(Conversation conversation){
+        if(MyApplication.startActivityCount > 0){
+            VibrateManager.getInstance().vibrate(100);
+        }else{
+            NotifyUtil.notifyChatMess(conversation, MyApplication.getApplication().getApplicationContext());
+        }
+    }
+
+    public Conversation getReplyCon(String uid){
+        for(int i =0; i < mList.size(); i++){
+            Conversation conversation = mList.get(i);
+            if(conversation.getConversionUid() != null && conversation.getConversionUid().equals(uid) && conversation.getConversationType() == 3){
+                return conversation;
+            }
+        }
+        return null;
+    }
+
     private void requestConversationInfo(ChatMessage message) {
         Conversation conversation = new Conversation();
         conversation.setUnreadMessage(1);
         conversation.setConversationFrom(message.getFrom());
-        setNoteText(message, conversation);
+        conversation.setConversationLastChat(ConversationUtil.getNoteText(message));
         conversation.setConversationLastChattime(message.getSendTime());
         conversation.setConversationOwner(SPUtil.getInstance().getUser().getUserName());
         conversation.setConversationType(message.getChatType());
@@ -202,26 +241,13 @@ public class ConversationAdapter extends RecyclerView.Adapter<ConversationAdapte
         });
     }
 
-    private void setNoteText(BaseMessage message, Conversation conversation) {
-        if (message instanceof TextChatMessage) {
-            conversation.setConversationLastChat(((TextChatMessage) message).getText());
-        } else if (message instanceof PicMessage || message instanceof NetPicMessage){
-            conversation.setConversationLastChat("图片");
-        } else if (message instanceof AudioMessage){
-            conversation.setConversationLastChat("语音");
-        } else if (message instanceof FileMessage){
-            conversation.setConversationLastChat("文件");
-        } else {
-            conversation.setConversationLastChat("非文字消息");
-        }
-    }
-
     public void updatePhotoName(Conversation conversation, String photo, String name) {
         conversation.setConversationPhoto(photo);
         conversation.setConversationName(name);
         new ConversationDao().insertConversation(conversation);
         mList.add(conversation);
         ConversationAdapter.this.notifyDataSetChanged();
+        notyfyMess(conversation);
         notifyUnReadNum();
     }
 
@@ -236,15 +262,15 @@ public class ConversationAdapter extends RecyclerView.Adapter<ConversationAdapte
                 each.put(mList.get(i).getConversationFrom(), mList.get(i).getUnreadMessage());
             }
             MainActivity mainActivity = ((MainActivity) mContext);
-            FriendsFragment friendsFragment = null;
-            if(mainActivity.chatFragment != null){
+            //FriendsFragment friendsFragment = null;
+            /*if(mainActivity.chatFragment != null){
                 friendsFragment = mainActivity.chatFragment.friendsFragment;
             }
             if (friendsFragment != null && friendsFragment.friendsAdapter != null) {
                 friendsFragment.friendsAdapter.unreadUnmChanged(each);
-            }
-            if(mainActivity.chatFragment != null){
-                mainActivity.chatFragment.unreadUnmChanged(totalUnreadUum);
+            }*/
+            if(mainActivity != null){
+                mainActivity.unreadUnmChanged(totalUnreadUum);
             }
         }
     }
@@ -281,7 +307,7 @@ public class ConversationAdapter extends RecyclerView.Adapter<ConversationAdapte
         }
     }
 
-    public static void clearUnReadMessage(String chatRoomUid, String from){
+    public static void clearUnReadMessage(String chatRoomUid, String from, int type){
         synchronized (unReadMessage){
             if(!unReadMessage.containsKey(chatRoomUid)){
                 return;
@@ -322,29 +348,35 @@ public class ConversationAdapter extends RecyclerView.Adapter<ConversationAdapte
                 chatRoomMessages.get(chatRoomUid).addAll(chatMessages);
             }
         }
-        clearUnReadMessage(chatRoomUid, from);
+        clearUnReadMessage(chatRoomUid, from, 1);
     }
 
     private void startChatRoom(Conversation conversation) {
-        if(conversation.getConversationType() == 1){
-            Intent intent = new Intent(mContext, SingleChatRoomActivity.class);
-            Bundle bundle=new Bundle();
-            bundle.putInt("chat_room_type", 1);
-            bundle.putString("chat_room_name", conversation.getConversationName());
-            FriendsFragment friendsFragment = null;
-            if(((MainActivity)mContext).chatFragment != null){
-                friendsFragment = ((MainActivity)mContext).chatFragment.friendsFragment;
-            }
-            if(friendsFragment != null && friendsFragment.friendsAdapter != null){
-                Friend friend = null;
-                friend = friendsFragment.friendsAdapter.getFriendByUserName(conversation.getConversationFrom());
-                if(friend != null){
-                    bundle.putString("friend", new Gson().toJson(friend));
-                    intent.putExtras(bundle);
-                    mContext.startActivity(intent);
-                }
+        Intent intent = new Intent(mContext, SingleChatRoomActivity.class);
+        Bundle bundle=new Bundle();
+        bundle.putInt("chat_room_type", 1);
+        bundle.putString("chat_room_name", conversation.getConversationName());
+        FriendsFragment friendsFragment = null;
+        if(((MainActivity)mContext).chatFragment != null){
+            friendsFragment = ((MainActivity)mContext).chatFragment.friendsFragment;
+        }
+        if(friendsFragment != null && friendsFragment.friendsAdapter != null){
+            Friend friend = null;
+            friend = friendsFragment.friendsAdapter.getFriendByUserName(conversation.getConversationFrom());
+            if(friend != null){
+                bundle.putString("friend", new Gson().toJson(friend));
+                intent.putExtras(bundle);
+                mContext.startActivity(intent);
             }
         }
+    }
+
+    private void startTagReplyRoom(Conversation conversation) {
+        Intent intent = new Intent(mContext, TagReplyActivity.class);
+        Bundle bundle=new Bundle();
+        bundle.putString("tagMessUid", conversation.getConversionUid());
+        intent.putExtras(bundle);
+        mContext.startActivity(intent);
     }
 
     public interface OnItemClickListener {

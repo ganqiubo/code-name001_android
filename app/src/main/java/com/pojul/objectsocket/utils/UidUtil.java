@@ -58,5 +58,14 @@ public class UidUtil {
 		String tokenId = EncryptionUtil.md5Encryption(rawTokenId);
 		return tokenId;
 	}
+
+	public static String getRandomMd5() {
+		StringBuilder sb = new StringBuilder();
+		for(int i = 0; i< 12; i++) {
+			int random = new Random().nextInt(letters.length);
+			sb.append(letters[random]);
+		}
+		return EncryptionUtil.md5Encryption(sb.toString());
+	}
 	
 }
