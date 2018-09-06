@@ -110,6 +110,7 @@ public class TakePicFragment extends BaseFragment {
 
     private void loadUploadPicRecord() {
         if (!MyApplication.getApplication().isConnected()) {
+            smartRefresh.finishLoadmore();
             showShortToas("与服务器已断开连接");
             return;
         }

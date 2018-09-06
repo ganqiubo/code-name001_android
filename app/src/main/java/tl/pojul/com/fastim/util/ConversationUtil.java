@@ -79,7 +79,7 @@ public class ConversationUtil {
         ConversationDao conversationDao = new ConversationDao();
         conversation.setConversationLastChat(ConversationUtil.getNoteText(message));
         conversation.setConversationLastChattime(DateUtil.getFormatDate());
-        int getUnreadNum = conversationDao.getUnreadNum(message.getFrom(),  MyApplication.getApplication().getUser().getUserName());
+        int getUnreadNum = conversationDao.getUnreadNum(message.getFrom(),  SPUtil.getInstance().getUser().getUserName());
         conversation.setUnreadMessage((getUnreadNum + 1));
         conversationDao.updateConversationChat(conversation);
         NotifyUtil.notifyChatMess(conversation, context);
@@ -97,7 +97,7 @@ public class ConversationUtil {
         Conversation conversation;
         if(message instanceof ChatMessage){
             conversation = conversationDao.getConversion(message.getFrom(),
-                    MyApplication.getApplication().getUser().getUserName(), ((ChatMessage)message).getChatType());
+                    SPUtil.getInstance().getUser().getUserName(), ((ChatMessage)message).getChatType());
             if (conversation != null) {
                 updateConversionAndNotify((ChatMessage) message, context, conversation);
             } else {

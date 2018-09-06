@@ -1,6 +1,7 @@
 package tl.pojul.com.fastim.View.Adapter;
 
 import android.content.Context;
+import android.os.Bundle;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -18,6 +19,8 @@ import java.util.List;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import tl.pojul.com.fastim.R;
+import tl.pojul.com.fastim.View.activity.BaseActivity;
+import tl.pojul.com.fastim.View.activity.MyPageActivity;
 
 public class FriendsAdapter extends RecyclerView.Adapter<FriendsAdapter.MyViewHolder> {
 
@@ -67,6 +70,11 @@ public class FriendsAdapter extends RecyclerView.Adapter<FriendsAdapter.MyViewHo
         } else {
             holder.unreadMessage.setVisibility(View.GONE);
         }
+        holder.friendPhoto.setOnClickListener(v->{
+            Bundle bundle = new Bundle();
+            bundle.putString("userName", friend.getUserName());
+            ((BaseActivity)mContext).startActivity(MyPageActivity.class, bundle);
+        });
     }
 
     @Override

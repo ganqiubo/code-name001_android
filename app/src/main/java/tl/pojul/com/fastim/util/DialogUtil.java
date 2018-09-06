@@ -24,35 +24,31 @@ import android.widget.TextView;
 import android.widget.Toast;
 import android.widget.VideoView;
 
-import com.bm.library.PhotoView;
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.DataSource;
 import com.bumptech.glide.load.engine.GlideException;
 import com.bumptech.glide.request.RequestListener;
 import com.bumptech.glide.request.RequestOptions;
 import com.bumptech.glide.request.target.Target;
+import com.github.chrisbanes.photoview.PhotoView;
 import com.pojul.fastIM.entity.MessageFilter;
+import com.pojul.fastIM.entity.Pic;
+import com.pojul.fastIM.entity.PicFilter;
 import com.pojul.fastIM.message.chat.ChatMessage;
 import com.pojul.fastIM.message.chat.NetPicMessage;
 import com.pojul.fastIM.message.chat.PicMessage;
 import com.pojul.fastIM.message.chat.TagCommuMessage;
 import com.pojul.fastIM.message.chat.VideoMessage;
 import com.pojul.objectsocket.utils.FileClassUtil;
-
 import java.io.File;
-import java.util.concurrent.ExecutorCompletionService;
-
 import butterknife.BindView;
 import tl.pojul.com.fastim.MyApplication;
 import tl.pojul.com.fastim.R;
 import tl.pojul.com.fastim.View.widget.LoadingDialog;
 import tl.pojul.com.fastim.View.widget.MessageFilterView;
+import tl.pojul.com.fastim.View.widget.PicFilterView;
 import tl.pojul.com.fastim.View.widget.ReportView;
 import tl.pojul.com.fastim.View.widget.ShapedImageView;
-
-/**
- * Created by gqb on 2018/5/30.
- */
 
 public class DialogUtil {
 
@@ -73,6 +69,8 @@ public class DialogUtil {
     private final static String TAG = "DialogUtil";
     private PopupWindow screenPop;
     private PopupWindow loadingSimplePop;
+    private PicFilterClick picFilterClick;
+    private PopupWindow picFilterPop;
 
     public static DialogUtil getInstance() {
         if (mDialogUtil == null) {
@@ -234,36 +232,33 @@ public class DialogUtil {
         play.setVisibility(View.GONE);
         process.setVisibility(View.GONE);
 
-        AnimatorUtil.startPopObjAnimator(photoView, new AnimatorUtil.AnimatorListener() {
-            @Override
-            public void onFinished() {
-                if (message.getFirstPic() != null) {
-                    //isAnim = false;
-                    popUpWin2.showAtLocation(rawView.getRootView(), Gravity.CENTER, 0, 0);
-                    new Handler(Looper.getMainLooper()).postDelayed(() -> {
-                        if (popUpWin1 != null) {
-                            popUpWin1.dismiss();
-                        }
-                        dialog.show();
-                    }, 555);
-
-                    RequestOptions options = new RequestOptions();
-                    options.placeholder(photoView.getDrawable())
-                            .error(photoView.getDrawable())
-                            .fallback(photoView.getDrawable());
-                    if (!FileClassUtil.isHttpUrl(message.getFirstPic().getFilePath())) {
-                        File file = new File(message.getFirstPic().getFilePath());
-                        Glide.with(context).load(file).apply(options).into(img);
-                    } else {
-                        Glide.with(context).load(message.getFirstPic().getFilePath()).apply(options).into(img);
+        AnimatorUtil.startPopObjAnimator(photoView, () -> {
+            if (message.getFirstPic() != null) {
+                //isAnim = false;
+                popUpWin2.showAtLocation(rawView.getRootView(), Gravity.CENTER, 0, 0);
+                new Handler(Looper.getMainLooper()).postDelayed(() -> {
+                    if (popUpWin1 != null) {
+                        popUpWin1.dismiss();
                     }
+                    dialog.show();
+                }, 555);
+
+                RequestOptions options = new RequestOptions();
+                options.placeholder(photoView.getDrawable())
+                        .error(photoView.getDrawable())
+                        .fallback(photoView.getDrawable());
+                if (!FileClassUtil.isHttpUrl(message.getFirstPic().getFilePath())) {
+                    File file = new File(message.getFirstPic().getFilePath());
+                    Glide.with(context).load(file).apply(options).into(img);
+                } else {
+                    Glide.with(context).load(message.getFirstPic().getFilePath()).apply(options).into(img);
                 }
-                video.setVideoPath(message.getVideo().getFilePath());
-                MediaController controller = new MediaController(context);
-                video.setMediaController(controller);
-                controller.setMediaPlayer(video);
-                video.start();
             }
+            video.setVideoPath(message.getVideo().getFilePath());
+            MediaController controller = new MediaController(context);
+            video.setMediaController(controller);
+            controller.setMediaPlayer(video);
+            video.start();
         });
     }
 
@@ -275,7 +270,6 @@ public class DialogUtil {
         // 设置可以触摸弹出框以外的区域
         popUpWin2.setOutsideTouchable(true);
         popUpWin2.setAnimationStyle(R.style.showPopupAnimation2);
-        photoView2.enable();
 
         AnimatorUtil.startPopObjAnimator(photoView, new AnimatorUtil.AnimatorListener() {
             @Override
@@ -316,16 +310,10 @@ public class DialogUtil {
         normalDialog.setTitle(title);
         normalDialog.setMessage(content);
         normalDialog.setPositiveButton("确定",
-                new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                    }
+                (dialog, which) -> {
                 });
         normalDialog.setNegativeButton("关闭",
-                new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                    }
+                (dialog, which) -> {
                 });
         normalDialog.show();
     }
@@ -477,8 +465,68 @@ public class DialogUtil {
         });
     }
 
-    public void setScreenPopClick(DialogClick dialogClick) {
-        this.dialogClick = dialogClick;
+    public void showEditDialog(Context context, String title, String note){
+        AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(context);
+        View view = View.inflate(context, R.layout.dialog_edit, null);
+        ((TextView)view.findViewById(R.id.title)).setText(title);
+        ((TextView)view.findViewById(R.id.note)).setText(note);
+        EditText editText = view.findViewById(R.id.content);
+        dialogBuilder.setView(view);
+        AlertDialog dialog = dialogBuilder.create();
+        dialog.show();
+        view.findViewById(R.id.left_button).setOnClickListener(v->{
+            if(editText.getText().toString().isEmpty()){
+                Toast.makeText(context, "内容不能为空", Toast.LENGTH_SHORT).show();
+                return;
+            }
+            if(dialogClick != null){
+                dialogClick.onclick(editText.getText().toString());
+                setDialogClick(null);
+                dialog.dismiss();
+            }
+        });
+
+        view.findViewById(R.id.right_button).setOnClickListener(v->{
+            setDialogClick(null);
+            dialog.dismiss();
+        });
+    }
+
+    public void showPicFilterDialog(Context context, View showDown, PicFilter picFilter,
+                                    boolean hideLabel, boolean enableThirdGally) {
+        LinearLayout popView = (LinearLayout) LayoutInflater.from(context).inflate(R.layout.dialog_pic_filter, null);
+        picFilterPop = new PopupWindow(popView, ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT);
+        picFilterPop.setBackgroundDrawable(new BitmapDrawable());
+        picFilterPop.setFocusable(true);
+        // 设置可以触摸弹出框以外的区域
+        picFilterPop.setOutsideTouchable(false);
+        PicFilterView picFilterView = popView.findViewById(R.id.pic_filter_view);
+        new Handler(Looper.getMainLooper()).postDelayed(() -> {
+            picFilterView.setFilter(picFilter, hideLabel);
+            if(!enableThirdGally){
+                picFilterView.disableThirdGally();
+            }
+        }, 100);
+        popView.findViewById(R.id.ok).setOnClickListener(v -> {
+            if (picFilterClick != null) {
+                picFilterClick.onclick(picFilterView.getFilter());
+                setPicFilterClick(null);
+            }
+            picFilterPop.dismiss();
+        });
+        popView.findViewById(R.id.cancel).setOnClickListener(v -> {
+            //messageFilterView.resetFilter();
+            setPicFilterClick(null);
+            picFilterPop.dismiss();
+        });
+        picFilterPop.showAsDropDown(showDown, 0, 0);
+    }
+
+    public boolean ispicFilterShow() {
+        if (picFilterPop != null && picFilterPop.isShowing()) {
+            return true;
+        }
+        return false;
     }
 
     public void setDialogClick(DialogClick dialogClick) {
@@ -505,12 +553,20 @@ public class DialogUtil {
         this.screenPopClick = screenPopClick;
     }
 
+    public void setPicFilterClick(PicFilterClick picFilterClick) {
+        this.picFilterClick = picFilterClick;
+    }
+    
     public interface DialogClick {
         void onclick(String str);
     }
 
     public interface ScreenPopClick {
         void onclick(MessageFilter messageFilter);
+    }
+
+    public interface PicFilterClick {
+        void onclick(PicFilter picFilter);
     }
 
 }

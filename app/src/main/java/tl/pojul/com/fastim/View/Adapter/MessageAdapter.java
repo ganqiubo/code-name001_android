@@ -73,10 +73,6 @@ import tl.pojul.com.fastim.util.DialogUtil;
 import tl.pojul.com.fastim.util.GlideUtil;
 import tl.pojul.com.fastim.util.NumberUtil;
 
-/**
- * Created by gqb on 2018/6/13.
- */
-
 public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.BaseMessageHolder> {
 
     private Context mContext;
@@ -484,14 +480,14 @@ public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.BaseMess
                 holder.img.setVisibility(View.GONE);
                 if(tagMessage.getPics().size() == 2){
                     holder.pics.setLayoutManager(new GridLayoutManager(mContext, 2));
-                    holder.pics.setAdapter(new TagPicAdapter(mContext, tagMessage.getPics()));
+                    holder.pics.setAdapter(new TagPicAdapter(mContext, tagMessage.getPics(), true));
                 }else if(tagMessage.getPics().size() > 2){
                     holder.pics.setLayoutManager(new GridLayoutManager(mContext, 3));
                     List<Pic> pics = new ArrayList<>();
                     for (int i =0; i < 3; i++){
                         pics.add(tagMessage.getPics().get(i));
                     }
-                    holder.pics.setAdapter(new TagPicAdapter(mContext, pics));
+                    holder.pics.setAdapter(new TagPicAdapter(mContext, pics, true));
                 }
             }
         }

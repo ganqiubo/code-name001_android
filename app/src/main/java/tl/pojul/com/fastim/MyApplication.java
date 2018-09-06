@@ -11,6 +11,7 @@ import android.os.Environment;
 import android.os.Handler;
 import android.os.Looper;
 import android.os.PowerManager;
+import android.support.multidex.MultiDex;
 import android.util.Log;
 import android.widget.Toast;
 
@@ -35,10 +36,15 @@ import com.scwang.smartrefresh.layout.api.RefreshHeader;
 import com.scwang.smartrefresh.layout.api.RefreshLayout;
 import com.scwang.smartrefresh.layout.constant.SpinnerStyle;
 import com.scwang.smartrefresh.layout.header.ClassicsHeader;
+import com.yanzhenjie.album.Album;
+import com.yanzhenjie.album.AlbumConfig;
 
 import java.util.ArrayList;
 import java.util.List;
 
+import me.jessyan.progressmanager.ProgressManager;
+import okhttp3.Call;
+import okhttp3.OkHttpClient;
 import tl.pojul.com.fastim.Media.AudioManager;
 import tl.pojul.com.fastim.Media.VibrateManager;
 import tl.pojul.com.fastim.View.activity.LoginActivity;
@@ -81,9 +87,9 @@ public class MyApplication extends DaemonApplication {
 
     private MainActivity mainActivity;
     public static boolean isConnecting;
-    private User user;
+    //private User user;
     private PowerManager pm;
-    private PowerManager.WakeLock wakeLock;
+    //private PowerManager.WakeLock wakeLock;
     public static String currentReplyActivity = "";
     public static int startActivityCount;
 
@@ -102,6 +108,34 @@ public class MyApplication extends DaemonApplication {
         add("招聘");
         add("宠物");
     }};
+
+    public static List<String> picLabels =  new ArrayList<String>() {{
+        add("风景");
+        add("生活");
+        add("美食");
+        add("建筑");
+        add("自拍");
+        add("摄影");
+        add("手机壁纸");
+        add("文艺");
+        add("清新");
+        add("美女");
+        add("萝莉");
+        add("迷人");
+        add("宠物");
+        add("写真");
+        add("沙滩");
+        add("大海");
+        add("古典");
+        add("唯美");
+        add("内涵");
+        add("可爱");
+        add("校花");
+        add("家居");
+        add("旅游");
+    }};
+
+    private OkHttpClient mOkHttpClient;
 
     static {//static 代码段可以防止内存泄露
         //设置全局的Header构建器
@@ -134,17 +168,18 @@ public class MyApplication extends DaemonApplication {
         LocationManager.Instance(getApplicationContext());
         initData();
         initNetWorkReceive();
-        user = SPUtil.getInstance().getUser();
+        //user = SPUtil.getInstance().getUser();
 
-        pm = (PowerManager) this.getSystemService(Context.POWER_SERVICE);
+        /*pm = (PowerManager) this.getSystemService(Context.POWER_SERVICE);
         //保持cpu一直运行，不管屏幕是否黑屏
         wakeLock = pm.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, "CPUKeepRunning");
-        wakeLock.acquire();
+        wakeLock.acquire();*/
         Log.e(TAG, "onCreate");
         //startService(new Intent(getApplicationContext(), SocketConnService.class));
 
         registerActivityLifecycleCallbacks(activityLifecycleCallbacks);
-
+        this.mOkHttpClient = ProgressManager.getInstance().with(new OkHttpClient.Builder())
+                .build();
     }
 
     private void initNetWorkReceive() {
@@ -185,9 +220,9 @@ public class MyApplication extends DaemonApplication {
         if(netWorkStateReceiver != null){
             unregisterReceiver(netWorkStateReceiver);
         }
-        if(wakeLock != null){
+        /*if(wakeLock != null){
             wakeLock.release();
-        }
+        }*/
         unregisterActivityLifecycleCallbacks(activityLifecycleCallbacks);
         super.onTerminate();
     }
@@ -289,7 +324,9 @@ public class MyApplication extends DaemonApplication {
 
             @Override
             public void onSendError(Exception e) {
-
+                if(NetWorkUtil.isNetWorkable(getApplicationContext()) && !isConnected()){
+                    reConn();
+                }
             }
         });
     }
@@ -430,7 +467,7 @@ public class MyApplication extends DaemonApplication {
             public void onFinished(ClientSocket clientSocket) {
                 isConnecting = false;
                 MyApplication.ClientSocket = clientSocket;
-                MyApplication.ClientSocket.setHeartbeat(30 * 1000);
+                //MyApplication.ClientSocket.setHeartbeat(4* 60 * 1000);
                 MyApplication.getApplication().registerSocketRecListerer();
                 MyApplication.getApplication().registerSocketSendListerer();
                 MyApplication.getApplication().registerSocketStatusListerer();
@@ -471,6 +508,12 @@ public class MyApplication extends DaemonApplication {
         });
     }
 
+    @Override
+    public void attachBaseContextByDaemon(Context base) {
+        super.attachBaseContextByDaemon(base);
+        MultiDex.install(base);
+    }
+
     private ActivityLifecycleCallbacks activityLifecycleCallbacks = new ActivityLifecycleCallbacks() {
         /**
          * application下的每个Activity声明周期改变时，都会触发以下的函数。
@@ -509,7 +552,9 @@ public class MyApplication extends DaemonApplication {
         }
     };
 
-
+    public OkHttpClient getOkHttpClient() {
+        return mOkHttpClient;
+    }
 
     public interface ISendMessage{
         void onSendFinish(BaseMessage message);
@@ -525,13 +570,13 @@ public class MyApplication extends DaemonApplication {
         void finish(BaseMessage message);
     }
 
-    public User getUser() {
+    /*public User getUser() {
         return user;
     }
 
     public void setUser(User user) {
         this.user = user;
-    }
+    }*/
 
     public void showShortToas(String msg){
         Toast.makeText(this, msg, Toast.LENGTH_SHORT).show();

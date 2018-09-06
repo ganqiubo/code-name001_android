@@ -66,11 +66,8 @@ public class MessageFilterView extends LinearLayout {
         ButterKnife.bind(this);
 
         messageLabels.datas(labels)
-                .listener(new FlowTagView.OnTagSelectedListener() {
-                    @Override
-                    public void onTagSelected(FlowTagView view, int position) {
-                        //showShortToas("选中了:" + position);
-                    }
+                .listener((view, position) -> {
+                    //showShortToas("选中了:" + position);
                 }).commit();
     }
 

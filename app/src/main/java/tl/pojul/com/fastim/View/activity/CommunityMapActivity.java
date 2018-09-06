@@ -2,6 +2,9 @@ package tl.pojul.com.fastim.View.activity;
 
 import android.os.Bundle;
 import com.baidu.mapapi.map.MapView;
+import com.baidu.mapapi.map.MapViewLayoutParams;
+import com.baidu.mapapi.model.inner.GeoPoint;
+
 import java.io.File;
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -26,5 +29,10 @@ public class CommunityMapActivity extends BaseActivity {
         ButterKnife.bind(this);
 
         MapView.setMapCustomEnable(true);
+
+        //GeoPoint location=new GeoPoint(0,0);//换成你的坐标
+
+        //MapViewLayoutParams mapViewLayoutParams = new MapViewLayoutParams.Builder().
+
     }
 }

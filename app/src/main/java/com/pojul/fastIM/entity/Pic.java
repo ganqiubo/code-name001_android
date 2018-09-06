@@ -10,6 +10,8 @@ public class Pic extends BaseEntity{
 	private Long uploadPicId;
 	private StringFile uploadPicUrl;
 	private int isDelete= 1;
+	private int width;
+	private int height;
 	public Long getId() {
 		return id;
 	}
@@ -33,6 +35,22 @@ public class Pic extends BaseEntity{
 	}
 	public void setIsDelete(int isDelete) {
 		this.isDelete = isDelete;
+	}
+
+	public int getWidth() {
+		return width;
+	}
+
+	public void setWidth(int width) {
+		this.width = width;
+	}
+
+	public int getHeight() {
+		return height;
+	}
+
+	public void setHeight(int height) {
+		this.height = height;
 	}
 
 	@Override

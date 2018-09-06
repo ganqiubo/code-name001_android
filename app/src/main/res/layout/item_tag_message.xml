@@ -86,7 +86,7 @@
                         android:layout_alignParentRight="true"
                         android:layout_centerVertical="true"
                         android:text="详情"
-                        android:textColor="@color/selector_text_green_yellow"
+                        android:textColor="@color/press_text_green_yellow"
                         android:padding="4dp"
                         android:clickable="true"
                         android:textSize="10sp" />
@@ -333,8 +333,8 @@
 
                             <TextView
                                 android:id="@+id/reply_num_tv"
-                                android:layout_width="match_parent"
-                                android:layout_height="match_parent"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
                                 android:layout_marginLeft="2dp"
                                 android:layout_weight="1"
                                 android:ellipsize="middle"

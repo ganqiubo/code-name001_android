@@ -130,7 +130,7 @@
             android:id="@+id/close_tag_mess"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:textColor="@color/selector_text_green_yellow"
+            android:textColor="@color/press_text_green_yellow"
             android:textSize="12sp"
             android:text="关闭该消息"
             android:layout_marginRight="12dp"

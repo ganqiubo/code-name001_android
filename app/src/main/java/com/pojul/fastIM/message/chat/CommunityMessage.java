@@ -5,6 +5,7 @@ import com.pojul.objectsocket.message.StringFile;
 
 public class CommunityMessage extends ChatMessage{
 
+    private long id;
     private String communityName;
     private int isSpaceTravel; // 0: 穿越; 1: 非穿越;
     private int userSex;
@@ -79,6 +80,14 @@ public class CommunityMessage extends ChatMessage{
 
     public void setTimeMill(long timeMill) {
         this.timeMill = timeMill;
+    }
+
+    public long getId() {
+        return id;
+    }
+
+    public void setId(long id) {
+        this.id = id;
     }
 
     @Override

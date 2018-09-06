@@ -144,7 +144,7 @@ public class ConversationAdapter extends RecyclerView.Adapter<ConversationAdapte
             for (int i = 0; i < mList.size(); i++) {
                 Conversation conversation = mList.get(i);
                 if (conversation.getConversationFrom().equals(message.getFrom())
-                        && conversation.getConversationOwner().equals(MyApplication.getApplication().getUser().getUserName())
+                            && conversation.getConversationOwner().equals(SPUtil.getInstance().getUser().getUserName())
                         && conversation.getConversationType() == 1) {
                     int unReadUum = new ConversationDao().getUnreadNum(message.getFrom(), SPUtil.getInstance().getUser().getUserName());
                     conversation.setUnreadMessage(unReadUum + 1);

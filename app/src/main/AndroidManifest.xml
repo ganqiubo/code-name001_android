@@ -33,9 +33,9 @@
 
         <activity
             android:name=".View.activity.MainActivity"
+            android:launchMode="singleTask"
             android:process=":process1"
             android:screenOrientation="portrait"
-            android:launchMode="singleTask"
             android:theme="@style/AppTheme.NoActionBar" />
         <activity
             android:name=".View.activity.LoginActivity"
@@ -139,7 +139,52 @@
         <receiver
             android:name=".View.broadcast.NetWorkStateReceiver"
             android:enabled="true"
-            android:exported="true"></receiver>
+            android:exported="true" />
+
+        <activity
+            android:name=".View.activity.MyPageActivity"
+            android:process=":process1"
+            android:theme="@style/AppTheme.NoActionBar" />
+        <activity
+            android:name=".View.activity.UserInfoEditActivity"
+            android:process=":process1"
+            android:theme="@style/AppTheme.NoActionBar" />
+        <activity
+            android:name=".View.activity.UserPicsActivity"
+            android:process=":process1"
+            android:theme="@style/AppTheme.NoActionBar" />
+        <activity
+            android:name=".View.activity.GalleryActivity"
+            android:process=":process1"
+            android:theme="@style/AppTheme.NoActionBar" />
+        <activity
+            android:name=".View.activity.PicReplyActivity"
+            android:process=":process1"
+            android:theme="@style/AppTheme.NoActionBar" />
+        <activity
+            android:name=".View.activity.UserTagMessActivity"
+            android:process=":process1"
+            android:theme="@style/AppTheme.NoActionBar" />
+        <activity
+            android:name=".View.activity.LikeUserActivity"
+            android:process=":process1"
+            android:theme="@style/AppTheme.NoActionBar" />
+        <activity
+            android:name=".View.activity.BeLikedActivity"
+            android:process=":process1"
+            android:theme="@style/AppTheme.NoActionBar" />
+        <activity
+            android:name=".View.activity.FollowedUsersActivity"
+            android:process=":process1"
+            android:theme="@style/AppTheme.NoActionBar" />
+        <activity
+            android:name=".View.activity.BeFollowedUsersActivity"
+            android:process=":process1"
+            android:theme="@style/AppTheme.NoActionBar" />
+        <activity
+            android:name=".View.activity.PicBroseActivity"
+            android:process=":process1"
+            android:theme="@style/AppTheme.NoActionBar"/>
     </application>
 
 </manifest>

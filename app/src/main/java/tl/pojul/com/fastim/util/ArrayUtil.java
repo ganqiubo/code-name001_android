@@ -1,5 +1,6 @@
 package tl.pojul.com.fastim.util;
 
+import com.pojul.fastIM.entity.Pic;
 import com.pojul.fastIM.entity.User;
 
 import java.util.ArrayList;
@@ -27,6 +28,21 @@ public class ArrayUtil {
         for(int i = 0; i < strs.size(); i++){
             if(i > 0){
                 sb.append(",");
+            }
+            sb.append(strs.get(i));
+        }
+        return sb.toString();
+    }
+
+    public static String toSpaceSplitStr(List<String> strs){
+        if(strs == null || strs.size() <= 0){
+            return "";
+        }
+        StringBuilder sb = new StringBuilder();
+        sb.append("");
+        for(int i = 0; i < strs.size(); i++){
+            if(i > 0){
+                sb.append(" ");
             }
             sb.append(strs.get(i));
         }
@@ -112,6 +128,22 @@ public class ArrayUtil {
             }
         }
         return false;
+    }
+
+    public static ArrayList<String> getUrls(List<Pic> pics){
+        ArrayList<String> urls = new ArrayList<>();
+        if(pics == null || pics.size() <= 0){
+            return urls;
+        }
+        for (int i = 0; i < pics.size(); i++) {
+            Pic pic = pics.get(i);
+            if(pic == null || pic.getUploadPicUrl() == null ||
+                    pic.getUploadPicUrl().getFilePath() == null){
+                continue;
+            }
+            urls.add(pic.getUploadPicUrl().getFilePath());
+        }
+        return urls;
     }
 
 }

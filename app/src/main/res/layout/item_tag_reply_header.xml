@@ -19,7 +19,7 @@
     <tl.pojul.com.fastim.View.widget.sowingmap.SowingMap
         android:id="@+id/message_pics"
         android:layout_width="match_parent"
-        android:layout_height="280dp"
+        android:layout_height="350dp"
         android:clickable="true"></tl.pojul.com.fastim.View.widget.sowingmap.SowingMap>
 
     <tl.pojul.com.fastim.View.widget.JustifyTextView

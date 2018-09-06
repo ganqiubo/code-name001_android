@@ -3,6 +3,8 @@ package tl.pojul.com.fastim.View.Adapter;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
@@ -129,6 +131,11 @@ public class PicPickerAdapter extends RecyclerView.Adapter<PicPickerAdapter.MyVi
         for(int i =0; i <= (mList.size() -2); i++){
             Pic pic = new Pic();
             pic.setUploadPicUrl(FileClassUtil.createStringFile(mList.get(i)));
+            BitmapFactory.Options options = new BitmapFactory.Options();
+            options.inJustDecodeBounds = true;
+            Bitmap bitmap = BitmapFactory.decodeFile(mList.get(i), options);
+            pic.setWidth(options.outWidth);
+            pic.setHeight(options.outHeight);
             pics.add(pic);
         }
         return pics;

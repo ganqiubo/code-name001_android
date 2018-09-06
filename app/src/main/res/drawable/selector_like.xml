@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<selector xmlns:android="http://schemas.android.com/apk/res/android">
+    <item
+        android:state_selected="false">
+        <bitmap android:src="@drawable/like_normal"
+            android:tint="#787878"/>
+
+    </item>
+    <item
+        android:state_selected="true">
+        <bitmap android:src="@drawable/like_selected"
+            android:tint="#FE5955"/>
+    </item>
+</selector>

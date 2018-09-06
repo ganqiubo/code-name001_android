@@ -15,15 +15,11 @@
             android:layout_width="70dp"
             android:layout_height="70dp"
             android:layout_marginLeft="5dp"
-            android:padding="12dp"
+            android:padding="13dp"
             android:src="@drawable/photo_default"
-            app:poly_border="true"
-            app:poly_border_color="#44b8e2"
-            app:poly_border_width="1dp"
             app:poly_corner_radius="10"
             app:poly_rotation_angle="10"
-            app:poly_shadow_color="#ff000000"
-            app:poly_shadow="true"
+            android:clickable="true"
             app:poly_vertices="0" />
 
         <RelativeLayout

@@ -1,18 +1,24 @@
 package tl.pojul.com.fastim.View.widget.TransitImage;
 
 import android.animation.ValueAnimator;
+import android.annotation.TargetApi;
 import android.content.Context;
 import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
 import android.graphics.Paint;
+import android.graphics.PointF;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
+import android.media.FaceDetector;
 import android.os.Build;
 import android.support.annotation.Nullable;
 import android.support.annotation.RequiresApi;
 import android.util.AttributeSet;
 import android.util.Log;
 import android.view.View;
+
+import java.io.ByteArrayOutputStream;
 
 import tl.pojul.com.fastim.View.widget.TransitImage.Transit.LeftSlowOutTransit;
 import tl.pojul.com.fastim.View.widget.TransitImage.Transit.RightAlphaInTransit;
@@ -169,6 +175,7 @@ public class TransitImageView extends android.support.v7.widget.AppCompatImageVi
         startAnimator(progress, endProgress);
     }
 
+    @TargetApi(Build.VERSION_CODES.KITKAT)
     public void setBitmap() {
         Drawable drawable = getDrawable();
         if(drawable == null){
@@ -176,6 +183,7 @@ public class TransitImageView extends android.support.v7.widget.AppCompatImageVi
             return;
         }
         Bitmap bitmap = ((BitmapDrawable) drawable).getBitmap();
+
         if(bitmap == null){
             Log.i(TAG, "图片为空");
             return;
@@ -187,11 +195,46 @@ public class TransitImageView extends android.support.v7.widget.AppCompatImageVi
         if(height == 0 || width == 0){
             return;
         }
+
+
+
+
+
+
+
+        /*long startMilli = System.currentTimeMillis();
+
+        yteArrayOutputStream baos = new ByteArrayOutputStream();
+        bitmap.compress(Bitmap.CompressFormat.JPEG, 100, baos);
+        byte[] data = baos.toByteArray();
+
+        BitmapFactory.Options bitmapOption = new BitmapFactory.Options();
+        //图片的参数(这个参数要有，不然找不到人脸)
+        bitmapOption.inPreferredConfig = Bitmap.Config.RGB_565;
+        Bitmap tempBitmap = BitmapFactory.decodeByteArray(data, 0 , data.length, bitmapOption);
+
+
+        FaceDetector fd;
+        FaceDetector.Face [] faces = new FaceDetector.Face[6];
+        PointF midpoint = new PointF();
+        fd = new FaceDetector(tempBitmap.getWidth(), tempBitmap.getHeight(), 6);
+        int count = fd.findFaces(tempBitmap, faces);
+
+        String xy = "";
+        if(count > 0){
+            faces[0].getMidPoint(midpoint);
+            xy = "x: " + midpoint.x + "; y: " + midpoint.y;
+        }
+        Log.e(TAG,"start FaceDetector count: " + count + "; "+ xy
+                + "; dsMilli: " + (System.currentTimeMillis() - startMilli));*/
+
+
         float scale = height * 1.0f / width;
         int cropHeight = (int) (widthBitmap * scale);
+
         Bitmap cropBitmap;
         if(cropHeight < heightBitmap){
-            cropBitmap = Bitmap.createBitmap(bitmap, 0, (int)((heightBitmap - cropHeight) * 0.5f), widthBitmap, cropHeight);
+            cropBitmap = Bitmap.createBitmap(bitmap, 0, /*(int)((heightBitmap - cropHeight) * 0.5f)*/0, widthBitmap, cropHeight);
         }else{
             int cropWidth = (int) (heightBitmap / scale);
             cropBitmap = Bitmap.createBitmap(bitmap, (int)((widthBitmap - cropWidth) * 0.5f), 0, cropWidth, heightBitmap);

@@ -48,7 +48,9 @@ public class PicUploadManager {
         public void progress(BaseMessage message, int progress) {
             if (!(message instanceof  UploadPicReq))return;
             synchronized (uploadPicTasks){
-                uploadPicTasks.get(message.getMessageUid()).uploadProgress = progress;
+                if(uploadPicTasks.get(message.getMessageUid()) != null){
+                    uploadPicTasks.get(message.getMessageUid()).uploadProgress = progress;
+                }
             }
             for(int i = 0; i < iUploadPicProgressList.size(); i++){
                 IUploadPicProgress iUploadPicProgress = iUploadPicProgressList.get(i);

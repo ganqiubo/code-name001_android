@@ -24,10 +24,12 @@ public class TagPicAdapter extends RecyclerView.Adapter<TagPicAdapter.MyViewHold
 
     private Context mContext;
     private List<Pic> mList;
+    private boolean showPhotoView;
 
-    public TagPicAdapter(Context mContext, List<Pic> mList) {
+    public TagPicAdapter(Context mContext, List<Pic> mList, boolean showPhotoView) {
         this.mContext = mContext;
         this.mList = mList;
+        this.showPhotoView = showPhotoView;
     }
 
     @Override
@@ -41,6 +43,9 @@ public class TagPicAdapter extends RecyclerView.Adapter<TagPicAdapter.MyViewHold
         Pic pic = mList.get(position);
         GlideUtil.setImageBitmap(pic.getUploadPicUrl().getFilePath(), holder.img, 0.5f);
         holder.img.setOnClickListener(v->{
+            if(!showPhotoView){
+                return;
+            }
             Toast.makeText(mContext, "TagPic Click", Toast.LENGTH_SHORT).show();
             PicMessage picMessage = new PicMessage();
             picMessage.setPic(FileClassUtil.createStringFile(pic.getUploadPicUrl().getFilePath()));

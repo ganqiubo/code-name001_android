@@ -19,7 +19,7 @@ public class SocketConnService extends Service {
     public void onCreate() {
         super.onCreate();
         Log.e(TAG, "onCreate");
-        serviceThread.start();
+        //serviceThread.start();
     }
 
     @Nullable
@@ -40,7 +40,7 @@ public class SocketConnService extends Service {
         Log.e(TAG, "onDestroy");
     }
 
-    private Thread serviceThread = new Thread(() -> {
+    /*private Thread serviceThread = new Thread(() -> {
         while(true){
             Log.e(TAG, "serviceThread: " + DateUtil.getFormatDate());
             try {
@@ -49,6 +49,6 @@ public class SocketConnService extends Service {
                 e.printStackTrace();
             }
         }
-    });
+    });*/
 
 }

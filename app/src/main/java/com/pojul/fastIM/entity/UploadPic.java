@@ -1,7 +1,5 @@
 package com.pojul.fastIM.entity;
 
-import android.database.Cursor;
-
 import java.util.List;
 import java.sql.ResultSet;
 
@@ -28,6 +26,14 @@ public class UploadPic extends BaseEntity{
 	private int picLocType;
 	
 	private List<Pic> pics;
+	private String picsStr;
+
+	private int thumbUpNum;
+	private int hasThubmUp;
+	private int replyNum;
+	private int hasLiked;
+	private int hasCollected;
+	private boolean isUploading = false;
 
 	public long getId() {
 		return id;
@@ -189,32 +195,59 @@ public class UploadPic extends BaseEntity{
 		this.picLocType = picLocType;
 	}
 
-	@Override
-	public void setBySql(Cursor cursor) {
-		// TODO Auto-generated method stub
-		super.setBySql(cursor);
-		if(cursor == null) {
-			return;
-		}
-		id = getLong(cursor, "id");
-		userId = getInt(cursor, "user_id");
-		uploadPicType = getInt(cursor, "upload_pic_type");
-		isDelete = getInt(cursor, "is_delete");
-		uplodPicTheme = getString(cursor, "uplod_pic_theme");
-		uplodPicLabel = getString(cursor, "uplod_pic_label");
-		uploadPicCountry = getString(cursor, "upload_pic_country");
-		uploadPicCity = getString(cursor, "upload_pic_city");
-		uploadPicDistrict = getString(cursor, "upload_pic_district");
-		uploadPicAddr = getString(cursor, "upload_pic_addr");
-		uploadPicLocnote = getString(cursor, "upload_pic_locnote");
-		uploadPicLocshow = getInt(cursor, "upload_pic_locshow");
-		uploadPicLongitude = getDouble(cursor, "upload_pic_longitude");
-		uploadPicLatitude = getDouble(cursor, "upload_pic_latitude");
-		uploadPicAltitude = getDouble(cursor, "upload_pic_altitude");
-		uploadPicTime = getString(cursor, "upload_pic_time");
-		uploadPicProvince = getString(cursor, "upload_pic_province");
-		picTime = getString(cursor, "pic_time");
-		picLocType = getInt(cursor, "pic_loc_type");
+	public String getPicsStr() {
+		return picsStr;
 	}
-	
+
+	public void setPicsStr(String picsStr) {
+		this.picsStr = picsStr;
+	}
+
+	public int getThumbUpNum() {
+		return thumbUpNum;
+	}
+
+	public void setThumbUpNum(int thumbUpNum) {
+		this.thumbUpNum = thumbUpNum;
+	}
+
+	public int getHasThubmUp() {
+		return hasThubmUp;
+	}
+
+	public void setHasThubmUp(int hasThubmUp) {
+		this.hasThubmUp = hasThubmUp;
+	}
+
+	public int getReplyNum() {
+		return replyNum;
+	}
+
+	public void setReplyNum(int replyNum) {
+		this.replyNum = replyNum;
+	}
+
+	public int getHasLiked() {
+		return hasLiked;
+	}
+
+	public void setHasLiked(int hasLiked) {
+		this.hasLiked = hasLiked;
+	}
+
+	public int getHasCollected() {
+		return hasCollected;
+	}
+
+	public void setHasCollected(int hasCollected) {
+		this.hasCollected = hasCollected;
+	}
+
+	public boolean isUploading() {
+		return isUploading;
+	}
+
+	public void setUploading(boolean uploading) {
+		isUploading = uploading;
+	}
 }

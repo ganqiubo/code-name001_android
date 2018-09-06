@@ -74,32 +74,6 @@ public class UploadPicActivity extends BaseActivity {
         add("添加");
     }};
 
-    private List<String> datas1 = new ArrayList<String>() {{
-        add("风景");
-        add("生活");
-        add("美食");
-        add("建筑");
-        add("自拍");
-        add("摄影");
-        add("手机壁纸");
-        add("文艺");
-        add("清新");
-        add("美女");
-        add("萝莉");
-        add("迷人");
-        add("萌宠");
-        add("写真");
-        add("沙滩");
-        add("大海");
-        add("古典");
-        add("唯美");
-        add("内涵");
-        add("可爱");
-        add("校花");
-        add("家居");
-        add("旅游");
-    }};
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -125,12 +99,9 @@ public class UploadPicActivity extends BaseActivity {
                 return;
             }
         }
-        uploadPicLabels.datas(datas1)
-                .listener(new FlowTagView.OnTagSelectedListener() {
-                    @Override
-                    public void onTagSelected(FlowTagView view, int position) {
-                        //showShortToas("选中了:" + position);
-                    }
+        uploadPicLabels.datas(MyApplication.picLabels)
+                .listener((view, position) -> {
+                    //showShortToas("选中了:" + position);
                 }).commit();
         showAccurate.setChecked(true);
         uploadImgs.setLayoutManager(new GridLayoutManager(this, 3));
@@ -215,8 +186,8 @@ public class UploadPicActivity extends BaseActivity {
     }
 
     public int containLabel(String label){
-        for(int i = 0; i < datas1.size(); i++){
-            if(datas1.get(i).equals(label)){
+        for(int i = 0; i < MyApplication.picLabels.size(); i++){
+            if(MyApplication.picLabels.get(i).equals(label)){
                 return i;
             }
         }

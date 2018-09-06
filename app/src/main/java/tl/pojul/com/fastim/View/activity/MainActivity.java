@@ -19,7 +19,9 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.pojul.fastIM.message.request.GetTagMessLabelsReq;
+import com.pojul.fastIM.message.request.PicFilterLabelReq;
 import com.pojul.fastIM.message.response.GetTagMessLabelsResp;
+import com.pojul.fastIM.message.response.PicFilterLabelResp;
 import com.pojul.objectsocket.message.ResponseMessage;
 import com.pojul.objectsocket.socket.SocketRequest;
 import com.tbruyelle.rxpermissions2.RxPermissions;
@@ -158,6 +160,30 @@ public class MainActivity extends BaseActivity {
         ((NotificationManager) this.getSystemService(Context.NOTIFICATION_SERVICE)).cancel(1);
 
         updateTagMessLabels();
+        updatePicLabels();
+    }
+
+    private void updatePicLabels() {
+        PicFilterLabelReq req = new PicFilterLabelReq();
+        new SocketRequest().request(MyApplication.ClientSocket, req, new SocketRequest.IRequest() {
+
+            @Override
+            public void onError(String msg) {
+                runOnUiThread(()->{});
+            }
+
+            @Override
+            public void onFinished(ResponseMessage mResponse) {
+                runOnUiThread(()->{
+                    if(mResponse.getCode() == 200){
+                        List<String> labels = ((PicFilterLabelResp)mResponse).getLabels();
+                        if(labels.size() > 0){
+                            MyApplication.picLabels = labels;
+                        }
+                    }
+                });
+            }
+        });
     }
 
     private void updateTagMessLabels() {

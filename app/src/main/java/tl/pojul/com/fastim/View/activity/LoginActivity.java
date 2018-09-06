@@ -86,7 +86,7 @@ public class LoginActivity extends BaseActivity {
                         return;
                     }
                     MyApplication.ClientSocket = clientSocket;
-                    MyApplication.ClientSocket.setHeartbeat(30 * 1000);
+                    //MyApplication.ClientSocket.setHeartbeat(30 * 1000);
                     MyApplication.getApplication().registerSocketRecListerer();
                     MyApplication.getApplication().registerSocketSendListerer();
                     MyApplication.getApplication().registerSocketStatusListerer();
