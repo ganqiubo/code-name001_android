@@ -1,0 +1,287 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:fitsSystemWindows="true"
+    android:background="#ff5755"
+    android:orientation="vertical">
+
+    <RelativeLayout
+        android:id="@+id/header"
+        android:layout_width="match_parent"
+        android:layout_height="37dp"
+        android:paddingBottom="5dp">
+
+        <ImageView
+            android:id="@+id/back"
+            android:layout_width="42dp"
+            android:layout_height="match_parent"
+            android:layout_alignParentLeft="true"
+            android:padding="8dp"
+            android:rotation="180"
+            android:src="@drawable/pressed_back_white"
+            android:clickable="true"
+            />
+
+        <TextView
+            android:id="@+id/title"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:layout_alignParentTop="true"
+            android:layout_centerHorizontal="true"
+            android:gravity="center"
+            android:text="注册"
+            android:textColor="#ffffff"
+            android:textSize="17sp" />
+    </RelativeLayout>
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="2px"
+        android:background="#e1e1e1"/>
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="#ffffff">
+
+        <RelativeLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerInParent="true"
+            android:orientation="vertical"
+            >
+
+            <LinearLayout
+                android:id="@+id/nick_ll"
+                android:layout_width="match_parent"
+                android:layout_marginLeft="65dp"
+                android:layout_marginRight="65dp"
+                android:layout_height="32dp"
+                android:orientation="horizontal"
+                android:background="@drawable/corners_bg"
+                android:layout_marginTop="6dp"
+                >
+
+                <ImageView
+                    android:layout_width="30dp"
+                    android:layout_height="30dp"
+                    android:padding="7dp"
+                    android:tint="#aaaaaa"
+                    android:layout_marginLeft="8dp"
+                    android:src="@drawable/user_normal"/>
+
+                <View
+                    android:layout_width="1dp"
+                    android:layout_height="18dp"
+                    android:background="#d1d1d1"
+                    android:layout_gravity="center"/>
+
+                <EditText
+                    android:id="@+id/nick_et"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:background="#00ffffff"
+                    android:padding="5dp"
+                    android:textSize="13sp"
+                    android:textColor="#a1a1a1"
+                    android:textColorHint="#d1d1d1"
+                    android:maxLength="15"
+                    android:hint="请输入昵称"/>
+            </LinearLayout>
+
+            <LinearLayout
+                android:id="@+id/birthday_ll"
+                android:layout_width="match_parent"
+                android:layout_marginLeft="65dp"
+                android:layout_marginRight="65dp"
+                android:layout_height="32dp"
+                android:orientation="horizontal"
+                android:layout_below="@+id/nick_ll"
+                android:background="@drawable/corners_bg"
+                android:layout_marginTop="6dp"
+                >
+
+                <ImageView
+                    android:layout_width="30dp"
+                    android:layout_height="30dp"
+                    android:padding="7dp"
+                    android:tint="#aaaaaa"
+                    android:layout_marginLeft="8dp"
+                    android:src="@drawable/birthday"/>
+
+                <View
+                    android:layout_width="1dp"
+                    android:layout_height="18dp"
+                    android:background="#d1d1d1"
+                    android:layout_gravity="center"/>
+
+                <TextView
+                    android:id="@+id/birthday_tv"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:background="#00ffffff"
+                    android:padding="5dp"
+                    android:textSize="13sp"
+                    android:textColor="#a1a1a1"
+                    android:gravity="center_vertical"
+                    android:textColorHint="#d1d1d1"
+                    android:clickable="true"
+                    android:hint="请输入出生日期"/>
+            </LinearLayout>
+
+            <LinearLayout
+                android:id="@+id/sex_ll"
+                android:layout_width="match_parent"
+                android:layout_marginLeft="65dp"
+                android:layout_marginRight="65dp"
+                android:layout_height="32dp"
+                android:orientation="horizontal"
+                android:layout_below="@+id/birthday_ll"
+                android:background="@drawable/corners_bg"
+                android:layout_marginTop="6dp"
+                >
+
+                <ImageView
+                    android:layout_width="30dp"
+                    android:layout_height="30dp"
+                    android:padding="7dp"
+                    android:tint="#aaaaaa"
+                    android:layout_marginLeft="8dp"
+                    android:src="@drawable/sex"/>
+
+                <View
+                    android:layout_width="1dp"
+                    android:layout_height="18dp"
+                    android:background="#d1d1d1"
+                    android:layout_gravity="center"/>
+
+                <TextView
+                    android:id="@+id/sex_tv"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:background="#00ffffff"
+                    android:padding="5dp"
+                    android:textSize="13sp"
+                    android:gravity="center_vertical"
+                    android:textColor="#a1a1a1"
+                    android:textColorHint="#d1d1d1"
+                    android:clickable="true"
+                    android:hint="请输入性别"/>
+            </LinearLayout>
+
+            <LinearLayout
+                android:id="@+id/passwd_ll"
+                android:layout_width="match_parent"
+                android:layout_marginLeft="65dp"
+                android:layout_marginRight="65dp"
+                android:layout_height="32dp"
+                android:orientation="horizontal"
+                android:layout_below="@+id/sex_ll"
+                android:background="@drawable/corners_bg"
+                android:layout_marginTop="6dp"
+                >
+
+                <ImageView
+                    android:layout_width="30dp"
+                    android:layout_height="30dp"
+                    android:padding="7dp"
+                    android:tint="#aaaaaa"
+                    android:layout_marginLeft="8dp"
+                    android:src="@drawable/passwd"/>
+
+                <View
+                    android:layout_width="1dp"
+                    android:layout_height="18dp"
+                    android:background="#d1d1d1"
+                    android:layout_gravity="center"/>
+
+                <EditText
+                    android:id="@+id/passwd_et"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:background="#00ffffff"
+                    android:padding="5dp"
+                    android:textSize="13sp"
+                    android:textColor="#a1a1a1"
+                    android:maxLength="15"
+                    android:textColorHint="#d1d1d1"
+                    android:inputType="textPassword"
+                    android:digits="0123456789abcdefghigklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"
+                    android:hint="请输入密码"/>
+            </LinearLayout>
+
+            <LinearLayout
+                android:id="@+id/passwd_sure_ll"
+                android:layout_width="match_parent"
+                android:layout_marginLeft="65dp"
+                android:layout_marginRight="65dp"
+                android:layout_height="32dp"
+                android:orientation="horizontal"
+                android:layout_below="@+id/passwd_ll"
+                android:background="@drawable/corners_bg"
+                android:inputType="textPassword"
+                android:maxLength="15"
+                android:digits="0123456789abcdefghigklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"
+                android:layout_marginTop="6dp"
+                >
+
+                <ImageView
+                    android:layout_width="30dp"
+                    android:layout_height="30dp"
+                    android:padding="7dp"
+                    android:tint="#aaaaaa"
+                    android:layout_marginLeft="8dp"
+                    android:src="@drawable/passwd"/>
+
+                <View
+                    android:layout_width="1dp"
+                    android:layout_height="18dp"
+                    android:background="#d1d1d1"
+                    android:layout_gravity="center"/>
+
+                <EditText
+                    android:id="@+id/passwd_sure_et"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:background="#00ffffff"
+                    android:padding="5dp"
+                    android:textSize="13sp"
+                    android:textColor="#a1a1a1"
+                    android:textColorHint="#d1d1d1"
+                    android:inputType="textPassword"
+                    android:digits="0123456789abcdefghigklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"
+                    android:maxLength="15"
+                    android:hint="请确认密码"/>
+            </LinearLayout>
+
+            <TextView
+                android:id="@+id/effective_note"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:textColor="#aaaaaa"
+                android:textSize="11sp"
+                android:text="注：生日、性别信息注册后不能修改"
+                android:layout_below="@+id/passwd_sure_ll"
+                android:layout_marginLeft="5dp"
+                android:layout_marginTop="3dp"
+                android:layout_alignLeft="@+id/passwd_sure_ll"
+                android:layout_alignRight="@+id/passwd_sure_ll"
+                />
+
+            <Button
+                android:id="@+id/register"
+                android:layout_width="match_parent"
+                android:layout_marginLeft="65dp"
+                android:layout_marginRight="65dp"
+                android:layout_height="32dp"
+                android:layout_marginTop="30dp"
+                android:background="@drawable/regist_bt_bg"
+                android:text="注册"
+                android:textSize="14sp"
+                android:textColor="#ffffff"
+                android:layout_below="@+id/effective_note"/>
+
+        </RelativeLayout>
+    </RelativeLayout>
+</LinearLayout>

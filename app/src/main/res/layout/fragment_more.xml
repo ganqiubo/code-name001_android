@@ -101,6 +101,7 @@
                 android:paddingRight="6dp">
 
                 <TextView
+                    android:visibility="gone"
                     android:id="@+id/recommend_note"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
@@ -111,6 +112,7 @@
                     android:textSize="14sp" />
 
                 <android.support.v7.widget.RecyclerView
+                    android:visibility="gone"
                     android:id="@+id/bored_note_lists"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
@@ -127,7 +129,7 @@
                 android:orientation="vertical">
 
                 <RelativeLayout
-                    android:id="@+id/recommend_message"
+                    android:id="@+id/nearby_message"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:background="@drawable/ripple_normal"
@@ -138,7 +140,7 @@
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_marginLeft="3dp"
-                        android:text="推荐消息"
+                        android:text="附近消息"
                         android:textColor="#787878"
                         android:textSize="13sp" />
 
@@ -147,7 +149,19 @@
                         android:layout_height="15dp"
                         android:layout_alignParentRight="true"
                         android:layout_marginRight="5dp"
+                        android:layout_centerVertical="true"
                         android:src="@drawable/back_mormal" />
+
+                    <TextView
+                        android:visibility="gone"
+                        android:id="@+id/has_unread_message"
+                        android:layout_width="5dp"
+                        android:layout_height="5dp"
+                        android:layout_marginRight="18dp"
+                        android:layout_centerVertical="true"
+                        android:layout_alignParentRight="true"
+                        android:background="@drawable/shape_unsend_message"/>
+
                 </RelativeLayout>
 
                 <View
@@ -156,7 +170,7 @@
                     android:background="#cdcdcd" />
 
                 <RelativeLayout
-                    android:id="@+id/recommend_friend"
+                    android:id="@+id/nearby_people"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:background="@drawable/ripple_normal"
@@ -167,7 +181,7 @@
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_marginLeft="3dp"
-                        android:text="推荐好友"
+                        android:text="附近的人"
                         android:textColor="#787878"
                         android:textSize="13sp" />
 
@@ -175,40 +189,105 @@
                         android:layout_width="15dp"
                         android:layout_height="15dp"
                         android:layout_alignParentRight="true"
+                        android:layout_centerVertical="true"
                         android:layout_marginRight="5dp"
                         android:src="@drawable/back_mormal" />
-                </RelativeLayout>
-
-                <View
-                    android:layout_width="match_parent"
-                    android:layout_height="1px"
-                    android:background="#cdcdcd" />
-
-                <RelativeLayout
-                    android:id="@+id/near_by"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:background="@drawable/ripple_normal"
-                    android:clickable="true"
-                    android:padding="10dp">
 
                     <TextView
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:layout_marginLeft="3dp"
-                        android:text="附近的小姐姐"
-                        android:textColor="#787878"
-                        android:textSize="13sp" />
-
-                    <ImageView
-                        android:layout_width="15dp"
-                        android:layout_height="15dp"
+                        android:visibility="gone"
+                        android:id="@+id/has_unread_people"
+                        android:layout_width="5dp"
+                        android:layout_height="5dp"
+                        android:layout_marginRight="18dp"
+                        android:layout_centerVertical="true"
                         android:layout_alignParentRight="true"
-                        android:layout_marginRight="5dp"
-                        android:src="@drawable/back_mormal" />
-                </RelativeLayout>
+                        android:background="@drawable/shape_unsend_message"/>
 
+                </RelativeLayout>
             </LinearLayout>
+
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="1px"
+                android:background="#cdcdcd" />
+
+            <RelativeLayout
+                android:id="@+id/friend_req"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="@drawable/ripple_normal"
+                android:clickable="true"
+                android:padding="10dp">
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginLeft="3dp"
+                    android:text="好友请求"
+                    android:textColor="#787878"
+                    android:textSize="13sp" />
+
+                <ImageView
+                    android:layout_width="15dp"
+                    android:layout_height="15dp"
+                    android:layout_alignParentRight="true"
+                    android:layout_marginRight="5dp"
+                    android:layout_centerVertical="true"
+                    android:src="@drawable/back_mormal" />
+
+                <TextView
+                    android:visibility="gone"
+                    android:id="@+id/has_unread_friendreq"
+                    android:layout_width="6dp"
+                    android:layout_height="6dp"
+                    android:layout_marginRight="18dp"
+                    android:layout_centerVertical="true"
+                    android:layout_alignParentRight="true"
+                    android:background="@drawable/shape_unsend_message"/>
+
+            </RelativeLayout>
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="1px"
+        android:background="#cdcdcd" />
+
+
+    <RelativeLayout
+                android:id="@+id/setting"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="@drawable/ripple_normal"
+                android:clickable="true"
+                android:padding="10dp">
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginLeft="3dp"
+                    android:text="设置"
+                    android:textColor="#787878"
+                    android:textSize="13sp" />
+
+                <ImageView
+                    android:layout_width="15dp"
+                    android:layout_height="15dp"
+                    android:layout_alignParentRight="true"
+                    android:layout_marginRight="5dp"
+                    android:layout_centerVertical="true"
+                    android:src="@drawable/back_mormal" />
+
+                <TextView
+                    android:visibility="gone"
+                    android:id="@+id/has_unread_setting"
+                    android:layout_width="6dp"
+                    android:layout_height="6dp"
+                    android:layout_marginRight="18dp"
+                    android:layout_centerVertical="true"
+                    android:layout_alignParentRight="true"
+                    android:background="@drawable/shape_unsend_message"/>
+
+            </RelativeLayout>
 
             <View
                 android:layout_width="match_parent"

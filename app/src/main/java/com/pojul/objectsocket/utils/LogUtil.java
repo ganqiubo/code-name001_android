@@ -5,7 +5,7 @@ import java.util.Date;
 
 public class LogUtil {
 
-	public static boolean allowD = false;
+	public static boolean allowD = true;
     public static boolean allowE = true;
     public static boolean allowI = true;
     public static boolean allowV = true;

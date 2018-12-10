@@ -1,5 +1,8 @@
 package tl.pojul.com.fastim.socket.Converter;
 
+import com.baidu.location.BDLocation;
+import com.baidu.mapapi.model.LatLng;
+import com.baidu.mapapi.utils.DistanceUtil;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.pojul.fastIM.entity.CommunityMessEntity;
@@ -72,6 +75,100 @@ public class TagMessageConverter {
         return true;
     }
 
+    public List<TagCommuMessage> converterTagMess(List<CommunityMessEntity> communityMessEntities, BDLocation bdLocation){
+        List<TagCommuMessage> tagMessages = new ArrayList<>();
+        if(communityMessEntities == null){
+            return tagMessages;
+        }
+        for(int i =0; i < communityMessEntities.size(); i++){
+            CommunityMessEntity communityMessEntity = communityMessEntities.get(i);
+            if(communityMessEntity == null){
+                continue;
+            }
+            TagCommuMessage tagCommuMessage = converTagMess(communityMessEntity, bdLocation);
+            if(tagCommuMessage != null && userFilter(tagCommuMessage)){
+                tagMessages.add(tagCommuMessage);
+            }
+        }
+        return tagMessages;
+    }
+
+    public List<TagCommuMessage> converterTagMess(List<CommunityMessEntity> communityMessEntities, BDLocation bdLocation, List<TagCommuMessage> recomdMesses){
+        List<TagCommuMessage> tagMessages = new ArrayList<>();
+        if(communityMessEntities == null){
+            return tagMessages;
+        }
+        for(int i =0; i < communityMessEntities.size(); i++){
+            CommunityMessEntity communityMessEntity = communityMessEntities.get(i);
+            if(communityMessEntity == null){
+                continue;
+            }
+            TagCommuMessage tagCommuMessage = converTagMess(communityMessEntity, bdLocation);
+            if(tagCommuMessage != null && userFilter(tagCommuMessage) && !containTagMess(recomdMesses, tagCommuMessage)){
+                tagMessages.add(tagCommuMessage);
+            }
+        }
+        return tagMessages;
+    }
+
+    private TagCommuMessage converTagMess(CommunityMessEntity communityMessEntity, BDLocation bdLocation) {
+        if(communityMessEntity == null){
+            return null;
+        }
+        TagCommuMessage tagCommuMessage = null;
+        try {
+            Gson gson = new GsonBuilder().disableHtmlEscaping().create();
+            tagCommuMessage = (TagCommuMessage)gson
+                    .fromJson(communityMessEntity.getMessageContent(), Class.forName(communityMessEntity.getMessageClass()));
+            tagCommuMessage.setUserSex(communityMessEntity.getSex());
+            tagCommuMessage.setCertificate(communityMessEntity.getCertificate());
+            tagCommuMessage.setNickName(communityMessEntity.getNickName());
+            tagCommuMessage.setPhoto(communityMessEntity.getPhoto());
+            tagCommuMessage.setAge(communityMessEntity.getAge());
+            tagCommuMessage.setIsSend(1);
+            if(bdLocation != null){
+                tagCommuMessage.setDistance(DistanceUtil.getDistance(
+                        new LatLng(tagCommuMessage.getLatitude(), tagCommuMessage.getLongitude()),
+                        new LatLng(bdLocation.getLatitude(), bdLocation.getLongitude())));
+            }
+
+            tagCommuMessage.setIsEffective(communityMessEntity.getIsEffective());
+            tagCommuMessage.setThumbsUps(communityMessEntity.getThumbUps());
+            tagCommuMessage.setHsaThumbsUp(communityMessEntity.getHasThumbUp());
+            tagCommuMessage.setHasReport(communityMessEntity.getHasReport());
+            tagCommuMessage.setTimeMill(communityMessEntity.getTimeMill());
+            tagCommuMessage.setReplysNum(communityMessEntity.getReplyNum());
+            if(communityMessEntity.getLastReply() != null){
+                String[] strs = communityMessEntity.getLastReply().split(",");
+                if(strs.length == 3){
+                    ReplyMessage replyMessage = new ReplyMessage();
+                    replyMessage.setText(strs[0]);
+                    replyMessage.setUserName(strs[1]);
+                    replyMessage.setNickName(strs[2]);
+                    List<ReplyMessage> replyMessages = new ArrayList<>();
+                    replyMessages.add(replyMessage);
+                    tagCommuMessage.setReplys(replyMessages);
+                }
+            }
+        } catch (Exception e) {
+            LogUtil.i(TAG,"解析数据失败");
+        }
+        return tagCommuMessage;
+    }
+
+    public boolean containTagMess(List<TagCommuMessage> recomdMesses, TagCommuMessage tagCommuMessage){
+        if(recomdMesses == null || recomdMesses.size() <= 0){
+            return false;
+        }
+        for (int i = 0; i < recomdMesses.size(); i++) {
+            TagCommuMessage recomdMess = recomdMesses.get(i);
+            if(recomdMess.getMessageUid().equals(tagCommuMessage.getMessageUid())){
+                return true;
+            }
+        }
+        return false;
+    }
+
     private TagCommuMessage converUserTagMess(CommunityMessEntity communityMessEntity, User user) {
         if(communityMessEntity == null){
             return null;
@@ -85,6 +182,7 @@ public class TagMessageConverter {
             tagCommuMessage.setCertificate(user.getCertificate());
             tagCommuMessage.setNickName(user.getNickName());
             tagCommuMessage.setPhoto(user.getPhoto());
+            tagCommuMessage.setAge(user.getAge());
             tagCommuMessage.setIsSend(1);
 
             tagCommuMessage.setIsEffective(communityMessEntity.getIsEffective());

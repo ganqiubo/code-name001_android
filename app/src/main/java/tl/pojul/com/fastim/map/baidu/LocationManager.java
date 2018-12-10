@@ -52,9 +52,9 @@ public class LocationManager {
         option.setEnableSimulateGps(false);
         option.setIsNeedAltitude(true);
         option.setIsNeedAddress(true);
-        //option.setTimeOut(6 * 1000);
+        option.setTimeOut(10 * 1000);
         option.setOpenGps(true);
-        option.setScanSpan(4000);
+        option.setScanSpan(1000);
         mLocationClient.setLocOption(option);
         mLocationClient.stop();
     }

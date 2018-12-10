@@ -13,11 +13,12 @@
         android:orientation="vertical">
 
         <TextView
+            android:id="@+id/pic_labels_note"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:padding="5dp"
             android:text="标 签："
-            android:textColor="#787878"
+            android:textColor="@color/enable_text"
             android:textSize="13sp" />
 
         <tl.pojul.com.fastim.View.widget.FlowTagView
@@ -68,8 +69,8 @@
             android:id="@+id/more_label"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginLeft="28dp"
-            android:layout_marginRight="28dp"
+            android:layout_marginLeft="22dp"
+            android:layout_marginRight="22dp"
             android:background="@drawable/shape_et"
             android:hint="最多可输入25个字符，不同标签之间用逗号隔开"
             android:maxLength="25"
@@ -105,10 +106,10 @@
             android:text="脚步图库"
             android:textSize="11sp"
             android:textColor="@color/selector_text_white_gray"
-            android:paddingTop="5dp"
-            android:paddingBottom="5dp"
-            android:paddingLeft="11dp"
-            android:paddingRight="11dp"
+            android:paddingTop="4dp"
+            android:paddingBottom="4dp"
+            android:paddingLeft="8dp"
+            android:paddingRight="8dp"
             android:clickable="true"
             android:layout_marginLeft="30dp"/>
 
@@ -118,12 +119,12 @@
             android:layout_height="wrap_content"
             android:textColor="@color/selector_text_white_gray"
             android:textSize="11sp"
-            android:paddingTop="5dp"
-            android:paddingBottom="5dp"
-            android:paddingLeft="11dp"
-            android:paddingRight="11dp"
+            android:paddingTop="4dp"
+            android:paddingBottom="4dp"
+            android:paddingLeft="8dp"
+            android:paddingRight="8dp"
             android:text="unsplash 图库"
-            android:layout_marginLeft="10dp"
+            android:layout_marginLeft="8dp"
             android:clickable="true"
             android:background="@drawable/select_tag_bt"/>
 
@@ -133,12 +134,91 @@
             android:layout_height="wrap_content"
             android:textColor="@color/selector_text_white_gray"
             android:textSize="11sp"
-            android:paddingTop="5dp"
-            android:paddingBottom="5dp"
-            android:paddingLeft="11dp"
-            android:paddingRight="11dp"
+            android:paddingTop="4dp"
+            android:paddingBottom="4dp"
+            android:paddingLeft="8dp"
+            android:paddingRight="8dp"
             android:text="pexels 图库"
-            android:layout_marginLeft="10dp"
+            android:layout_marginLeft="8dp"
+            android:clickable="true"
+            android:background="@drawable/select_tag_bt"/>
+    </LinearLayout>
+
+    <TextView
+        android:visibility="gone"
+        android:id="@+id/other_note"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:padding="5dp"
+        android:text="其 他："
+        android:textColor="#787878"
+        android:textSize="13sp" />
+
+    <LinearLayout
+        android:visibility="gone"
+        android:id="@+id/other_ll"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="1dp"
+        android:orientation="horizontal">
+
+        <TextView
+            android:id="@+id/nearby"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:background="@drawable/select_tag_bt"
+            android:text="附 近"
+            android:textSize="11sp"
+            android:textColor="@color/selector_text_white_gray"
+            android:paddingTop="3dp"
+            android:paddingBottom="3dp"
+            android:paddingLeft="8dp"
+            android:paddingRight="8dp"
+            android:clickable="true"
+            android:layout_marginLeft="30dp"/>
+
+        <TextView
+            android:id="@+id/my_pic"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textColor="@color/selector_text_white_gray"
+            android:textSize="11sp"
+            android:paddingTop="3dp"
+            android:paddingBottom="3dp"
+            android:paddingLeft="8dp"
+            android:paddingRight="8dp"
+            android:text="我的图集"
+            android:layout_marginLeft="8dp"
+            android:clickable="true"
+            android:background="@drawable/select_tag_bt"/>
+
+        <TextView
+            android:id="@+id/my_like"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textColor="@color/selector_text_white_gray"
+            android:textSize="11sp"
+            android:paddingTop="3dp"
+            android:paddingBottom="3dp"
+            android:paddingLeft="8dp"
+            android:paddingRight="8dp"
+            android:text="我喜欢的"
+            android:layout_marginLeft="8dp"
+            android:clickable="true"
+            android:background="@drawable/select_tag_bt"/>
+
+        <TextView
+            android:id="@+id/my_collect"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textColor="@color/selector_text_white_gray"
+            android:textSize="11sp"
+            android:paddingTop="3dp"
+            android:paddingBottom="3dp"
+            android:paddingLeft="8dp"
+            android:paddingRight="8dp"
+            android:text="我的收藏"
+            android:layout_marginLeft="8dp"
             android:clickable="true"
             android:background="@drawable/select_tag_bt"/>
     </LinearLayout>

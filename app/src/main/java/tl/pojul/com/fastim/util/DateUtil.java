@@ -87,7 +87,6 @@ public class DateUtil {
         }
     }
 
-
     /**
      * 转换时间日期格式字串为long型
      *
@@ -101,6 +100,43 @@ public class DateUtil {
             return date.getTime();
         } catch (Exception e) {
             return System.currentTimeMillis();
+        }
+    }
+
+    /**
+     * 比较两个日期的大小，日期格式为yyyy-MM-dd
+     *
+     * @param date
+     * @return true <br/>false
+     */
+    public static boolean isDateOverdue(String date) {
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+        Date dt1 = null;
+        Date dt2 = null;
+        try {
+            dt1 = sdf.parse(date);
+            dt2 = sdf.parse(getFormatDate());
+        } catch (Exception e) {
+            return true;
+        }
+        if (dt1.getTime() <= dt2.getTime()) {
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+    public static String getLeftTime(long time){
+        long dsTimeMilli = time - System.currentTimeMillis();
+        if(dsTimeMilli <= 0){
+            return "0天0小时";
+        }
+        int leftDays = (int) (dsTimeMilli / (24 * 60 * 60 * 1000L));
+        int leftHours = (int) ((dsTimeMilli % (24 * 60 * 60 * 1000L)) / (60 * 60 * 1000)) + 1;
+        if(leftDays <= 0){
+            return leftHours + "小时";
+        }else{
+            return leftDays + "天" + leftHours + "小时";
         }
     }
 

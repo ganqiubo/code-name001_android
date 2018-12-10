@@ -1,0 +1,155 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:fitsSystemWindows="true"
+    android:background="#ffffff"
+    >
+
+    <RelativeLayout
+        android:id="@+id/header"
+        android:layout_width="match_parent"
+        android:layout_height="50dp">
+
+        <TextView
+            android:id="@+id/title"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:layout_alignParentTop="true"
+            android:layout_centerHorizontal="true"
+            android:gravity="center"
+            android:text="会员充值"
+            android:textColor="#676767"
+            android:textSize="16sp" />
+
+        <ImageView
+            android:id="@+id/back"
+            android:layout_width="42dp"
+            android:layout_height="match_parent"
+            android:layout_alignParentLeft="true"
+            android:padding="12dp"
+            android:rotation="180"
+            android:src="@drawable/pressed_back"
+            android:clickable="true"
+            />
+    </RelativeLayout>
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="2px"
+        android:layout_below="@+id/header"
+        android:background="#e1e1e1"/>
+
+    <com.scwang.smartrefresh.layout.SmartRefreshLayout
+        android:id="@+id/smart_refresh"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="#f2f2f2">
+
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:background="#ffffff">
+
+            <TextView
+                android:id="@+id/note"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_centerHorizontal="true"
+                android:textSize="14sp"
+                android:textColor="#787878"
+                android:padding="12dp"
+                android:text="\u3000\u3000说明：目前脚步会员充值仅支持支付宝充值，需要用户手动转账到支付宝2443974192@qq.com的账户，转账备注需填写您注册脚步账号sim卡的IMSI号，转账后等待20分钟左右系统将会为您开通会员资质。会员资费为2元每月"
+                />
+
+            <LinearLayout
+                android:id="@+id/receive_account_ll"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_below="@+id/note"
+                android:layout_marginLeft="12dp"
+                android:layout_marginRight="12dp"
+                android:orientation="horizontal">
+
+                <TextView
+                    android:layout_gravity="center"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textSize="14sp"
+                    android:text="收款账户："/>
+
+                <TextView
+                    android:id="@+id/account"
+                    android:layout_gravity="center"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textSize="14sp"
+                    android:textColor="@color/yellow_pressed"
+                    android:clickable="true"
+                    android:text="2443974192@qq.com"/>
+
+                <ImageView
+                    android:id="@+id/copy_account"
+                    android:layout_width="25dp"
+                    android:layout_height="25dp"
+                    android:layout_marginLeft="10dp"
+                    android:padding="3dp"
+                    android:clickable="true"
+                    android:src="@drawable/press_copy"/>
+            </LinearLayout>
+
+            <LinearLayout
+                android:id="@+id/imsi_ll"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_below="@+id/receive_account_ll"
+                android:layout_marginLeft="12dp"
+                android:layout_marginRight="12dp"
+                android:layout_marginTop="8dp"
+                android:orientation="horizontal">
+
+                <TextView
+                    android:layout_gravity="center"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textSize="14sp"
+                    android:clickable="true"
+                    android:text="手机IMSI："/>
+
+                <TextView
+                    android:id="@+id/imsi"
+                    android:layout_gravity="center"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textSize="14sp"
+                    android:textColor="@color/yellow_pressed"
+                    android:clickable="true"
+                    android:text="232323231213234"/>
+
+                <ImageView
+                    android:id="@+id/copy_imsi"
+                    android:layout_width="25dp"
+                    android:layout_height="25dp"
+                    android:layout_marginLeft="10dp"
+                    android:padding="3dp"
+                    android:clickable="true"
+                    android:src="@drawable/press_copy"/>
+            </LinearLayout>
+
+            <TextView
+                android:id="@+id/open_alipay"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_centerHorizontal="true"
+                android:layout_below="@id/imsi_ll"
+                android:layout_marginTop="15dp"
+                android:textSize="15sp"
+                android:padding="8dp"
+                android:textColor="@color/pressed_text_gray_yellow"
+                android:text="打开支付宝客户端"/>
+
+        </RelativeLayout>
+    </com.scwang.smartrefresh.layout.SmartRefreshLayout>
+
+</LinearLayout>

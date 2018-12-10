@@ -103,6 +103,7 @@
                     android:padding="5dp">
 
                     <TextView
+                        android:id="@+id/label_note"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:padding="5dp"
@@ -115,7 +116,7 @@
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_gravity="center"
-                        android:layout_marginLeft="8dp"
+                        android:layout_marginLeft="15dp"
                         app:tag_height="22dp"
                         app:tag_horiz_padding="8dp"
                         app:tag_radio="5dp"
@@ -179,11 +180,11 @@
                         android:background="@drawable/shape_et"
                         android:gravity="start"
                         android:hint="最多可输入500个字符"
-                        android:maxHeight="100dp"
                         android:maxLength="500"
                         android:minHeight="80dp"
                         android:padding="5dp"
-                        android:paddingLeft="5dp"
+                        android:paddingLeft="6dp"
+                        android:paddingRight="6dp"
                         android:textColor="#787878"
                         android:textColorHint="#aaaaaa"
                         android:textCursorDrawable="@null"

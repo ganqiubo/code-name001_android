@@ -250,7 +250,7 @@ public class UploadPicActivity extends BaseActivity {
             location.setText(bdLocation.getAddrStr());
             LocationManager.getInstance().unRegisterLocationListener(iLocationListener);
             mBDLocation = bdLocation;
-            getLocation.setText("获取位置");
+            getLocation.setText(getString(R.string.get_location_fail));
         }
 
         @Override
@@ -308,7 +308,7 @@ public class UploadPicActivity extends BaseActivity {
 
     public void uploadPic() {
         if (!MyApplication.getApplication().isConnected()) {
-            showShortToas("与服务器已断开连接");
+            showShortToas(getString(R.string.disconnected));
             return;
         }
         List<Pic> pics = picPickerAdapter.getPics();

@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="280dp"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:background="#ffffff"
+    >
+
+    <Button
+        android:id="@+id/close"
+        android:layout_width="38dp"
+        android:layout_height="38dp"
+        android:text="×"
+        android:textSize="18sp"
+        android:background="#00ffffff"
+        android:layout_alignParentRight="true"
+        android:textColor="@color/press_text_green_yellow"
+        />
+
+    <TextView
+        android:id="@+id/title"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:textSize="13sp"
+        android:textColor="#454545"
+        android:text="亲，该功能会员可用哟, 您目前还不是会员，会员2元包月"
+        android:gravity="center"
+        android:padding="12dp"
+        android:layout_marginTop="6dp"
+        android:layout_marginLeft="25dp"
+        android:layout_marginRight="25dp"
+        />
+
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:layout_below="@+id/title"
+        android:paddingBottom="3dp"
+        >
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1px"
+            android:background="#dddddd"
+            android:layout_above="@+id/bt_ll"/>
+
+        <Button
+            android:id="@+id/goto_pay"
+            android:layout_width="match_parent"
+            android:layout_height="42dp"
+            android:background="@drawable/ripple_normal"
+            android:text="去充会员→"
+            android:textColor="@color/red1"
+            android:textSize="13sp"/>
+
+        <View
+            android:id="@+id/line2"
+            android:layout_width="match_parent"
+            android:layout_height="1px"
+            android:background="#dddddd"
+            android:layout_above="@+id/bt_ll"/>
+
+        <Button
+            android:id="@+id/experience"
+            android:layout_width="match_parent"
+            android:layout_height="42dp"
+            android:background="@drawable/ripple_normal"
+            android:text="让朕先体验两天"
+            android:textColor="@color/blue"
+            android:textSize="13sp"/>
+    </LinearLayout>
+
+</RelativeLayout>

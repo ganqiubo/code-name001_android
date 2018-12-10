@@ -13,7 +13,7 @@
             android:layout_height="match_parent"
             android:layout_centerHorizontal="true"
             android:gravity="center"
-            android:text="上传"
+            android:text="@string/upload"
             android:textColor="#676767"
             android:textSize="16sp" />
     </RelativeLayout>
@@ -30,6 +30,7 @@
         android:background="#f5ecc7">
 
         <Button
+            android:visibility="gone"
             android:id="@+id/not_note_anymore"
             android:layout_width="54dp"
             android:layout_height="28dp"
@@ -50,7 +51,7 @@
             android:layout_marginRight="15dp"
             android:layout_toLeftOf="@id/note_close"
             android:layout_toRightOf="@+id/not_note_anymore"
-            android:text="说明：上传图片将保存到云服务器上，其他用户可以看到、评论和收藏您上传的美图；上传图片分为位置图片和普通图片，其中位置图片可以显示在对应的地图上"
+            android:text="@string/upload_img_note"
             android:textColor="#898989"
             android:textSize="10dp" />
 
@@ -72,7 +73,7 @@
         android:layout_height="wrap_content"
         android:layout_marginTop="5dp"
         android:gravity="center"
-        android:text="上传流程"
+        android:text="@string/upload_process"
         android:textColor="#898989"
         android:textSize="13sp" />
 
@@ -109,7 +110,7 @@
                 android:layout_height="wrap_content"
                 android:layout_gravity="center"
                 android:clickable="false"
-                android:text="上传普通图片"
+                android:text="@string/upload_normal_image"
                 android:textColor="@color/selector_text_pic_normal"
                 android:textSize="12sp" />
         </LinearLayout>
@@ -139,7 +140,7 @@
                 android:layout_height="wrap_content"
                 android:layout_gravity="center"
                 android:clickable="false"
-                android:text="上传位置图片"
+                android:text="@string/upload_location_image"
                 android:textColor="@color/selector_text_pic_location"
                 android:textSize="12sp" />
         </LinearLayout>
@@ -179,7 +180,7 @@
                 android:layout_gravity="center"
                 android:layout_marginLeft="-5dp"
                 android:clickable="false"
-                android:text="上传任务"
+                android:text="@string/upload_task"
                 android:textColor="#787878"
                 android:textSize="12sp" />
         </LinearLayout>
@@ -230,7 +231,7 @@
                 android:textSize="12sp"
                 android:textColor="#787878"
                 android:layout_marginLeft="-5dp"
-                android:text="未上传数据"
+                android:text="@string/not_uploaded_task"
                 android:clickable="false"/>
         </LinearLayout>
 
@@ -269,7 +270,7 @@
             android:textSize="12sp"
             android:textColor="#787878"
             android:layout_marginLeft="-5dp"
-            android:text="上传记录" />
+            android:text="@string/upload_record" />
     </LinearLayout>
 
     <com.scwang.smartrefresh.layout.SmartRefreshLayout
@@ -309,8 +310,8 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_gravity="center"
-                    android:maxWidth="120dp"
-                    android:text="上传记录为空哦，赶快上传一张美照与别人一起分享吧"
+                    android:maxWidth="150dp"
+                    android:text="@string/upload_empty"
                     android:textColor="#898989"
                     android:layout_marginTop="-12dp"
                     android:textSize="11sp" />

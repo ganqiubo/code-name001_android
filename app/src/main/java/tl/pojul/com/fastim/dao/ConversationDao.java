@@ -33,6 +33,15 @@ public class ConversationDao {
         return DaoUtil.executeUpdate(sql, false);
     }
 
+    public boolean isSingleConversationExit(String from, String owner){
+        String sql = "select * from conversation where conversation_from = '" + from + "' and conversation_owner = '" + owner + "' and conversation_type = " + 1;
+        List<Conversation> conversations = DaoUtil.executeQuery(sql, Conversation.class);
+        if(conversations == null || conversations.size() <= 0){
+            return false;
+        }
+        return true;
+    }
+
     public int updateConversationChat(Conversation conversation){
         String sql = "update conversation set " +
                 "conversation_last_chat = '"+ conversation.getConversationLastChat() + "', " +
@@ -66,8 +75,8 @@ public class ConversationDao {
         }
     }
 
-    public Conversation ConversionByUid(String uid){
-        String sql = "select * from conversation where conversation_uid = '" + uid + "'";
+    public Conversation ConversionByUid(String uid, String owner){
+        String sql = "select * from conversation where conversation_uid = '" + uid + "' and conversation_owner = '" + owner + "'";
         List<Conversation> conversations = DaoUtil.executeQuery(sql, Conversation.class);
         if(conversations != null && conversations.size() > 0){
             return conversations.get(0);
@@ -105,4 +114,15 @@ public class ConversationDao {
         return DaoUtil.executeUpdate(sql, false);
     }
 
+    public long deleteSingleChat(String own, String from) {
+        String sql = "delete from conversation where conversation_from = '" + from + "'" +
+                " and conversation_owner = '" + own + "'" +
+                " and conversation_type = '" + 1 + "'";
+        return DaoUtil.executeUpdate(sql, false);
+    }
+
+    public long deleteTagReply(String uid, String owner) {
+        String sql = "delete from conversation from conversation_uid = '" + uid + "' and conversation_owner = '" + owner + "'";
+        return DaoUtil.executeUpdate(sql, false);
+    }
 }

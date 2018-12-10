@@ -1,7 +1,10 @@
 package tl.pojul.com.fastim.View.Adapter;
 
+import android.app.Activity;
 import android.content.Context;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Looper;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -9,18 +12,29 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
 import com.pojul.fastIM.entity.Friend;
+import com.pojul.fastIM.entity.User;
+import com.pojul.fastIM.message.request.ChatLegalReq;
+import com.pojul.fastIM.message.request.CloseGreetChatReq;
+import com.pojul.fastIM.message.request.DeleteFriendReq;
+import com.pojul.fastIM.message.response.ChatLegalResp;
+import com.pojul.objectsocket.message.ResponseMessage;
+import com.pojul.objectsocket.socket.SocketRequest;
 
 import java.util.HashMap;
 import java.util.List;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
+import tl.pojul.com.fastim.MyApplication;
 import tl.pojul.com.fastim.R;
 import tl.pojul.com.fastim.View.activity.BaseActivity;
 import tl.pojul.com.fastim.View.activity.MyPageActivity;
+import tl.pojul.com.fastim.util.DialogUtil;
+import tl.pojul.com.fastim.util.SPUtil;
 
 public class FriendsAdapter extends RecyclerView.Adapter<FriendsAdapter.MyViewHolder> {
 
@@ -123,6 +137,72 @@ public class FriendsAdapter extends RecyclerView.Adapter<FriendsAdapter.MyViewHo
             }
         }
         return friend;
+    }
+
+    public void deleteItem(int position) {
+        Friend friend = mList.get(position);
+        User user = SPUtil.getInstance().getUser();
+        ChatLegalReq req = new ChatLegalReq();
+        req.setUserNameOwn(user.getUserName());
+        req.setUserNameFriend(friend.getUserName());
+        new SocketRequest().request(MyApplication.ClientSocket, req, new SocketRequest.IRequest() {
+            @Override
+            public void onError(String msg) {
+                new Handler(Looper.getMainLooper()).post(()->{
+                    Toast.makeText(mContext, msg, Toast.LENGTH_SHORT).show();
+                });
+            }
+
+            @Override
+            public void onFinished(ResponseMessage mResponse) {
+                new Handler(Looper.getMainLooper()).post(()->{
+                    if(mResponse.getCode() == 200){
+                        ChatLegalResp resp = (ChatLegalResp) mResponse;
+                        if(resp.getLegal() == 1 || resp.getLegal() == 2){
+                            deleteFriend(user.getUserName(), friend.getUserName(), position);
+                        }else{
+                            synchronized (mList){
+                                mList.remove(position);
+                                notifyDataSetChanged();
+                            }
+                        }
+                    }else{
+                        Toast.makeText(mContext, mResponse.getMessage(), Toast.LENGTH_SHORT).show();
+                    }
+                });
+            }
+        });
+    }
+
+    private void deleteFriend(String owner, String friend, int position) {
+        DeleteFriendReq req = new DeleteFriendReq();
+        req.setOwner(owner);
+        req.setFriend(friend);
+        DialogUtil.getInstance().showLoadingSimple(mContext, ((Activity)mContext).getWindow().getDecorView());
+        new SocketRequest().request(MyApplication.ClientSocket, req, new SocketRequest.IRequest() {
+            @Override
+            public void onError(String msg) {
+                new Handler(Looper.getMainLooper()).post(()->{
+                    Toast.makeText(mContext, msg, Toast.LENGTH_SHORT).show();
+                    DialogUtil.getInstance().dimissLoadingDialog();
+                });
+            }
+
+            @Override
+            public void onFinished(ResponseMessage mResponse) {
+                new Handler(Looper.getMainLooper()).post(()->{
+                    DialogUtil.getInstance().dimissLoadingDialog();
+                    if(mResponse.getCode() == 200){
+                        synchronized (mList){
+                            mList.remove(position);
+                            notifyDataSetChanged();
+                        }
+                    }else{
+                        Toast.makeText(mContext, mResponse.getMessage(), Toast.LENGTH_SHORT).show();
+                    }
+                });
+            }
+        });
     }
 
     public interface OnItemClickListener {

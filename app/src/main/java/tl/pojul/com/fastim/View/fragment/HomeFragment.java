@@ -25,9 +25,6 @@ import tl.pojul.com.fastim.View.activity.BaseActivity;
 import tl.pojul.com.fastim.View.widget.PolygonImage.view.PolygonImageView;
 import tl.pojul.com.fastim.View.widget.sowingmap.SowingMap;
 
-/**
- * A simple {@link Fragment} subclass.
- */
 public class HomeFragment extends BaseFragment {
 
     @BindView(R.id.home_choiceness_icon)

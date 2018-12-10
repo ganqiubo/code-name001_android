@@ -23,7 +23,7 @@
                 android:layout_height="wrap_content"
                 android:layout_gravity="center"
                 android:gravity="center"
-                android:text="填写信息"
+                android:text="@string/fill_information"
                 android:textSize="12sp" />
 
             <RelativeLayout
@@ -67,9 +67,9 @@
                 android:id="@+id/upload_flow_location"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginLeft="10dp"
-                android:text="位置(可选)"
-                android:textSize="12sp"/>
+                android:layout_gravity="center"
+                android:text="@string/location_optional"
+                android:textSize="12sp" />
 
             <RelativeLayout
                 android:layout_width="match_parent"
@@ -112,10 +112,10 @@
                 android:id="@+id/upload_flow_select"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginLeft="10dp"
-                android:text="选择图片"
-                android:textSize="12sp"
-                android:layout_gravity="center"/>
+                android:layout_gravity="center"
+                android:gravity="center"
+                android:text="@string/select_image"
+                android:textSize="12sp" />
 
             <RelativeLayout
                 android:layout_width="match_parent"
@@ -157,10 +157,10 @@
                 android:id="@+id/upload_flow_success"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginLeft="10dp"
-                android:text="上传成功"
-                android:textSize="12sp"
-                android:layout_gravity="center" />
+                android:layout_gravity="center"
+                android:gravity="center"
+                android:text="@string/upload_success"
+                android:textSize="12sp" />
 
             <RelativeLayout
                 android:layout_width="match_parent"
@@ -190,7 +190,7 @@
                     android:layout_marginLeft="2dp"
                     android:layout_toRightOf="@+id/upload_flow_success_icon"
                     android:background="#cdcdcd"
-                    android:visibility="gone"/>
+                    android:visibility="gone" />
             </RelativeLayout>
         </LinearLayout>
     </LinearLayout>

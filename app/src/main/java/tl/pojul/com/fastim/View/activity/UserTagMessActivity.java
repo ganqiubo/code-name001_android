@@ -105,8 +105,12 @@ public class UserTagMessActivity extends BaseActivity {
         }
         GlideUtil.setImageBitmapNoOptions(visitedUser.getPhoto().getFilePath(), ownPhoto);
         ownNickName.setText(visitedUser.getNickName());
-        ownerCertificate.setText(visitedUser.getCertificate() == 0 ? "未实名认证" : "已实名认证");
+        //ownerCertificate.setText(visitedUser.getCertificate() == 0 ? "未实名认证" : "已实名认证");
+        if(visitedUser.getOccupation() != null){
+            ownerCertificate.setText(visitedUser.getOccupation());
+        }
         ownerSex.setImageResource(visitedUser.getSex() == 0 ? R.drawable.woman : R.drawable.man);
+        age.setText((visitedUser.getAge() + "岁"));
 
         LinearLayoutManager linearLayoutManager = new LinearLayoutManager(this);
         tagMessList.setLayoutManager(linearLayoutManager);

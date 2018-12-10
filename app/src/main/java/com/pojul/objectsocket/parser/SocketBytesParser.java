@@ -21,7 +21,7 @@ import com.pojul.objectsocket.utils.Constant;
 import com.pojul.objectsocket.utils.LogUtil;
 
 /**
- * 将二进制转换成对象
+ * 将二进制换成对象转
  **/
 public class SocketBytesParser{
 	

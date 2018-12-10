@@ -8,7 +8,7 @@ public class NotifyReplyMess extends BaseMessage{
     private String replyText;
     private String tagMessTitle;
     private String replyNickName;
-    private int replyType; //0: 公开; 1: 私密
+    private int replyType; //0: 公开; 1: 密私
     private String photo;
     private int unSendCount;
 

@@ -3,16 +3,19 @@ package tl.pojul.com.fastim.View.Adapter;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.Color;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.util.TypedValue;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.webkit.WebSettings;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
@@ -60,6 +63,8 @@ import tl.pojul.com.fastim.MyApplication;
 import tl.pojul.com.fastim.R;
 import tl.pojul.com.fastim.View.activity.BaseActivity;
 import tl.pojul.com.fastim.View.activity.ChatFileDownloadActivity;
+import tl.pojul.com.fastim.View.activity.MyPageActivity;
+import tl.pojul.com.fastim.View.activity.PrivateReplyActivity;
 import tl.pojul.com.fastim.View.activity.TagMessageActivity;
 import tl.pojul.com.fastim.View.activity.TagReplyActivity;
 import tl.pojul.com.fastim.View.activity.VideoActivity;
@@ -72,20 +77,21 @@ import tl.pojul.com.fastim.util.DensityUtil;
 import tl.pojul.com.fastim.util.DialogUtil;
 import tl.pojul.com.fastim.util.GlideUtil;
 import tl.pojul.com.fastim.util.NumberUtil;
+import tl.pojul.com.fastim.util.SPUtil;
 
 public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.BaseMessageHolder> {
 
     private Context mContext;
     private List<ChatMessage> mList;
     private User user;
-    private Friend friend;
+    private User friend;
     private static final String TAG = "MessageAdapter";
     private HashMap<Integer, Integer> progressWidths = new HashMap<>();
     private MessageFilter messageFilter;
 
     private static final int START_TAG_ACTIVITY = 121;
 
-    public MessageAdapter(Context mContext, List<ChatMessage> mList, User user, Friend friend) {
+    public MessageAdapter(Context mContext, List<ChatMessage> mList, User user, User friend) {
         this.mContext = mContext;
         this.mList = mList;
         this.user = user;
@@ -246,6 +252,7 @@ public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.BaseMess
         }
         if (chatMessage instanceof CommunityMessage) {
             holder.nickName.setVisibility(View.VISIBLE);
+            //holder.nickName.setTextSize(13, TypedValue.COMPLEX_UNIT_SP);
             if (user.getUserName().equals(chatMessage.getFrom())) {
                 holder.nickName.setText(user.getNickName());
                 ((LinearLayout.LayoutParams) holder.nickName.getLayoutParams()).gravity = Gravity.RIGHT;
@@ -255,6 +262,8 @@ public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.BaseMess
                 ((LinearLayout.LayoutParams) holder.nickName.getLayoutParams()).gravity = Gravity.LEFT;
                 ((LinearLayout.LayoutParams) holder.rlMessage.getLayoutParams()).gravity = Gravity.LEFT;
             }
+            holder.nickName.setTextSize(TypedValue.COMPLEX_UNIT_SP, 12);
+            holder.nickName.setTextColor(Color.parseColor("#1296db"));
         } else {
             if (user.getUserName().equals(chatMessage.getFrom())) {
                 ((LinearLayout.LayoutParams) holder.rlMessage.getLayoutParams()).gravity = Gravity.RIGHT;
@@ -263,6 +272,16 @@ public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.BaseMess
             }
             holder.nickName.setVisibility(View.GONE);
         }
+        holder.friendPhoto.setOnClickListener(v->{
+            Bundle bundle = new Bundle();
+            bundle.putString("userName", chatMessage.getFrom());
+            ((BaseActivity)mContext).startActivity(MyPageActivity.class, bundle);
+        });
+        holder.myPhoto.setOnClickListener(v->{
+            Bundle bundle = new Bundle();
+            bundle.putString("userName", SPUtil.getInstance().getUser().getUserName());
+            ((BaseActivity)mContext).startActivity(MyPageActivity.class, bundle);
+        });
     }
 
     private void bindTextMessageHolder(TextMessageHolder holder, int position) {
@@ -457,10 +476,23 @@ public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.BaseMess
             holder.replyIv.performClick();
             holder.replyNumTv.performClick();
             Bundle bundle = new Bundle();
-            bundle.putString("TagCommuMessage", new Gson().toJson(tagMessage));
-            ((BaseActivity)mContext).startActivityForResult(TagReplyActivity.class, bundle, START_TAG_ACTIVITY);
+            if(tagMessage.getMessagePrivate() == 0 || user.getUserName().equals(tagMessage.getFrom())){
+                bundle.putString("TagCommuMessage", new Gson().toJson(tagMessage));
+                ((BaseActivity) mContext).startActivityForResult(TagReplyActivity.class, bundle, START_TAG_ACTIVITY);
+            }else{
+                bundle.putInt("chat_room_type", 4);
+                bundle.putString("friend_user_name", tagMessage.getFrom());
+                bundle.putString("tag_mess_uid", tagMessage.getMessageUid());
+                bundle.putString("tag_mess_title", tagMessage.getTitle());
+                ((BaseActivity) mContext).startActivity(PrivateReplyActivity.class, bundle);
+            }
         });
-        holder.replyNumTv.setText((tagMessage.getReplysNum() + ""));
+        if(tagMessage.getMessagePrivate() == 0 || user.getUserName().equals(tagMessage.getFrom())){
+            holder.replyNumTv.setText((tagMessage.getReplysNum() + ""));
+        }else{
+            holder.replyNumTv.setText("私信");
+        }
+
         if (tagMessage.getTitle() == null || tagMessage.getTitle().isEmpty()) {
             holder.title.setText("");
         } else {
@@ -511,6 +543,12 @@ public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.BaseMess
             holder.reply1.setText((replyMessage.getNickName() + "："));
             holder.reply1Text.setText(replyMessage.getText());
         }
+
+        holder.detail.setOnClickListener(v->{
+            Bundle bundle = new Bundle();
+            bundle.putString("TagCommuMessage", new Gson().toJson(tagMessage));
+            ((BaseActivity) mContext).startActivityForResult(TagReplyActivity.class, bundle, START_TAG_ACTIVITY);
+        });
     }
 
     private void bindDateMessageHolder(DateMessageHolder holder, int position) {

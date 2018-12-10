@@ -9,6 +9,7 @@ public class CommunityMessEntity extends BaseEntity{
     private long id;
     private String messageUid;
     private String communityName;
+    private int age;
     private int sex;
     private int certificate;
     private String nickName;
@@ -152,7 +153,16 @@ public class CommunityMessEntity extends BaseEntity{
         this.lastReply = lastReply;
     }
 
+    public int getAge() {
+        return age;
+    }
+
+    public void setAge(int age) {
+        this.age = age;
+    }
+
     @Override
+
     public String toString() {
         return new Gson().toJson(this);
     }

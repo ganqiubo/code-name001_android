@@ -78,6 +78,7 @@ public class HistoryChatConverter {
                 communityMessage.setCertificate(communityMessEntity.getCertificate());
                 communityMessage.setNickName(communityMessEntity.getNickName());
                 communityMessage.setPhoto(communityMessEntity.getPhoto());
+                communityMessage.setAge(communityMessage.getAge());
             }
             communityMessage.setIsSend(1);
             if(communityMessage instanceof TagCommuMessage){
@@ -176,9 +177,12 @@ public class HistoryChatConverter {
         if(communityMessage.getFrom().equals(user.getUserName())){
             return true;
         }
-        if(userFilter.isWhiteListEnabled() && !ArrayUtil
-                .containsStringVal(userFilter.getWhiteListNames(), user.getUserName())){
-            return false;
+        if(userFilter.isWhiteListEnabled()){
+            if(!ArrayUtil.containsStringVal(userFilter.getWhiteListNames(), user.getUserName())){
+                return false;
+            }else{
+                return true;
+            }
         }
         if(userFilter.isBlackListEnabled() && ArrayUtil.containsStringVal(
                 userFilter.getBlackListNames(), user.getUserName())){

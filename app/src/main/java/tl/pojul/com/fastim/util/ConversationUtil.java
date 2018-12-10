@@ -5,6 +5,7 @@ import android.os.Handler;
 import android.os.Looper;
 
 import com.pojul.fastIM.entity.Conversation;
+import com.pojul.fastIM.entity.User;
 import com.pojul.fastIM.message.chat.AudioMessage;
 import com.pojul.fastIM.message.chat.ChatMessage;
 import com.pojul.fastIM.message.chat.FileMessage;
@@ -104,7 +105,11 @@ public class ConversationUtil {
                 addFriendConversionAndNotify((ChatMessage) message, context);
             }
         }else if(message instanceof NotifyReplyMess){
-            conversation = conversationDao.ConversionByUid(((NotifyReplyMess)message).getReplyTagMessUid());
+            User user = SPUtil.getInstance().getUser();
+            if(user == null){
+                return;
+            }
+            conversation = conversationDao.ConversionByUid(((NotifyReplyMess)message).getReplyTagMessUid(), user.getUserName());
             if(conversation == null){
                 conversation = insertNotifyReply((NotifyReplyMess)message, conversationDao);
                 NotifyUtil.notifyChatMess(conversation, context);
@@ -155,6 +160,43 @@ public class ConversationUtil {
 
         }
         return conversation;
+    }
+
+    public static Conversation insertRepliedMess(Conversation conversation, ConversationDao conversationDao) {
+       /* conversation.setConversationName(message.getReplyNickName() + "回复了你\"" + message.getTagMessTitle() + "\"");
+        conversation.setConversationFrom(message.getFrom());
+        conversation.setConversationPhoto(message.getPhoto());
+        conversation.setConversationLastChat(message.getReplyText());
+        conversation.setConversationLastChattime(message.getSendTime());
+        conversation.setConversationOwner(message.getTo());
+        conversation.setUnreadMessage(0);
+        conversation.setConversationType(3);
+        conversation.setConversionUid(message.getReplyTagMessUid());*/
+       if(conversationDao.ConversionByUid(conversation.getConversionUid(), conversation.getConversationOwner()) == null){
+           conversationDao.insertConversation(conversation);
+       }
+       return conversation;
+    }
+
+
+    public static void updatePriTagMess(ChatMessage chatMessage, ConversationDao conversationDao, Conversation conversation) {
+        conversation.setUnreadMessage((conversation.getUnreadMessage() + 1));
+        String[] notes = chatMessage.getNote().split(";");
+        if(chatMessage.getNote().split(";").length != 4){
+            conversation.setConversationName(chatMessage.getFrom() + "回复了你");
+        }
+        conversation.setConversationFrom(chatMessage.getFrom());
+        conversation.setConversationPhoto(notes[2]);
+        conversation.setConversationLastChat(notes[1]);
+        conversation.setConversationLastChattime(chatMessage.getSendTime());
+        conversationDao.updateReply(conversation);
+
+        updateItemPrivMess(chatMessage, conversationDao);
+
+    }
+
+    private static void updateItemPrivMess(ChatMessage chatMessage, ConversationDao conversationDao) {
+
     }
 
 }

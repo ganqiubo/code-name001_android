@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">腳步圈</string>
+    <string name="chat">聊天</string>
+	<string name="upload">上傳</string>
+	<string name="community">社區</string>
+	<string name="more">更多</string>
+	<string name="conversation">會話</string>
+	<string name="friends">好友</string>
+	<string name="upload_img_note">說明：上傳圖片將保存到雲服務器上，其他用戶可以看到、評論和收藏您上傳的美圖；上傳圖片分為位置圖片和普通圖片，其中位置圖片可以顯示在對應的地圖上</string>
+	<string name="upload_process">上傳流程</string>
+	<string name="fill_information">填寫信息</string>
+	<string name="location_optional">位置(可選)</string>
+	<string name="select_image">選擇圖片</string>
+	<string name="upload_success">上傳成功</string>
+	<string name="upload_normal_image">上傳普通圖片</string>
+	<string name="upload_location_image">上傳位置圖片</string>
+	<string name="upload_task">上傳任務</string>
+	<string name="not_uploaded_task">未上傳數據</string>
+	<string name="upload_record">上傳記錄</string>
+	<string name="upload_empty">上傳記錄為空哦，趕快上傳一張美美噠圖片與別人一起分享吧</string>
+	<string name="disconnected">與服務器已斷開連接</string>
+	<string name="send_data_format_error">發送數據格式錯誤</string>
+	<string name="get_location_fail">获取位置失败</string>
+</resources>

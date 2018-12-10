@@ -57,6 +57,7 @@
     </LinearLayout>
 
     <TextView
+        android:visibility="gone"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:padding="5dp"
@@ -66,6 +67,7 @@
         android:textSize="13sp" />
 
     <LinearLayout
+        android:visibility="gone"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="1dp"
@@ -103,6 +105,7 @@
     </LinearLayout>
 
     <TextView
+        android:id="@+id/effective_note"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:padding="5dp"
@@ -112,6 +115,7 @@
         android:textSize="13sp" />
 
     <LinearLayout
+        android:id="@+id/effective_ll"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="1dp"

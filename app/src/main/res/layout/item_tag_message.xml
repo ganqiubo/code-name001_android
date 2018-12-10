@@ -27,6 +27,7 @@
             app:poly_rotation_angle="12"
             app:poly_shadow="true"
             app:poly_shadow_color="#ff000000"
+            android:clickable="true"
             app:poly_vertices="0" />
 
 
@@ -41,12 +42,13 @@
                 android:layout_height="wrap_content"
                 android:layout_marginLeft="3dp"
                 android:layout_marginTop="6dp"
+                android:paddingBottom="3dp"
                 android:layout_toRightOf="@+id/friend_photo"
                 android:padding="2dp"
                 android:singleLine="true"
                 android:text="昵称"
-                android:textColor="#666666"
-                android:textSize="16sp" />
+                android:textColor="#1296db"
+                android:textSize="13sp" />
 
 
             <RelativeLayout
@@ -77,7 +79,7 @@
                         android:ellipsize="end"
                         android:layout_toLeftOf="@+id/is_effective"
                         android:textColor="#666666"
-                        android:textSize="12sp" />
+                        android:textSize="11sp" />
 
                     <TextView
                         android:id="@+id/detail"
@@ -87,7 +89,7 @@
                         android:layout_centerVertical="true"
                         android:text="详情"
                         android:textColor="@color/press_text_green_yellow"
-                        android:padding="4dp"
+                        android:padding="5dp"
                         android:clickable="true"
                         android:textSize="10sp" />
 
@@ -153,7 +155,7 @@
                         android:layout_marginBottom="3dp"
                         android:minWidth="160dp"
                         android:text="\u3000hello, 一起jnnnmnm打怪哈哈哈哈哈哈哈哈哈哈哈hahahahahahhahahahahahahahahahah哈哈哈哈哈哈哈哈哈哈haha"
-                        android:textColor="#898989"
+                        android:textColor="#787878"
                         android:layout_marginTop="3dp"
                         android:textSize="12sp" />
 
@@ -394,6 +396,8 @@
             app:poly_rotation_angle="12"
             app:poly_shadow="true"
             app:poly_shadow_color="#ff000000"
+            android:longClickable="true"
+            android:clickable="true"
             app:poly_vertices="0" />
     </LinearLayout>
 

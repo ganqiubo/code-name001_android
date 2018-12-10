@@ -19,13 +19,14 @@
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="match_parent"
-                android:text="聊天"
+                android:text="@string/chat"
                 android:textSize="16sp"
                 android:textColor="#676767"
                 android:padding="15dp"
                 android:layout_centerHorizontal="true"/>
 
             <ImageView
+                android:visibility="gone"
                 android:layout_width="52dp"
                 android:layout_height="52dp"
                 android:layout_centerVertical="true"

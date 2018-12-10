@@ -232,6 +232,12 @@ public class MySeekBar extends View {
         rightSB.draw(canvas);
     }
 
+    public void setValue(int value){
+        float percent = value * 1.0f / max;
+        rightSB.slide(percent);
+        invalidate();
+    }
+
     @Override
     public boolean onTouchEvent(MotionEvent event) {
         MySeekBar.this.getParent().requestDisallowInterceptTouchEvent(true);

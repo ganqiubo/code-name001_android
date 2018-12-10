@@ -32,6 +32,9 @@ public class User extends BaseEntity{
 	private String educationalLevel;
 	private String graduateSchool;
 	private StringFile mypagePhoto;
+	private String imei;
+	private String numberValidTime;
+	private int canExperience;
 
 	
 	public User() {
@@ -223,5 +226,27 @@ public class User extends BaseEntity{
 		this.mypagePhoto = mypagePhoto;
 	}
 
-	
+	public String getImei() {
+		return imei;
+	}
+
+	public void setImei(String imei) {
+		this.imei = imei;
+	}
+
+	public String getNumberValidTime() {
+		return numberValidTime;
+	}
+
+	public void setNumberValidTime(String numberValidTime) {
+		this.numberValidTime = numberValidTime;
+	}
+
+	public int getCanExperience() {
+		return canExperience;
+	}
+
+	public void setCanExperience(int canExperience) {
+		this.canExperience = canExperience;
+	}
 }

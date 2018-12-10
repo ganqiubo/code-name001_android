@@ -63,8 +63,8 @@ public class UserPicsActivity extends BaseActivity {
     RelativeLayout tagReplyRl;
     private User visitedUser;
     private int num = 10;
+    private int page;
     private List<UploadPic> uploadPics = new ArrayList<>();
-    private long lastUploadPicId = -1;
     private UserPicsAdapter userPicsAdapter;
 
     @Override
@@ -91,8 +91,12 @@ public class UserPicsActivity extends BaseActivity {
 
         GlideUtil.setImageBitmapNoOptions(visitedUser.getPhoto().getFilePath(), ownPhoto);
         ownNickName.setText(visitedUser.getNickName());
-        ownerCertificate.setText(visitedUser.getCertificate() == 0 ? "未实名认证" : "已实名认证");
+        //ownerCertificate.setText(visitedUser.getCertificate() == 0 ? "未实名认证" : "已实名认证");
+        if(visitedUser.getOccupation() != null){
+            ownerCertificate.setText(visitedUser.getOccupation());
+        }
         ownerSex.setImageResource(visitedUser.getSex() == 0 ? R.drawable.woman : R.drawable.man);
+        age.setText((visitedUser.getAge() + "岁"));
 
         StaggeredGridLayoutManager staggeredGridLayoutManager = new StaggeredGridLayoutManager(2, StaggeredGridLayoutManager.VERTICAL);
         uploadPicList.setLayoutManager(staggeredGridLayoutManager);
@@ -106,7 +110,6 @@ public class UserPicsActivity extends BaseActivity {
         smartRefresh.setOnLoadmoreListener(refreshlayout -> {
             reqUploadPics();
         });
-
         reqUploadPics();
 
     }
@@ -115,10 +118,7 @@ public class UserPicsActivity extends BaseActivity {
         UserUploadPicReq req = new UserUploadPicReq();
         req.setNum(num);
         req.setUserId(visitedUser.getId());
-        if (uploadPics.size() > 0) {
-            lastUploadPicId = uploadPics.get((uploadPics.size() - 1)).getId();
-        }
-        req.setLastUploadPicId(lastUploadPicId);
+        req.setStartNum(page * num);
         DialogUtil.getInstance().showLoadingSimple(this, getWindow().getDecorView());
         new SocketRequest().request(MyApplication.ClientSocket, req, new SocketRequest.IRequest() {
             @Override
@@ -133,6 +133,7 @@ public class UserPicsActivity extends BaseActivity {
             public void onFinished(ResponseMessage mResponse) {
                 runOnUiThread(() -> {
                     DialogUtil.getInstance().dimissLoadingDialog();
+                    page = page + 1;
                     if (mResponse.getCode() == 200) {
                         List<UploadPic> tempUploadPics = ((UserUploadPicResp) mResponse).getUploadPics();
                         userPicsAdapter.addDatas(new UploadPicConverter().converter(tempUploadPics));

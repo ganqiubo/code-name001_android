@@ -18,6 +18,7 @@ import android.widget.TextView;
 import com.baidu.location.BDLocation;
 import com.google.gson.Gson;
 import com.pojul.fastIM.entity.CommunityRoom;
+import com.pojul.fastIM.entity.Conversation;
 import com.pojul.fastIM.entity.User;
 import com.pojul.fastIM.message.chat.CommunityMessage;
 import com.pojul.fastIM.message.chat.ReplyMessage;
@@ -56,6 +57,7 @@ import tl.pojul.com.fastim.dao.ConversationDao;
 import tl.pojul.com.fastim.map.baidu.LocationManager;
 import tl.pojul.com.fastim.socket.Converter.HistoryChatConverter;
 import tl.pojul.com.fastim.util.ArrayUtil;
+import tl.pojul.com.fastim.util.ConversationUtil;
 import tl.pojul.com.fastim.util.CustomTimeDown;
 import tl.pojul.com.fastim.util.DateUtil;
 import tl.pojul.com.fastim.util.DialogUtil;
@@ -115,6 +117,8 @@ public class TagReplyActivity extends BaseActivity implements CustomTimeDown.OnT
     TextView closeTagMess;
     @BindView(R.id.tags)
     TextView tags;
+    @BindView(R.id.chat)
+    TextView chat;
 
     private TagCommuMessage tagCommuMessage;
     private List<String> picPaths = new ArrayList<>();
@@ -129,6 +133,7 @@ public class TagReplyActivity extends BaseActivity implements CustomTimeDown.OnT
 
     private String lastReplyuid;
     private int resultCode = RESULT_CANCELED;
+    private ConversationDao conversationDao;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -152,7 +157,7 @@ public class TagReplyActivity extends BaseActivity implements CustomTimeDown.OnT
             finish();
             return;
         }
-        if(json != null){
+        if (json != null) {
             try {
                 tagCommuMessage = new Gson().fromJson(json, TagCommuMessage.class);
             } catch (Exception e) {
@@ -163,16 +168,16 @@ public class TagReplyActivity extends BaseActivity implements CustomTimeDown.OnT
             }
         }
 
-        if(tagCommuMessage != null){
+        if (tagCommuMessage != null) {
             initView();
         }
 
-        if(tagCommuMessage != null){
+        if (tagCommuMessage != null) {
             getChatRoom();
             reqReplys(true);
             checkEffictive();
             reqMessage();
-        }else if(tagMessUid != null){
+        } else if (tagMessUid != null) {
             getTagMess(tagMessUid);
         }
     }
@@ -206,12 +211,19 @@ public class TagReplyActivity extends BaseActivity implements CustomTimeDown.OnT
         smartRefresh.setEnableRefresh(false);
         smartRefresh.setPrimaryColors(Color.parseColor("#898989"));
         smartRefresh.setEnableLoadmore(true);
-        smartRefresh.setOnLoadmoreListener(new OnLoadmoreListener() {
-            @Override
-            public void onLoadmore(RefreshLayout refreshlayout) {
-                reqReplys(false);
+        smartRefresh.setOnLoadmoreListener(refreshlayout -> reqReplys(false));
+
+
+        /*if(tagCommuMessage.getMessagePrivate() == 1){
+            input1Rl.setVisibility(View.GONE);
+            smartRefresh.setEnableLoadmore(false);
+            if(tagCommuMessage.getIsEffective() == 1 || user.getUserName().equals(tagCommuMessage.getFrom())){
+                chat.setVisibility(View.GONE);
             }
-        });
+            return;
+        }else{
+            chat.setVisibility(View.GONE);
+        }*/
 
         customTimeDown = new CustomTimeDown(Long.MAX_VALUE, 30 * 1000);
         customTimeDown.setOnTimeDownListener(this);
@@ -220,7 +232,7 @@ public class TagReplyActivity extends BaseActivity implements CustomTimeDown.OnT
         MyApplication.getApplication().registerSendMessage(iSendMessage);
         MyApplication.getApplication().registerReceiveMessage(iReceiveMessage);
 
-        new ConversationDao().updateUnReadNumByUid(tagCommuMessage.getMessageUid() ,0);
+        new ConversationDao().updateUnReadNumByUid(tagCommuMessage.getMessageUid(), 0);
     }
 
     private void getTagMess(String tagMessUid) {
@@ -230,7 +242,7 @@ public class TagReplyActivity extends BaseActivity implements CustomTimeDown.OnT
         new SocketRequest().request(MyApplication.ClientSocket, req, new SocketRequest.IRequest() {
             @Override
             public void onError(String msg) {
-                runOnUiThread(()->{
+                runOnUiThread(() -> {
                     DialogUtil.getInstance().dimissLoadingDialog();
                     showShortToas(msg);
                     finish();
@@ -239,12 +251,12 @@ public class TagReplyActivity extends BaseActivity implements CustomTimeDown.OnT
 
             @Override
             public void onFinished(ResponseMessage mResponse) {
-                runOnUiThread(()->{
+                runOnUiThread(() -> {
                     DialogUtil.getInstance().dimissLoadingDialog();
-                    if(mResponse.getCode() == 200){
+                    if (mResponse.getCode() == 200) {
                         CommunityMessage communityMessage = new HistoryChatConverter()
-                                .converCommunityMess(((GetTagMessByUidResp)mResponse).getCommunityMessEntity(), true);
-                        if(communityMessage == null || !(communityMessage instanceof TagCommuMessage)){
+                                .converCommunityMess(((GetTagMessByUidResp) mResponse).getCommunityMessEntity(), true);
+                        if (communityMessage == null || !(communityMessage instanceof TagCommuMessage)) {
                             showShortToas("数据错误");
                             finish();
                             return;
@@ -254,7 +266,7 @@ public class TagReplyActivity extends BaseActivity implements CustomTimeDown.OnT
                         reqReplys(true);
                         reqMessage();
                         initView();
-                    }else{
+                    } else {
                         showShortToas(mResponse.getMessage());
                         finish();
                     }
@@ -268,14 +280,15 @@ public class TagReplyActivity extends BaseActivity implements CustomTimeDown.OnT
         checkTagEffictiveReq.setTagMessUid(tagCommuMessage.getMessageUid());
         new SocketRequest().request(MyApplication.ClientSocket, checkTagEffictiveReq, new SocketRequest.IRequest() {
             @Override
-            public void onError(String msg) {}
+            public void onError(String msg) {
+            }
 
             @Override
             public void onFinished(ResponseMessage mResponse) {
                 runOnUiThread(() -> {
-                    if(mResponse.getCode() == 200){
-                        int checkEffictive = ((CheckTagEffictiveResp)mResponse).getEffictive();
-                        if(checkEffictive != tagCommuMessage.getIsEffective()){
+                    if (mResponse.getCode() == 200) {
+                        int checkEffictive = ((CheckTagEffictiveResp) mResponse).getEffictive();
+                        if (checkEffictive != tagCommuMessage.getIsEffective()) {
                             tagCommuMessage.setIsEffective(checkEffictive);
                             resultCode = RESULT_OK;
                             updateEffictiveUi();
@@ -287,14 +300,14 @@ public class TagReplyActivity extends BaseActivity implements CustomTimeDown.OnT
     }
 
     private void updateEffictiveUi() {
-        if(tagCommuMessage.getIsEffective() == 1){
+        if (tagCommuMessage.getIsEffective() == 1) {
             closeTagMess.setClickable(false);
             closeTagMess.setText("已失效");
-        }else{
-            if(user.getUserName().equals(tagCommuMessage.getFrom())){
+        } else {
+            if (user.getUserName().equals(tagCommuMessage.getFrom())) {
                 closeTagMess.setText("关闭该消息");
                 closeTagMess.setClickable(true);
-            }else{
+            } else {
                 closeTagMess.setText("有效");
                 closeTagMess.setClickable(false);
             }
@@ -302,6 +315,9 @@ public class TagReplyActivity extends BaseActivity implements CustomTimeDown.OnT
     }
 
     private void reqMessage() {
+        if (tagCommuMessage.getMessagePrivate() == 1) {
+            return;
+        }
         ReplyMessReq replyMessReq = new ReplyMessReq();
         replyMessReq.setReplyMessUid(tagCommuMessage.getMessageUid());
         replyMessReq.setReqCode(1);
@@ -322,6 +338,11 @@ public class TagReplyActivity extends BaseActivity implements CustomTimeDown.OnT
     }
 
     private void reqReplys(boolean newStart) {
+        if (tagCommuMessage.getMessagePrivate() == 1) {
+            smartRefresh.finishLoadmore();
+            DialogUtil.getInstance().dimissLoadingDialog();
+            return;
+        }
         GetReplysReq getReplysReq = new GetReplysReq();
         if (newStart) {
             lastReplyuid = null;
@@ -356,7 +377,7 @@ public class TagReplyActivity extends BaseActivity implements CustomTimeDown.OnT
                         }
                     } else {
                         smartRefresh.setEnableLoadmore(false);
-                        showShortToas(mResponse.getMessage());
+                        //showShortToas(mResponse.getMessage());
                     }
                 });
             }
@@ -392,7 +413,7 @@ public class TagReplyActivity extends BaseActivity implements CustomTimeDown.OnT
         });
     }
 
-    @OnClick({R.id.back, R.id.own_photo, R.id.send, R.id.close_tag_mess})
+    @OnClick({R.id.back, R.id.own_photo, R.id.send, R.id.close_tag_mess, R.id.chat})
     public void onViewClicked(View view) {
         switch (view.getId()) {
             case R.id.back:
@@ -411,10 +432,18 @@ public class TagReplyActivity extends BaseActivity implements CustomTimeDown.OnT
                 DialogUtil.getInstance().showPromptDialog(TagReplyActivity.this, "确定关闭该消息",
                         "关闭该消息后将不再提供与该消息相关的回复提醒功能");
                 DialogUtil.getInstance().setDialogClick(str -> {
-                    if("确定".equals(str)){
+                    if ("确定".equals(str)) {
                         closeTagmess();
                     }
                 });
+                break;
+            case R.id.chat:
+                Bundle bundle = new Bundle();
+                bundle.putInt("chat_room_type", 4);
+                bundle.putString("friend_user_name", tagCommuMessage.getFrom());
+                bundle.putString("tag_mess_uid", tagCommuMessage.getMessageUid());
+                bundle.putString("tag_mess_title", tagCommuMessage.getTitle());
+                startActivity(PrivateReplyActivity.class, bundle);
                 break;
         }
     }
@@ -426,7 +455,7 @@ public class TagReplyActivity extends BaseActivity implements CustomTimeDown.OnT
         new SocketRequest().request(MyApplication.ClientSocket, closeTagMessReq, new SocketRequest.IRequest() {
             @Override
             public void onError(String msg) {
-                runOnUiThread(()->{
+                runOnUiThread(() -> {
                     showShortToas(msg);
                     DialogUtil.getInstance().dimissLoadingDialog();
                 });
@@ -434,14 +463,14 @@ public class TagReplyActivity extends BaseActivity implements CustomTimeDown.OnT
 
             @Override
             public void onFinished(ResponseMessage mResponse) {
-                runOnUiThread(()->{
+                runOnUiThread(() -> {
                     DialogUtil.getInstance().dimissLoadingDialog();
-                    if(mResponse.getCode() == 200){
+                    if (mResponse.getCode() == 200) {
                         closeTagMess.setText("已失效");
                         closeTagMess.setClickable(false);
                         tagCommuMessage.setIsEffective(1);
                         resultCode = RESULT_OK;
-                    }else{
+                    } else {
                         showShortToas(mResponse.getMessage());
                     }
                 });
@@ -459,17 +488,17 @@ public class TagReplyActivity extends BaseActivity implements CustomTimeDown.OnT
         @Override
         public void onFail(String msg) {
             LocationManager.getInstance().unRegisterLocationListener(iLocationListener);
-            showShortToas("位置获取失败");
+            showShortToas(getString(R.string.disconnected));
         }
     };
 
     private void sendReplyMessage(String text) {
         if (!MyApplication.getApplication().isConnected()) {
-            showShortToas("与服务器已断开连接");
+            showShortToas(getString(R.string.disconnected));
             return;
         }
         if (mBDLocation == null) {
-            showShortToas("获取不到位置信息");
+            showShortToas(getString(R.string.get_location_fail));
             return;
         }
         if (communityRoom == null) {
@@ -491,19 +520,35 @@ public class TagReplyActivity extends BaseActivity implements CustomTimeDown.OnT
         MyApplication.ClientSocket.sendData(replyMessage);
         replyAdapter.addData(replyMessage);
         replyList.smoothScrollToPosition(1);
+
+        if(!user.getUserName().equals(tagCommuMessage.getFrom()) && conversationDao == null){
+            conversationDao = new ConversationDao();
+            Conversation conversation = new Conversation();
+            conversation.setConversationName("回复" + tagCommuMessage.getNickName() + "\"" + tagCommuMessage.getTitle() + "\"");
+            conversation.setConversationFrom(tagCommuMessage.getFrom());
+            conversation.setConversationPhoto(tagCommuMessage.getPhoto().getFilePath());
+            conversation.setConversationLastChat(tagCommuMessage.getText());
+            conversation.setConversationLastChattime(DateUtil.getFormatDate());
+            conversation.setConversationOwner(user.getUserName());
+            conversation.setUnreadMessage(0);
+            conversation.setConversationType(3);
+            conversation.setConversionUid(tagCommuMessage.getMessageUid());
+            ConversationUtil.insertRepliedMess(conversation, conversationDao);
+        }
+
     }
 
     public void sendSubReplyMessage(String subText, String replyUid) {
         if (!MyApplication.getApplication().isConnected()) {
-            showShortToas("与服务器已断开连接");
+            showShortToas(getString(R.string.disconnected));
             return;
         }
         if (mBDLocation == null) {
-            showShortToas("获取不到位置信息");
+            showShortToas(getString(R.string.get_location_fail));
             return;
         }
         if (communityRoom == null) {
-            showShortToas("获取社区信息失败");
+            //showShortToas("获取社区信息失败");
             getChatRoom();
             return;
         }
@@ -520,7 +565,7 @@ public class TagReplyActivity extends BaseActivity implements CustomTimeDown.OnT
         replyAdapter.addSubData(subReplyMessage);
     }
 
-    private void finishResult(){
+    private void finishResult() {
         Intent intent = new Intent();
         intent.putExtra("tagMessUid", tagCommuMessage.getMessageUid());
         intent.putExtra("isEffictive", tagCommuMessage.getIsEffective());
@@ -557,7 +602,7 @@ public class TagReplyActivity extends BaseActivity implements CustomTimeDown.OnT
         public void receiveMessage(BaseMessage message) {
             if (message instanceof ReplyMessage) {
                 replyAdapter.addData((ReplyMessage) message);
-                if(MyApplication.startActivityCount <= 0){
+                if (MyApplication.startActivityCount <= 0) {
                     NotifyUtil.notifyChatMess("回复消息",
                             (message.getFrom() + "回复了你\"" + tagCommuMessage.getTitle() + "\""),
                             ((ReplyMessage) message).getText(),
@@ -568,7 +613,7 @@ public class TagReplyActivity extends BaseActivity implements CustomTimeDown.OnT
             if (message instanceof SubReplyMessage) {
                 replyAdapter.addSubData((SubReplyMessage) message);
             }
-            if(message instanceof TagCloseMessage){
+            if (message instanceof TagCloseMessage) {
                 closeTagMess.setText("已失效");
                 closeTagMess.setClickable(false);
                 tagCommuMessage.setIsEffective(1);
@@ -611,6 +656,9 @@ public class TagReplyActivity extends BaseActivity implements CustomTimeDown.OnT
 
     @Override
     public void onTick(long l) {
+        if(tagCommuMessage.getMessagePrivate() == 1){
+            return;
+        }
         LocationManager.getInstance().registerLocationListener(iLocationListener);
     }
 
@@ -622,7 +670,7 @@ public class TagReplyActivity extends BaseActivity implements CustomTimeDown.OnT
     @Override
     protected void onDestroy() {
         DialogUtil.getInstance().dimissLoadingDialog();
-        if(tagCommuMessage != null){
+        if (tagCommuMessage != null) {
             ReplyMessReq replyMessReq = new ReplyMessReq();
             replyMessReq.setReplyMessUid(tagCommuMessage.getMessageUid());
             replyMessReq.setReqCode(2);
@@ -636,12 +684,12 @@ public class TagReplyActivity extends BaseActivity implements CustomTimeDown.OnT
                 }
             });
         }
-        try{
+        try {
             LocationManager.getInstance().unRegisterLocationListener(iLocationListener);
             MyApplication.getApplication().unRegisterSendMessage(iSendMessage);
             MyApplication.getApplication().unRegisterReceiveMessage(iReceiveMessage);
             MyApplication.currentReplyActivity = "";
-        }catch (Exception e){
+        } catch (Exception e) {
             replyAdapter.onDestroy();
             customTimeDown.cancel();
             customTimeDown = null;

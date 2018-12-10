@@ -109,8 +109,8 @@ public class ClientSocket {
 			try {
 				stopRec();
 				stopSend();
-				mSocket.shutdownInput();
-				mSocket.shutdownOutput();
+				/*mSocket.shutdownInput();
+				mSocket.shutdownOutput();*/
 				mSocket.close();
 			} catch (Exception e) {
 				// TODO Auto-generated catch block

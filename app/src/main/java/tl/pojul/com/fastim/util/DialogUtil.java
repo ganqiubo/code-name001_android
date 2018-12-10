@@ -3,22 +3,24 @@ package tl.pojul.com.fastim.util;
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.os.Handler;
 import android.os.Looper;
 import android.support.annotation.Nullable;
+import android.text.InputFilter;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.MediaController;
 import android.widget.PopupWindow;
 import android.widget.ProgressBar;
+import android.widget.RadioButton;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -32,8 +34,9 @@ import com.bumptech.glide.request.RequestOptions;
 import com.bumptech.glide.request.target.Target;
 import com.github.chrisbanes.photoview.PhotoView;
 import com.pojul.fastIM.entity.MessageFilter;
-import com.pojul.fastIM.entity.Pic;
 import com.pojul.fastIM.entity.PicFilter;
+import com.pojul.fastIM.entity.UserFilter;
+import com.pojul.fastIM.entity.UserSelectFilter;
 import com.pojul.fastIM.message.chat.ChatMessage;
 import com.pojul.fastIM.message.chat.NetPicMessage;
 import com.pojul.fastIM.message.chat.PicMessage;
@@ -49,6 +52,8 @@ import tl.pojul.com.fastim.View.widget.MessageFilterView;
 import tl.pojul.com.fastim.View.widget.PicFilterView;
 import tl.pojul.com.fastim.View.widget.ReportView;
 import tl.pojul.com.fastim.View.widget.ShapedImageView;
+import tl.pojul.com.fastim.View.widget.UserFilterView;
+import tl.pojul.com.fastim.View.widget.UserSelectView;
 
 public class DialogUtil {
 
@@ -71,6 +76,9 @@ public class DialogUtil {
     private PopupWindow loadingSimplePop;
     private PicFilterClick picFilterClick;
     private PopupWindow picFilterPop;
+    private PopupWindow userSelectFilterPop;
+    private UserSelectFilterPopClick userSelectFilterPopClick;
+    public AlertDialog suggestDialog;
 
     public static DialogUtil getInstance() {
         if (mDialogUtil == null) {
@@ -95,22 +103,36 @@ public class DialogUtil {
     }
 
     public void dimissLoadingDialog() {
-        if (mLoadingDialog != null) {
-            mLoadingDialog.dismiss();
+        try{
+            if (mLoadingDialog != null) {
+                mLoadingDialog.dismiss();
+            }
+            if (loadingSimplePop != null) {
+                loadingSimplePop.dismiss();
+            }
+        }catch(Exception e){}
+    }
+
+    public boolean isShowLoadingDialog(){
+        if(mLoadingDialog != null && mLoadingDialog.isShowing()){
+            return true;
         }
-        if (loadingSimplePop != null) {
-            loadingSimplePop.dismiss();
+        if(loadingSimplePop != null && loadingSimplePop.isShowing()){
+            return true;
         }
+        return false;
     }
 
     public void showLoadingSimple(Context context, View rootView) {
-        View popView = LayoutInflater.from(context).inflate(R.layout.dialog_loading_simple, null);
-        loadingSimplePop = new PopupWindow(popView, ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT);
-        loadingSimplePop.setBackgroundDrawable(new BitmapDrawable());
-        loadingSimplePop.setFocusable(false);
-        // 设置可以触摸弹出框以外的区域
-        loadingSimplePop.setOutsideTouchable(false);
-        loadingSimplePop.showAtLocation(rootView, Gravity.CENTER, 0, 0);
+        try{
+            View popView = LayoutInflater.from(context).inflate(R.layout.dialog_loading_simple, null);
+            loadingSimplePop = new PopupWindow(popView, ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT);
+            loadingSimplePop.setBackgroundDrawable(new BitmapDrawable());
+            loadingSimplePop.setFocusable(false);
+            // 设置可以触摸弹出框以外的区域
+            loadingSimplePop.setOutsideTouchable(false);
+            loadingSimplePop.showAtLocation(rootView, Gravity.CENTER, 0, 0);
+        }catch(Exception e){}
     }
 
     public void showDetailImgDialogPop(Context context, ChatMessage message, ImageView rawView, int popType) {
@@ -380,7 +402,7 @@ public class DialogUtil {
         promptDialog.show();
     }
 
-    public void showScreenPop(Context context, View showDown, MessageFilter messageFilter) {
+    public void showScreenPop(Context context, View showDown, MessageFilter messageFilter, boolean hideEffective) {
         LinearLayout popView = (LinearLayout) LayoutInflater.from(context).inflate(R.layout.dialog_screen_pop, null);
         screenPop = new PopupWindow(popView, ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT);
         screenPop.setBackgroundDrawable(new BitmapDrawable());
@@ -390,6 +412,9 @@ public class DialogUtil {
         MessageFilterView messageFilterView = popView.findViewById(R.id.message_filter_view);
         new Handler(Looper.getMainLooper()).postDelayed(() -> {
             messageFilterView.setFilter(messageFilter);
+            if(hideEffective){
+                messageFilterView.hideEffective();
+            }
         }, 100);
         popView.findViewById(R.id.ok).setOnClickListener(v -> {
             if (screenPopClick != null) {
@@ -438,6 +463,36 @@ public class DialogUtil {
         });
     }
 
+    public void showSuggestDialog(Context context){
+        AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(context);
+        View view = View.inflate(context, R.layout.dialog_suggest, null);
+        EditText editText = view.findViewById(R.id.content);
+        dialogBuilder.setView(view);
+        suggestDialog = dialogBuilder.create();
+        suggestDialog.show();
+        view.findViewById(R.id.left_button).setOnClickListener(v->{
+            if(editText.getText().toString().isEmpty()){
+                Toast.makeText(context, "内容不能为空", Toast.LENGTH_SHORT).show();
+                return;
+            }
+            if(dialogClick != null){
+                dialogClick.onclick(editText.getText().toString());
+            }
+        });
+
+        view.findViewById(R.id.right_button).setOnClickListener(v->{
+            setDialogClick(null);
+            suggestDialog.dismiss();
+        });
+    }
+
+    public void dimissSuggestDialog(){
+        if(suggestDialog != null && suggestDialog.isShowing()){
+            setDialogClick(null);
+            suggestDialog.dismiss();
+        }
+    }
+
     public void showSubReplyDialog(Context context, View view, String nickName) {
         View popView = LayoutInflater.from(context).inflate(R.layout.dialog_subreply, null);
         PopupWindow subReplyPop = new PopupWindow(popView, ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
@@ -471,6 +526,35 @@ public class DialogUtil {
         ((TextView)view.findViewById(R.id.title)).setText(title);
         ((TextView)view.findViewById(R.id.note)).setText(note);
         EditText editText = view.findViewById(R.id.content);
+        dialogBuilder.setView(view);
+        AlertDialog dialog = dialogBuilder.create();
+        dialog.show();
+        view.findViewById(R.id.left_button).setOnClickListener(v->{
+            if(editText.getText().toString().isEmpty()){
+                Toast.makeText(context, "内容不能为空", Toast.LENGTH_SHORT).show();
+                return;
+            }
+            if(dialogClick != null){
+                dialogClick.onclick(editText.getText().toString());
+                setDialogClick(null);
+                dialog.dismiss();
+            }
+        });
+
+        view.findViewById(R.id.right_button).setOnClickListener(v->{
+            setDialogClick(null);
+            dialog.dismiss();
+        });
+    }
+
+    public void showEditDialog(Context context, String title, String note, int maxLen){
+        AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(context);
+        View view = View.inflate(context, R.layout.dialog_edit, null);
+        ((TextView)view.findViewById(R.id.title)).setText(title);
+        ((TextView)view.findViewById(R.id.note)).setText(note);
+        EditText editText = view.findViewById(R.id.content);
+        InputFilter[] filters = {new InputFilter.LengthFilter(maxLen)};
+        editText.setFilters(filters);
         dialogBuilder.setView(view);
         AlertDialog dialog = dialogBuilder.create();
         dialog.show();
@@ -529,6 +613,148 @@ public class DialogUtil {
         return false;
     }
 
+    public void showUserFilterDialog(Context context, View showDown, UserSelectFilter filter){
+        LinearLayout popView = (LinearLayout) LayoutInflater.from(context).inflate(R.layout.dialog_user_select, null);
+        userSelectFilterPop = new PopupWindow(popView, ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT);
+        userSelectFilterPop.setBackgroundDrawable(new BitmapDrawable());
+        userSelectFilterPop.setFocusable(true);
+        // 设置可以触摸弹出框以外的区域
+        userSelectFilterPop.setOutsideTouchable(false);
+        UserSelectView userSelectView = popView.findViewById(R.id.user_select_view);
+        new Handler(Looper.getMainLooper()).postDelayed(() -> {
+            userSelectView.setUserSelectFilter(filter);
+        }, 100);
+        popView.findViewById(R.id.ok).setOnClickListener(v -> {
+            if (userSelectFilterPopClick != null) {
+                userSelectFilterPopClick.onclick(userSelectView.getFilter());
+            }
+            setUserSelectFilterPopClick(null);
+            userSelectFilterPop.dismiss();
+        });
+        popView.findViewById(R.id.cancel).setOnClickListener(v -> {
+            setUserSelectFilterPopClick(null);
+            userSelectFilterPop.dismiss();
+        });
+        userSelectFilterPop.showAsDropDown(showDown, 0, 0);
+    }
+
+    public boolean isUserSelectFilterPopShow() {
+        if (userSelectFilterPop != null && userSelectFilterPop.isShowing()) {
+            return true;
+        }
+        return false;
+    }
+
+
+    public void showAddFriendDialog(Context context, String titleStr){
+        AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(context);
+        View view = View.inflate(context, R.layout.dialog_add_friend_says, null);
+        EditText editText = view.findViewById(R.id.content);
+        TextView title = view.findViewById(R.id.title);
+        title.setText(titleStr);
+        dialogBuilder.setView(view);
+        AlertDialog dialog = dialogBuilder.create();
+        dialog.show();
+        view.findViewById(R.id.left_button).setOnClickListener(v->{
+            if(dialogClick != null){
+                dialogClick.onclick(editText.getText().toString());
+                setDialogClick(null);
+                dialog.dismiss();
+            }
+        });
+
+        view.findViewById(R.id.right_button).setOnClickListener(v->{
+            setDialogClick(null);
+            dialog.dismiss();
+        });
+    }
+
+    public void showBirthdayTypeDialog(Context context){
+        AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(context);
+        View view = View.inflate(context, R.layout.dialog_birthday_type, null);
+        RadioButton lunar = view.findViewById(R.id.birthday_lunar);
+        RadioButton gregorian = view.findViewById(R.id.birthday_gregorian);
+        lunar.setChecked(true);
+        dialogBuilder.setView(view);
+        AlertDialog dialog = dialogBuilder.create();
+        dialog.show();
+        view.findViewById(R.id.left_button).setOnClickListener(v->{
+            if(dialogClick != null){
+                if(lunar.isChecked()){
+                    dialogClick.onclick("农历");
+                }else{
+                    dialogClick.onclick("阳历");
+                }
+                setDialogClick(null);
+                dialog.dismiss();
+            }
+        });
+
+        view.findViewById(R.id.right_button).setOnClickListener(v->{
+            setDialogClick(null);
+            dialog.dismiss();
+        });
+    }
+
+    public void showSexDialog(Context context){
+        AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(context);
+        View view = View.inflate(context, R.layout.dialog_sex, null);
+        RadioButton man = view.findViewById(R.id.sex_man);
+        RadioButton woman = view.findViewById(R.id.sex_woman);
+        man.setChecked(true);
+        dialogBuilder.setView(view);
+        AlertDialog dialog = dialogBuilder.create();
+        dialog.show();
+        view.findViewById(R.id.left_button).setOnClickListener(v->{
+            if(dialogClick != null){
+                if(man.isChecked()){
+                    dialogClick.onclick("男生");
+                }else{
+                    dialogClick.onclick("女生");
+                }
+                setDialogClick(null);
+                dialog.dismiss();
+            }
+        });
+
+        view.findViewById(R.id.right_button).setOnClickListener(v->{
+            setDialogClick(null);
+            dialog.dismiss();
+        });
+    }
+
+    public void showKeyguardGalleryDialog(Context context, long validStatus){
+        AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(context);
+        View view = View.inflate(context, R.layout.dialog_keyguard_gallery, null);
+        Button gotoPay = view.findViewById(R.id.goto_pay);
+        Button experience = view.findViewById(R.id.experience);
+        if(validStatus == 1){
+            experience.setVisibility(View.GONE);
+            view.findViewById(R.id.line2).setVisibility(View.GONE);
+        }
+        dialogBuilder.setView(view);
+        AlertDialog dialog = dialogBuilder.create();
+        dialog.show();
+        view.findViewById(R.id.close).setOnClickListener(v->{
+            setDialogClick(null);
+            dialog.dismiss();
+        });
+        gotoPay.setOnClickListener(v->{
+            if(dialogClick != null){
+                dialogClick.onclick("gotopay");
+            }
+            setDialogClick(null);
+            dialog.dismiss();
+        });
+        experience.setOnClickListener(v->{
+            if(dialogClick != null){
+                dialogClick.onclick("experience");
+            }
+            setDialogClick(null);
+            dialog.dismiss();
+        });
+    }
+
     public void setDialogClick(DialogClick dialogClick) {
         this.dialogClick = dialogClick;
     }
@@ -553,6 +779,10 @@ public class DialogUtil {
         this.screenPopClick = screenPopClick;
     }
 
+    public void setUserSelectFilterPopClick(UserSelectFilterPopClick userSelectFilterPopClick) {
+        this.userSelectFilterPopClick = userSelectFilterPopClick;
+    }
+
     public void setPicFilterClick(PicFilterClick picFilterClick) {
         this.picFilterClick = picFilterClick;
     }
@@ -567,6 +797,10 @@ public class DialogUtil {
 
     public interface PicFilterClick {
         void onclick(PicFilter picFilter);
+    }
+
+    public interface UserSelectFilterPopClick {
+        void onclick(UserSelectFilter userSelectFilter);
     }
 
 }

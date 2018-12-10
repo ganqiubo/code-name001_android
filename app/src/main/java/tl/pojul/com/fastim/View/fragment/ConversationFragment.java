@@ -141,7 +141,10 @@ public class ConversationFragment extends BaseFragment {
 
             if (direction == SwipeMenuRecyclerView.RIGHT_DIRECTION) {
                 //Toast.makeText(getContext(), "list第" + adapterPosition + "; 右侧菜单第" + menuPosition, Toast.LENGTH_SHORT).show();
-                showLongToas("list第" + adapterPosition + "; 右侧菜单第" + menuPosition);
+                //showLongToas("list第" + adapterPosition + "; 右侧菜单第" + menuPosition);
+                if(menuPosition == 0){
+                    conversationAdapter.deleteItem(adapterPosition);
+                }
             }
         }
     };
@@ -155,7 +158,7 @@ public class ConversationFragment extends BaseFragment {
                     return;
                 }
                 conversationAdapter.receiveMessage(message);
-                showLongToas("iReceiveMessage--->" + message.getFrom());
+                //showLongToas("iReceiveMessage--->" + message.getFrom());
             }
         }
     };

@@ -14,8 +14,9 @@ public class Conversation extends BaseEntity {
     private String conversationLastChattime;
     private String conversationOwner;
 	private int unreadMessage;
-	private int conversationType;
+	private int conversationType; //3: 公开回复消息
 	private String conversionUid = "";
+	private boolean hasUnreadMessage;
 	
 	public Conversation() {
 		super();
@@ -81,6 +82,14 @@ public class Conversation extends BaseEntity {
 
 	public void setConversionUid(String conversionUid) {
 		this.conversionUid = conversionUid;
+	}
+
+	public boolean isHasUnreadMessage() {
+		return hasUnreadMessage;
+	}
+
+	public void setHasUnreadMessage(boolean hasUnreadMessage) {
+		this.hasUnreadMessage = hasUnreadMessage;
 	}
 
 	@Override

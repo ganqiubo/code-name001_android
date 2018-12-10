@@ -6,6 +6,8 @@ import android.content.SharedPreferences;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.reflect.TypeToken;
+import com.pojul.fastIM.entity.ExtendUploadPic;
+import com.pojul.fastIM.entity.PicFilter;
 import com.pojul.fastIM.entity.User;
 import com.pojul.fastIM.entity.WhiteBlack;
 import com.pojul.objectsocket.utils.UidUtil;
@@ -21,6 +23,11 @@ public class SPUtil {
     private static SharedPreferences mPreferences;
     private static SharedPreferences.Editor mEditor;
     private static SPUtil mSPUtil;
+
+    public static String NOTIFY_TAGMESS_REPLY = "notify_tagmess_reply";
+    public static String VIBRATE_TAGMESS_REPLY = "vibrate_tagmess_reply";
+    public static String NOTIFY_ADDFRIEND_REQ = "notify_addfriedd_req";
+    public static String SHOW_KEYGUARD_GALLERY = "show_keyguard_gallery";
 
     public SPUtil(Context context) {
         mPreferences =  context.getSharedPreferences("SPUtil" ,Context.MODE_PRIVATE);
@@ -166,6 +173,62 @@ public class SPUtil {
         int start1 = (int)(user.getUserName().length() * 0.35f) * 16;
         int start2 = user.getUserName().length() * 16;
         return ( arrays.substring(start2, (start2 + 16)) + arrays.substring(start1, (start1 + 16)) );
+    }
+
+    public void clearArrays(){
+        mEditor.putString("arrays", "");
+        mEditor.commit();
+    }
+
+    public PicFilter getLockSctreenFiler(){
+        String json = mPreferences.getString("lock_screen_filter","");
+        try {
+            PicFilter picFilter = new Gson().fromJson(json, PicFilter.class);
+            return picFilter;
+        }catch(Exception e){return null;}
+    }
+
+    public void saveLockSctreenFiler(PicFilter picFilter){
+        try{
+            String json = new Gson().toJson(picFilter);
+            mEditor.putString("lock_screen_filter", json);
+            mEditor.commit();
+        }catch(Exception e){}
+    }
+
+    public List<ExtendUploadPic> getLastLockPics(){
+        String json = mPreferences.getString("last_lock_pics","");
+        try {
+            List<ExtendUploadPic> pics = new Gson().fromJson(json, new TypeToken<ArrayList<ExtendUploadPic>>(){}.getType());
+            return pics;
+        }catch(Exception e){return null;}
+    }
+
+    public void saveLastLockPics(List<ExtendUploadPic> pics){
+        try{
+            String json = new Gson().toJson(pics);
+            mEditor.putString("last_lock_pics", json);
+            mEditor.commit();
+        }catch(Exception e){}
+    }
+
+    public int getInt(String key, int defaultVal){
+        return mPreferences.getInt(key, defaultVal);
+    }
+
+    public void putInt(String key, int value){
+        mEditor.putInt(key, value);
+        mEditor.commit();
+    }
+
+    public String getExperienceValidTime(){
+        String validDate = mPreferences.getString("ExperienceValidTime",null);
+        return validDate;
+    }
+
+    public void putExperienceValidTime(String validDate){
+        mEditor.putString("ExperienceValidTime", validDate);
+        mEditor.commit();
     }
 
 }

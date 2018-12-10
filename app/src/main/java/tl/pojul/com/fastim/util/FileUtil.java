@@ -116,7 +116,7 @@ public class FileUtil {
 
         String type="*/*";
         String fName = file.getName();
-        int dotIndex = fName.lastIndexOf(".");  //获取后缀名前的分隔符"."在fName中的位置。
+        int dotIndex = fName.lastIndexOf(".");  //获取后缀名前符的分隔"."在fName中的位置。
         if(dotIndex < 0){
             return type;
         }

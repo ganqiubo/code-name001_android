@@ -37,6 +37,7 @@ import tl.pojul.com.fastim.MyApplication;
 import tl.pojul.com.fastim.R;
 import tl.pojul.com.fastim.View.activity.BaseActivity;
 import tl.pojul.com.fastim.View.activity.GalleryActivity;
+import tl.pojul.com.fastim.View.activity.PrivateReplyActivity;
 import tl.pojul.com.fastim.View.activity.TagReplyActivity;
 import tl.pojul.com.fastim.View.widget.JustifyTextView;
 import tl.pojul.com.fastim.View.widget.PolygonImage.view.PolygonImageView;
@@ -45,6 +46,7 @@ import tl.pojul.com.fastim.util.ArrayUtil;
 import tl.pojul.com.fastim.util.DateUtil;
 import tl.pojul.com.fastim.util.DialogUtil;
 import tl.pojul.com.fastim.util.GlideUtil;
+import tl.pojul.com.fastim.util.MyDistanceUtil;
 import tl.pojul.com.fastim.util.NumberUtil;
 import tl.pojul.com.fastim.util.SPUtil;
 
@@ -86,7 +88,8 @@ public class TagMessAdapter extends RecyclerView.Adapter<TagMessAdapter.ViewHold
 
         GlideUtil.setImageBitmapNoOptions(tagMessage.getPhoto().getFilePath(), holder.photo);
         holder.nickName.setText(tagMessage.getNickName());
-        holder.certificat.setText(tagMessage.getCertificate() == 0 ? "未实名认证" : "已实名认证");
+        holder.age.setText((tagMessage.getAge() + "岁"));
+        holder.distance.setText(MyDistanceUtil.getDisttanceStr(tagMessage.getDistance()));
         holder.sex.setImageResource(tagMessage.getUserSex() == 0?R.drawable.woman:R.drawable.man);
 
         holder.time.setText(DateUtil.getHeadway(tagMessage.getTimeMill()));
@@ -138,10 +141,23 @@ public class TagMessAdapter extends RecyclerView.Adapter<TagMessAdapter.ViewHold
             holder.replyIv.performClick();
             holder.replyNumTv.performClick();
             Bundle bundle = new Bundle();
-            bundle.putString("TagCommuMessage", new Gson().toJson(tagMessage));
-            ((BaseActivity) mContext).startActivityForResult(TagReplyActivity.class, bundle, START_TAG_ACTIVITY);
+            if(tagMessage.getMessagePrivate() == 0 || user.getUserName().equals(tagMessage.getFrom())){
+                bundle.putString("TagCommuMessage", new Gson().toJson(tagMessage));
+                ((BaseActivity) mContext).startActivityForResult(TagReplyActivity.class, bundle, START_TAG_ACTIVITY);
+            }else{
+                bundle.putInt("chat_room_type", 4);
+                bundle.putString("friend_user_name", tagMessage.getFrom());
+                bundle.putString("tag_mess_uid", tagMessage.getMessageUid());
+                bundle.putString("tag_mess_title", tagMessage.getTitle());
+                ((BaseActivity) mContext).startActivity(PrivateReplyActivity.class, bundle);
+            }
         });
-        holder.replyNumTv.setText((tagMessage.getReplysNum() + ""));
+        if(tagMessage.getMessagePrivate() == 0 || user.getUserName().equals(tagMessage.getFrom())){
+            holder.replyNumTv.setText((tagMessage.getReplysNum() + ""));
+        }else{
+            holder.replyNumTv.setText("私信");
+        }
+
         if (tagMessage.getTitle() == null || tagMessage.getTitle().isEmpty()) {
             holder.title.setText("");
         } else {
@@ -200,6 +216,12 @@ public class TagMessAdapter extends RecyclerView.Adapter<TagMessAdapter.ViewHold
             holder.reply1.setText((replyMessage.getNickName() + "："));
             holder.reply1Text.setText(replyMessage.getText());
         }
+
+        holder.detail.setOnClickListener(v->{
+            Bundle bundle = new Bundle();
+            bundle.putString("TagCommuMessage", new Gson().toJson(tagMessage));
+            ((BaseActivity) mContext).startActivityForResult(TagReplyActivity.class, bundle, START_TAG_ACTIVITY);
+        });
     }
 
     private void requestCommuThumbUp(int position) {
@@ -259,14 +281,23 @@ public class TagMessAdapter extends RecyclerView.Adapter<TagMessAdapter.ViewHold
         }
     }
 
+    public void clearData() {
+        synchronized (mList){
+            mList.clear();
+            notifyDataSetChanged();
+        }
+    }
+
     static class ViewHolder extends RecyclerView.ViewHolder {
 
         @BindView(R.id.photo)
         PolygonImageView photo;
         @BindView(R.id.nick_name)
         TextView nickName;
-        @BindView(R.id.certificat)
-        TextView certificat;
+        @BindView(R.id.age)
+        TextView age;
+        @BindView(R.id.distance)
+        TextView distance;
         @BindView(R.id.sex)
         ImageView sex;
         @BindView(R.id.user_simple_rl)

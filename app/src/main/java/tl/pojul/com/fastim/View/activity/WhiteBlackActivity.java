@@ -27,6 +27,7 @@ import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
 import tl.pojul.com.fastim.R;
+import tl.pojul.com.fastim.View.Adapter.SearchUserAdapter;
 import tl.pojul.com.fastim.View.Adapter.SelectUserAdapter;
 import tl.pojul.com.fastim.util.DateUtil;
 import tl.pojul.com.fastim.util.DialogUtil;
@@ -61,6 +62,7 @@ public class WhiteBlackActivity extends BaseActivity {
 
     private String type;
     private static final int REQUEST_CODE_USER = 1001;
+    private static final int REQUEST_CODE_SEARCH = 7497;
     private List<UserSelect> mlist = new ArrayList<>();
     private SelectUserAdapter selectUserAdapter;
     private static final int INIT = 101;
@@ -115,6 +117,12 @@ public class WhiteBlackActivity extends BaseActivity {
             String json = data.getExtras().getString("UserSelect");
             List<UserSelect> userSelects = gson.fromJson(json, founderListType);
             selectUserAdapter.addList(userSelects);
+        }if(requestCode == REQUEST_CODE_SEARCH && resultCode == Activity.RESULT_OK){
+            String json = data.getExtras().getString("user");
+            UserSelect userSelect = new UserSelect();
+            User user = new Gson().fromJson(json, User.class);
+            userSelect.setUser(user);
+            selectUserAdapter.addList(userSelect);
         }
     }
 
@@ -125,6 +133,7 @@ public class WhiteBlackActivity extends BaseActivity {
                 finish();
                 break;
             case R.id.search:
+                startActivityForResult(UserSearchActivity.class, null, REQUEST_CODE_SEARCH);
                 break;
             case R.id.friend_list:
                 Bundle bundle = new Bundle();

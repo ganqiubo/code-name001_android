@@ -21,11 +21,13 @@ import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
 import com.google.gson.Gson;
+import com.pojul.fastIM.entity.Conversation;
 import com.pojul.fastIM.entity.Friend;
 import com.pojul.fastIM.entity.User;
 import com.pojul.fastIM.message.chat.ChatMessage;
 import com.pojul.fastIM.message.chat.DateMessage;
 import com.pojul.fastIM.message.chat.TextChatMessage;
+import com.pojul.fastIM.message.other.NotifyChatClosed;
 import com.pojul.fastIM.message.request.HistoryChatReq;
 import com.pojul.fastIM.message.response.HistoryChatResp;
 import com.pojul.objectsocket.message.BaseMessage;
@@ -54,7 +56,9 @@ import tl.pojul.com.fastim.View.Adapter.MessageAdapter;
 import tl.pojul.com.fastim.View.Adapter.MoreMessageAdapter;
 import tl.pojul.com.fastim.View.Adapter.SearchPicAdapter;
 import tl.pojul.com.fastim.View.widget.SmoothLinearLayoutManager;
+import tl.pojul.com.fastim.dao.ConversationDao;
 import tl.pojul.com.fastim.util.ArrayUtil;
+import tl.pojul.com.fastim.util.ConversationUtil;
 import tl.pojul.com.fastim.util.DateUtil;
 import tl.pojul.com.fastim.util.SPUtil;
 
@@ -105,6 +109,7 @@ public class SingleChatRoomActivity extends ChatRoomActivity {
 
     private final static int INIT_DATA = 1002;
     private final static int SCROLL_TO_TOP = 1003;
+    private ConversationDao conversationDao;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -306,7 +311,7 @@ public class SingleChatRoomActivity extends ChatRoomActivity {
     @Override
     public void sendChatMessage(ChatMessage chatMessage) {
         if (!MyApplication.getApplication().isConnected()) {
-            showShortToas("与服务器已断开连接");
+            showShortToas(getString(R.string.disconnected));
             return;
         }
         chatMessage.setFrom(user.getUserName());
@@ -314,11 +319,33 @@ public class SingleChatRoomActivity extends ChatRoomActivity {
         MyApplication.ClientSocket.sendData(chatMessage);
         messageAdapter.addMessage(chatMessage);
         chatMessageList.scrollToPosition(messageAdapter.getItemCount() - 1);
+        conversationDao = new ConversationDao();
+        if(!conversationDao.isSingleConversationExit(friend.getUserName(), user.getUserName())){
+            Conversation conversation = new Conversation();
+            conversation.setConversationName(friend.getNickName());
+            conversation.setConversationFrom(friend.getUserName());
+            conversation.setConversationPhoto(friend.getPhoto().getFilePath());
+            conversation.setConversationLastChat(ConversationUtil.getNoteText(chatMessage));
+            conversation.setConversationLastChattime(DateUtil.getFormatDate());
+            conversation.setConversationOwner(user.getUserName());
+            conversation.setUnreadMessage(0);
+            conversation.setConversionUid("");
+            conversation.setConversationType(1);
+            conversationDao.insertConversation(conversation);
+        }
     }
 
     private MyApplication.IReceiveMessage iReceiveMessage = new MyApplication.IReceiveMessage() {
         @Override
         public void receiveMessage(BaseMessage message) {
+            if(message instanceof NotifyChatClosed && ((NotifyChatClosed)message).getChatUid().equals(chatRoomUid)){
+                showShortToas("该会话已失效");
+                finish();
+                return;
+            }
+            if(messageAdapter == null){
+                return;
+            }
             if (friend.getUserName().equals(message.getFrom()) && message instanceof ChatMessage) {
                 messageAdapter.receiveMessage((ChatMessage) message);
                 chatMessageList.scrollToPosition(messageAdapter.getItemCount() - 1);
@@ -331,11 +358,17 @@ public class SingleChatRoomActivity extends ChatRoomActivity {
 
         @Override
         public void onSendFinish(BaseMessage message) {
+            if(messageAdapter == null){
+                return;
+            }
             messageAdapter.onSendFinish(message);
         }
 
         @Override
         public void onSendFail(BaseMessage message) {
+            if(messageAdapter == null){
+                return;
+            }
             messageAdapter.onSendFail(message);
         }
     };
@@ -343,6 +376,9 @@ public class SingleChatRoomActivity extends ChatRoomActivity {
     private MyApplication.ISendProgress iSendProgress = new MyApplication.ISendProgress() {
         @Override
         public void progress(BaseMessage message, int progress) {
+            if(messageAdapter == null){
+                return;
+            }
             if(progress > 100){
                 progress = 100;
             }

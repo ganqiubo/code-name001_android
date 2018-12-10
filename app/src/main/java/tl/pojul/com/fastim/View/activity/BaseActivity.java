@@ -98,6 +98,10 @@ public class BaseActivity extends FragmentActivity {
         overridePendingTransition(R.anim.activity_scale_in_anim, R.anim.activity_move_outr_anim);
     }
 
+    public void finishNoAni(){
+        super.finish();
+    }
+
     public interface PauseListener{
         void onPause();
         void onResume();

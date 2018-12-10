@@ -2,10 +2,13 @@ package tl.pojul.com.fastim;
 
 import android.app.Activity;
 import android.app.ActivityManager;
+import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.net.ConnectivityManager;
+import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
 import android.os.Handler;
@@ -15,11 +18,21 @@ import android.support.multidex.MultiDex;
 import android.util.Log;
 import android.widget.Toast;
 
+import com.baidu.location.BDLocation;
 import com.baidu.mapapi.SDKInitializer;
+import com.baidu.mapapi.model.LatLng;
+import com.baidu.mapapi.utils.DistanceUtil;
+import com.lahm.library.EasyProtectorLib;
 import com.marswin89.marsdaemon.DaemonApplication;
 import com.marswin89.marsdaemon.DaemonConfigurations;
+import com.pojul.fastIM.entity.NearByPeople;
 import com.pojul.fastIM.entity.User;
+import com.pojul.fastIM.message.other.NotifyHasRecommend;
+import com.pojul.fastIM.message.other.NotifyAcceptFriend;
+import com.pojul.fastIM.message.other.NotifyFriendReq;
+import com.pojul.fastIM.message.other.NotifyPayMemberOk;
 import com.pojul.fastIM.message.request.LoginByTokenReq;
+import com.pojul.fastIM.message.request.UpdateLocReq;
 import com.pojul.fastIM.message.response.LoginResponse;
 import com.pojul.objectsocket.message.BaseMessage;
 import com.pojul.objectsocket.message.MessageHeader;
@@ -36,35 +49,43 @@ import com.scwang.smartrefresh.layout.api.RefreshHeader;
 import com.scwang.smartrefresh.layout.api.RefreshLayout;
 import com.scwang.smartrefresh.layout.constant.SpinnerStyle;
 import com.scwang.smartrefresh.layout.header.ClassicsHeader;
-import com.yanzhenjie.album.Album;
-import com.yanzhenjie.album.AlbumConfig;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.net.ssl.SSLContext;
+import javax.net.ssl.SSLSocketFactory;
+
+import info.guardianproject.netcipher.client.TlsOnlySocketFactory;
 import me.jessyan.progressmanager.ProgressManager;
-import okhttp3.Call;
 import okhttp3.OkHttpClient;
 import tl.pojul.com.fastim.Media.AudioManager;
 import tl.pojul.com.fastim.Media.VibrateManager;
+import tl.pojul.com.fastim.View.activity.ChatFileDownloadActivity;
+import tl.pojul.com.fastim.View.activity.LockScreenActivity;
 import tl.pojul.com.fastim.View.activity.LoginActivity;
 import tl.pojul.com.fastim.View.activity.MainActivity;
+import tl.pojul.com.fastim.View.activity.RegistActivity;
 import tl.pojul.com.fastim.View.broadcast.MarsDaemonReceiver1;
 import tl.pojul.com.fastim.View.broadcast.MarsDaemonReceiver2;
 import tl.pojul.com.fastim.View.broadcast.NetWorkStateReceiver;
 import tl.pojul.com.fastim.View.service.MarsDaemonService2;
 import tl.pojul.com.fastim.View.service.SocketConnService;
 import tl.pojul.com.fastim.dao.MySQLiteHelper;
+import tl.pojul.com.fastim.http.download.DownLoadCallBack;
+import tl.pojul.com.fastim.http.download.DownLoadManager;
+import tl.pojul.com.fastim.http.download.DownloadTask;
 import tl.pojul.com.fastim.map.baidu.LocationManager;
 import tl.pojul.com.fastim.map.baidu.MapConfigManager;
 import tl.pojul.com.fastim.socket.upload.PicUploadManager;
+import tl.pojul.com.fastim.util.AddFriendUtil;
 import tl.pojul.com.fastim.util.ConversationUtil;
+import tl.pojul.com.fastim.util.FileUtil;
+import tl.pojul.com.fastim.util.KeyguardGalleryUtil;
 import tl.pojul.com.fastim.util.NetWorkUtil;
+import tl.pojul.com.fastim.util.NotifyUtil;
 import tl.pojul.com.fastim.util.SPUtil;
-
-/**
- * Created by gqb on 2018/5/30.
- */
 
 public class MyApplication extends DaemonApplication {
 
@@ -89,20 +110,26 @@ public class MyApplication extends DaemonApplication {
     public static boolean isConnecting;
     //private User user;
     private PowerManager pm;
-    //private PowerManager.WakeLock wakeLock;
+    private PowerManager.WakeLock wakeLock;
     public static String currentReplyActivity = "";
     public static int startActivityCount;
+
+    private boolean showLocToNearBy = true;
+    private Thread locUpdateThread;
+    private BDLocation lastUpdateLoc;
+    private long lastUpdateLocMilli;
+    private AddFriendUtil addFriendUtil = new AddFriendUtil();
+
+    public static boolean hasRecomdMess;
+    public static boolean hasRecomdProple;
+    public static boolean loginOut = false;
+    private boolean isUpdateApk = false;
 
     public static List<String> tagMessLabels = new ArrayList<String>() {{
         add("运动");
         add("求助");
-        add("旅游");
+        add("旅行");
         add("找室友");
-        /*add("交友");
-        add("无聊");
-        add("找CP");
-        add("找女友");
-        add("找男友");*/
         add("房屋出租");
         add("租房");
         add("招聘");
@@ -116,7 +143,7 @@ public class MyApplication extends DaemonApplication {
         add("建筑");
         add("自拍");
         add("摄影");
-        add("手机壁纸");
+        add("壁纸");
         add("文艺");
         add("清新");
         add("美女");
@@ -132,7 +159,7 @@ public class MyApplication extends DaemonApplication {
         add("可爱");
         add("校花");
         add("家居");
-        add("旅游");
+        add("旅行");
     }};
 
     private OkHttpClient mOkHttpClient;
@@ -146,6 +173,10 @@ public class MyApplication extends DaemonApplication {
             }
         });
     }
+
+    /*private TelephonyManager mTelephonyManager;
+    private PhoneStateListener mPhoneStateListener;
+    private boolean isCalling = false;*/
 
     public static MyApplication getApplication() {
         return myApplication;
@@ -178,8 +209,136 @@ public class MyApplication extends DaemonApplication {
         //startService(new Intent(getApplicationContext(), SocketConnService.class));
 
         registerActivityLifecycleCallbacks(activityLifecycleCallbacks);
-        this.mOkHttpClient = ProgressManager.getInstance().with(new OkHttpClient.Builder())
-                .build();
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP) {
+            try{
+                SSLContext sslcontext = SSLContext.getInstance("TLS");
+                sslcontext.init(null, null, null);
+                SSLSocketFactory noSSLv3Factory = new TlsOnlySocketFactory(sslcontext.getSocketFactory());
+                this.mOkHttpClient = ProgressManager.getInstance().with(new OkHttpClient.Builder())
+                        .sslSocketFactory(noSSLv3Factory)
+                        .build();
+            }catch (Exception e){
+                this.mOkHttpClient = ProgressManager.getInstance().with(new OkHttpClient.Builder())
+                        .build();
+            }
+        }else{
+            this.mOkHttpClient = ProgressManager.getInstance().with(new OkHttpClient.Builder())
+                    .build();
+        }
+
+
+        if(showLocToNearBy){
+            startUpdateLocService();
+        }
+
+        IntentFilter screenStatusIF = new IntentFilter();
+        screenStatusIF.addAction(Intent.ACTION_SCREEN_ON);
+        screenStatusIF.addAction(Intent.ACTION_SCREEN_OFF);
+        registerReceiver(mScreenStatusReceiver, screenStatusIF);
+
+        //listenPhoneState();
+
+
+        Log.e(TAG, "checkIsRunningInEmulator: " + EasyProtectorLib.checkIsRunningInEmulator() +
+            "checkIsXposedExist: " + EasyProtectorLib.checkIsXposedExist());
+
+    }
+
+    /*private void listenPhoneState() {
+        mTelephonyManager = (TelephonyManager) getSystemService(Context.TELEPHONY_SERVICE);
+        mPhoneStateListener = new PhoneStateListener() {
+            @Override
+            public void onCallStateChanged(int state, String incomingNumber) {
+                switch (state) {
+                    case TelephonyManager.CALL_STATE_IDLE:
+                        isCalling = false;
+                        break;
+                    default:
+                        isCalling = true;
+                        break;
+                }
+            }
+        };
+        if (mTelephonyManager != null) {
+            mTelephonyManager.listen(mPhoneStateListener, PhoneStateListener.LISTEN_CALL_STATE);
+        }
+    }*/
+
+    public void startUpdateLocService() {
+        this.showLocToNearBy = true;
+        locUpdateThread = new Thread(() -> {
+            while(showLocToNearBy){
+                LocationManager.getInstance().registerLocationListener(new LocationManager.ILocationListener() {
+                    @Override
+                    public void onReceive(BDLocation bdLocation) {
+                        //Log.e("locUpdateService","sucesses");
+                        if(lastUpdateLoc == null || (System.currentTimeMillis() - lastUpdateLocMilli) > 30 * 60 * 1000
+                                || DistanceUtil.getDistance(new LatLng(bdLocation.getLatitude(), bdLocation.getLongitude()),
+                                new LatLng(lastUpdateLoc.getLatitude(), lastUpdateLoc.getLongitude())) > 200){
+                            updateLoc(bdLocation);
+                        }
+                        LocationManager.getInstance().unRegisterLocationListener(this);
+                    }
+
+                    @Override
+                    public void onFail(String msg) {
+                        //.e("locUpdateService","fail");
+                        LocationManager.getInstance().unRegisterLocationListener(this);
+                    }
+                });
+                try {
+                    Thread.sleep(60 * 1000);
+                } catch (InterruptedException e) {
+                    break;
+                }
+            }
+        });
+        locUpdateThread.start();
+    }
+
+    private void updateLoc(BDLocation bdLocation) {
+        Log.e("updateLoc","updateLoc");
+        NearByPeople nearByPeople = new NearByPeople();
+        nearByPeople.setCountry(bdLocation.getCountry());
+        nearByPeople.setProvince(bdLocation.getProvince());
+        nearByPeople.setCity(bdLocation.getCity());
+        nearByPeople.setDistrict(bdLocation.getDistrict());
+        nearByPeople.setAddr(bdLocation.getAddrStr());
+        nearByPeople.setLongitude(bdLocation.getLongitude());
+        nearByPeople.setLatitude(bdLocation.getLatitude());
+        nearByPeople.setAltitude(bdLocation.getAltitude());
+        UpdateLocReq req = new UpdateLocReq();
+        req.setNearByPeople(nearByPeople);
+        new SocketRequest().request(ClientSocket, req, new SocketRequest.IRequest() {
+            @Override
+            public void onError(String msg) {}
+
+            @Override
+            public void onFinished(ResponseMessage mResponse){
+                lastUpdateLoc = bdLocation;
+                lastUpdateLocMilli = System.currentTimeMillis();
+            }
+        });
+    }
+
+    /*private void acquareWakeLock() {
+        pm = (PowerManager) getSystemService(Context.POWER_SERVICE);
+        wakeLock = pm.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, "CPUKeepRunning");
+        wakeLock.acquire();
+    }
+
+    private void unAcquareWakeLock(){
+        if(wakeLock != null){
+            wakeLock.release();
+            wakeLock = null;
+        }
+    }
+*/
+    public void stopUpdateLocService(){
+        this.showLocToNearBy = false;
+        if(locUpdateThread != null){
+            locUpdateThread.interrupt();
+        }
     }
 
     private void initNetWorkReceive() {
@@ -220,8 +379,13 @@ public class MyApplication extends DaemonApplication {
         if(netWorkStateReceiver != null){
             unregisterReceiver(netWorkStateReceiver);
         }
+        unregisterReceiver(mScreenStatusReceiver);
         /*if(wakeLock != null){
             wakeLock.release();
+            wakeLock = null;
+        }*/
+        /*if (mTelephonyManager != null) {
+            mTelephonyManager.listen(mPhoneStateListener, PhoneStateListener.LISTEN_NONE);
         }*/
         unregisterActivityLifecycleCallbacks(activityLifecycleCallbacks);
         super.onTerminate();
@@ -258,6 +422,22 @@ public class MyApplication extends DaemonApplication {
             @Override
             public void onReadEntity(BaseMessage message) {
                 new Handler(Looper.getMainLooper()).post(()->{
+                    if(message instanceof NotifyPayMemberOk){
+                        notifyPayMemberOk((NotifyPayMemberOk)message);
+                        return;
+                    }
+                    if(message instanceof NotifyHasRecommend){
+                        notifyHasRecommend((NotifyHasRecommend) message);
+                        return;
+                    }
+                    if(message instanceof NotifyFriendReq){
+                        addFriendUtil.onNotifyFriendReq(((NotifyFriendReq)message), getApplicationContext());
+                        return;
+                    }
+                    if(message instanceof NotifyAcceptFriend){
+                        addFriendUtil.onNotifyAcceptFriend(((NotifyAcceptFriend)message), getApplicationContext());
+                        return;
+                    }
                     message.setIsSend(1);
                     for(int i = 0; i< IReceiveMessages.size(); i++){
                         IReceiveMessage iReceiveMessage = IReceiveMessages.get(i);
@@ -283,8 +463,27 @@ public class MyApplication extends DaemonApplication {
         });
     }
 
-    public void notifyMessReceive(BaseMessage message) {
+    private void notifyPayMemberOk(NotifyPayMemberOk message) {
+        User user = SPUtil.getInstance().getUser();
+        if(user == null){
+            return;
+        }
+        user.setNumberValidTime(message.getValidDate());
+        SPUtil.getInstance().putUser(user);
+        Intent intent = new Intent(getApplicationContext(), MainActivity.class);
+        NotifyUtil.notify("系统消息", "会员充值成功", ("会员有效期至" + message.getValidDate().split(" ")[0]),
+                user.getPhoto().getFilePath(), intent, getApplicationContext());
+    }
 
+    private void notifyHasRecommend(NotifyHasRecommend message) {
+        if(message.getRecommendtype() == 1){
+            hasRecomdMess = true;
+        }else if(message.getRecommendtype() == 2){
+            hasRecomdProple = true;
+        }
+        if(mainActivity != null && mainActivity.moreFragment != null){
+            mainActivity.moreFragment.notifyHasRecomds();
+        }
     }
 
 
@@ -325,7 +524,7 @@ public class MyApplication extends DaemonApplication {
             @Override
             public void onSendError(Exception e) {
                 if(NetWorkUtil.isNetWorkable(getApplicationContext()) && !isConnected()){
-                    reConn();
+                    reConn(false);
                 }
             }
         });
@@ -442,13 +641,26 @@ public class MyApplication extends DaemonApplication {
         //return new DaemonConfigurations(configuration1, configuration2, listener);
     }
 
-    public void reConn() {
-        if(isConnected() || isConnecting){
+    public void reConn(boolean ignoreIsConn) {
+        if(isConnecting){
+            return;
+        }
+        if(!NetWorkUtil.isNetWorkable(getApplicationContext())){
+            return;
+        }
+        /*if(!ignoreIsConn && isConnected() *//*|| isConnecting*//*){
+            return;
+        }*/
+        if(isConnected()){
             return;
         }
         String arrays = SPUtil.getInstance().getArrays();
         if(SPUtil.getInstance().getUser() == null || arrays == null || arrays.isEmpty()){
-            if(mainActivity != null){
+            if(loginOut){
+                loginOut = false;
+                return;
+            }
+            if(mainActivity != null && startActivityCount > 0){
                 Intent intent =new Intent(getApplicationContext(), LoginActivity.class);
                 intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
                 startActivity(intent);
@@ -465,9 +677,9 @@ public class MyApplication extends DaemonApplication {
 
             @Override
             public void onFinished(ClientSocket clientSocket) {
-                isConnecting = false;
                 MyApplication.ClientSocket = clientSocket;
                 //MyApplication.ClientSocket.setHeartbeat(4* 60 * 1000);
+                MyApplication.ClientSocket.setHeartbeat(60 * 1000);
                 MyApplication.getApplication().registerSocketRecListerer();
                 MyApplication.getApplication().registerSocketSendListerer();
                 MyApplication.getApplication().registerSocketStatusListerer();
@@ -497,15 +709,96 @@ public class MyApplication extends DaemonApplication {
 
             @Override
             public void onFinished(ResponseMessage mResponse) {
-                isConnecting = false;
                 LoginResponse loginResponse = (LoginResponse) mResponse;
                 if (loginResponse.getCode() == 200) {
                     SPUtil.getInstance().putUser(loginResponse.getUser());
                     SPUtil.getInstance().putArrays(loginResponse.getTokenId(), loginResponse.getUser().getUserName());
                     MyApplication.ClientSocket.setTokenId(loginResponse.getTokenId());
                 }
+                isConnecting = false;
             }
         });
+    }
+
+    private BroadcastReceiver mScreenStatusReceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            Log.e(TAG, "mScreenStatusReceiver: " + intent.getAction());
+            if (Intent.ACTION_SCREEN_ON.equals(intent.getAction())) {
+                /*if (!isCalling) {
+                    Intent lockScreenIntent = new Intent(getApplicationContext(), LockScreenActivity.class);
+                    lockScreenIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                    startActivity(lockScreenIntent);
+                }*/
+            } else if (Intent.ACTION_SCREEN_OFF.equals(intent.getAction())) {
+                //1：不可用; 2: 会员可用; 3: 可以体验; 其他: 体验过期时间
+                long validStatus = new KeyguardGalleryUtil().validStatus();
+                Log.e("validStatus", "validStatus: " + validStatus);
+                if(SPUtil.getInstance().getInt(SPUtil.SHOW_KEYGUARD_GALLERY, 1) == 1 &&
+                        validStatus != 1 && validStatus != 3) {
+                    Intent lockScreenIntent = new Intent(getApplicationContext(), LockScreenActivity.class);
+                    lockScreenIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                    startActivity(lockScreenIntent);
+                }
+            }
+        }
+    };
+
+    public void updateApk(){
+        if(isUpdateApk){
+            return;
+        }
+        File file = new File((SPUtil.getInstance().getString(tl.pojul.com.fastim.util.Constant.BASE_STORAGE_PATH) + "/footstep/apk/"));
+        if (!file.exists() && !file.mkdirs()) {
+            showShortToas("创建下载文件失败");
+            return;
+        }
+        File fileApk = new File(file.getAbsolutePath() + "/footstep.apk");
+        if(fileApk.exists()){
+            fileApk.delete();
+        }
+        isUpdateApk = true;
+        DownLoadManager.getInstance().downloadFile("http://47.93.31.206:8080/resources/app/detail/footstep_signed1.0.apk",
+                (file.getAbsolutePath() + "/footstep.apk"),
+                new DownloadCallBack());
+    }
+
+    class DownloadCallBack extends DownLoadCallBack {
+        @Override
+        public void downloadFail(DownloadTask task) {
+            super.downloadFail(task);
+            isUpdateApk = false;
+            NotifyUtil.unNotifyUpdateApk(getApplicationContext());
+        }
+
+        @Override
+        public void downloadProgress(DownloadTask task) {
+            super.downloadProgress(task);
+            NotifyUtil.notifyUpdateApk(task.getProgress(), getApplicationContext());
+        }
+
+        @Override
+        public void downloadCompete(DownloadTask task) {
+            super.downloadCompete(task);
+            isUpdateApk = false;
+            NotifyUtil.unNotifyUpdateApk(getApplicationContext());
+            File file = new File((SPUtil.getInstance().getString(tl.pojul.com.fastim.util.Constant.BASE_STORAGE_PATH) +
+                    "/footstep/apk/footstep.apk"));
+            if(!file.exists()){
+                showLongToas("下载文件不存在");
+                return;
+            }
+            try{
+                Intent intent = new Intent();
+                intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                intent.setAction(Intent.ACTION_VIEW);  //设置intent的Action属性
+                String type = FileUtil.getMIMEType(file);  //获取文件file的MIME类型
+                intent.setDataAndType(/*uri*/Uri.fromFile(file), type);   //设置intent的data和Type属性。
+                startActivity(intent);     //比如说你的MIME类型是打开邮箱，但是你手机里面没装邮箱客户端，就会报错。
+            }catch (Exception e){
+                showShortToas("找不到对应的文件查看器");
+            }
+        }
     }
 
     @Override
@@ -525,13 +818,14 @@ public class MyApplication extends DaemonApplication {
         @Override
         public void onActivityStarted(Activity activity) {
             startActivityCount = startActivityCount + 1;
+            if(NetWorkUtil.isNetWorkable(getApplicationContext()) && !isConnected() && !(activity instanceof RegistActivity)){
+                reConn(false);
+            }
         }
 
         @Override
         public void onActivityResumed(Activity activity) {
-            if(NetWorkUtil.isNetWorkable(getApplicationContext()) && !isConnected()){
-                reConn();
-            }
+
         }
 
         @Override

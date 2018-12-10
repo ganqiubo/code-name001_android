@@ -3,15 +3,21 @@ package tl.pojul.com.fastim.View.fragment;
 import android.content.Intent;
 import android.graphics.Color;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Looper;
 import android.support.annotation.Nullable;
 import android.support.v7.widget.LinearLayoutManager;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Toast;
 
 import com.google.gson.Gson;
 import com.pojul.fastIM.entity.Friend;
+import com.pojul.fastIM.entity.User;
+import com.pojul.fastIM.message.request.ChatLegalReq;
 import com.pojul.fastIM.message.request.GetFriendsRequest;
+import com.pojul.fastIM.message.response.ChatLegalResp;
 import com.pojul.fastIM.message.response.GetFriendsResponse;
 import com.pojul.objectsocket.message.ResponseMessage;
 import com.pojul.objectsocket.socket.SocketRequest;
@@ -79,7 +85,7 @@ public class FriendsFragment extends BaseFragment {
         getFriends(true);
     }
 
-    private void getFriends(boolean showDialog) {
+    public void getFriends(boolean showDialog) {
         if (!MyApplication.getApplication().isConnected()) {
             smartRefresh.finishRefresh(false);
             showShortToas("请重新连接服务器");
@@ -114,7 +120,6 @@ public class FriendsFragment extends BaseFragment {
                             friendsList.setAdapter(friendsAdapter);
                             refreshUnreadNum();
                         } else {
-                            showShortToas("未查询到数据");
                         }
                     } else {
                         showShortToas(mResponse.getMessage());
@@ -138,19 +143,50 @@ public class FriendsFragment extends BaseFragment {
     class ItemClickListener implements FriendsAdapter.OnItemClickListener {
         @Override
         public void onClick(int position) {
-            if (friendsAdapter == null || friendsAdapter.getmList() == null){
+            User user = SPUtil.getInstance().getUser();
+            Friend friend = friendsAdapter.getmList().get(position);
+            if (friendsAdapter == null || friendsAdapter.getmList() == null || user == null || friend == null){
                 return;
             }
-            Intent intent = new Intent(getActivity(), SingleChatRoomActivity.class);
-            Bundle bundle=new Bundle();
-            bundle.putInt("chat_room_type", 1);
-            bundle.putString("chat_room_name", friendsAdapter.getmList().get(position).getNickName());
-            Friend friend = friendsAdapter.getmList().get(position);
-            bundle.putString("friend", new Gson().toJson(friend));
-            intent.putExtras(bundle);
-            startActivity(intent);
+            ChatLegalReq req = new ChatLegalReq();
+            req.setUserNameOwn(user.getUserName());
+            req.setUserNameFriend(friend.getUserName());
+            new SocketRequest().request(MyApplication.ClientSocket, req, new SocketRequest.IRequest() {
+                @Override
+                public void onError(String msg) {
+                    new Handler(Looper.getMainLooper()).post(()->{
+                        Toast.makeText(getActivity(), msg, Toast.LENGTH_SHORT).show();
+                    });
+                }
+
+                @Override
+                public void onFinished(ResponseMessage mResponse) {
+                    new Handler(Looper.getMainLooper()).post(()->{
+                        if(mResponse.getCode() == 200){
+                            ChatLegalResp resp = (ChatLegalResp) mResponse;
+                            if(resp.getLegal() == 3){
+                                Toast.makeText(getActivity(), "你和TA还不是好友关系，不能直接聊天", Toast.LENGTH_SHORT).show();
+                            }else{
+                                if(resp.getUser() == null){
+                                    Toast.makeText(getActivity(), "数据错误", Toast.LENGTH_SHORT).show();
+                                }else{
+                                    Intent intent = new Intent(getActivity(), SingleChatRoomActivity.class);
+                                    Bundle bundle = new Bundle();
+                                    bundle.putInt("chat_room_type", 1);
+                                    bundle.putString("chat_room_name", friend.getNickName());
+                                    bundle.putString("friend", new Gson().toJson(friend));
+                                    intent.putExtras(bundle);
+                                    getActivity().startActivity(intent);
+                                }
+                            }
+                        }else{
+                            Toast.makeText(getActivity(), mResponse.getMessage(), Toast.LENGTH_SHORT).show();
+                        }
+                    });
+                }
+            });
         }
-    };
+    }
 
     /**
      * 菜单创建器。在Item要创建菜单的时候调用。
@@ -196,7 +232,15 @@ public class FriendsFragment extends BaseFragment {
 
             if (direction == SwipeMenuRecyclerView.RIGHT_DIRECTION) {
                 //Toast.makeText(getContext(), "list第" + adapterPosition + "; 右侧菜单第" + menuPosition, Toast.LENGTH_SHORT).show();
-                showLongToas("list第" + adapterPosition + "; 右侧菜单第" + menuPosition);
+                //showLongToas("list第" + adapterPosition + "; 右侧菜单第" + menuPosition);
+                if(menuPosition == 0){
+                    DialogUtil.getInstance().showPromptDialog(getActivity(), "删除好友", "确定删除该好友？");
+                    DialogUtil.getInstance().setDialogClick(str -> {
+                        if("确定".equals(str)){
+                            friendsAdapter.deleteItem(adapterPosition);
+                        }
+                    });
+                }
             }
         }
     };

@@ -1,10 +1,13 @@
 package tl.pojul.com.fastim.View.activity;
 
+import android.Manifest;
+import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.graphics.Color;
 import android.os.Build;
 import android.os.Bundle;
 import android.text.InputType;
+import android.text.method.DigitsKeyListener;
 import android.util.Log;
 import android.view.KeyEvent;
 import android.view.View;
@@ -20,6 +23,8 @@ import com.pojul.objectsocket.message.ResponseMessage;
 import com.pojul.objectsocket.socket.ClientSocket;
 import com.pojul.objectsocket.socket.SocketRequest;
 import com.pojul.objectsocket.utils.Constant;
+import com.pojul.objectsocket.utils.EncryptionUtil;
+import com.tbruyelle.rxpermissions2.RxPermissions;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -27,21 +32,18 @@ import butterknife.OnClick;
 import tl.pojul.com.fastim.MyApplication;
 import tl.pojul.com.fastim.R;
 import tl.pojul.com.fastim.util.DialogUtil;
+import tl.pojul.com.fastim.util.PhoneUtil;
 import tl.pojul.com.fastim.util.SPUtil;
 
 public class LoginActivity extends BaseActivity {
 
 
-    @BindView(R.id.login_account)
-    EditText loginAccount;
+   /* @BindView(R.id.login_account)
+    EditText loginAccount;*/
     @BindView(R.id.login_passwd)
     EditText loginPasswd;
     @BindView(R.id.login_passwd_visiable)
     CheckBox loginPasswdVisiable;
-    @BindView(R.id.login_autologin)
-    CheckBox loginAutologin;
-    @BindView(R.id.login_forgetPasswd)
-    TextView loginForgetPasswd;
     @BindView(R.id.login_submit)
     Button loginSubmit;
     @BindView(R.id.login_register)
@@ -59,6 +61,8 @@ public class LoginActivity extends BaseActivity {
         }
         setContentView(R.layout.activity_login);
         ButterKnife.bind(this);
+
+        applyPermission();
     }
 
     private void conn() {
@@ -83,10 +87,12 @@ public class LoginActivity extends BaseActivity {
                     DialogUtil.getInstance().dimissLoadingDialog();
                     if (clientSocket == null || clientSocket.getmSocket() == null) {
                         showLongToas("网络连接失败");
+                        MyApplication.isConnecting = false;
                         return;
                     }
+                    MyApplication.isConnecting = false;
                     MyApplication.ClientSocket = clientSocket;
-                    //MyApplication.ClientSocket.setHeartbeat(30 * 1000);
+                    MyApplication.ClientSocket.setHeartbeat(60 * 1000);
                     MyApplication.getApplication().registerSocketRecListerer();
                     MyApplication.getApplication().registerSocketSendListerer();
                     MyApplication.getApplication().registerSocketStatusListerer();
@@ -100,10 +106,17 @@ public class LoginActivity extends BaseActivity {
     private void login() {
         DialogUtil.getInstance().showLoadingDialog(this, "登陆中...");
         LoginMessage mLoginMessage = new LoginMessage();
-        mLoginMessage.setUserName(loginAccount.getText().toString());
-        mLoginMessage.setPassWd(loginPasswd.getText().toString());
+        String userName = new PhoneUtil().getIMSI(this);
+        mLoginMessage.setUserName(userName);
+        mLoginMessage.setPassWd(EncryptionUtil.md5Encryption(loginPasswd.getText().toString()));
         mLoginMessage.setDeviceType("Android");
-        mLoginMessage.setFrom(loginAccount.getText().toString());
+        mLoginMessage.setFrom(userName);
+
+        //test
+        /*mLoginMessage.setFrom(loginAccount.getText().toString());
+        mLoginMessage.setPassWd(loginPasswd.getText().toString());
+        mLoginMessage.setUserName(loginAccount.getText().toString());*/
+
         new SocketRequest().request(MyApplication.ClientSocket, mLoginMessage, new SocketRequest.IRequest() {
             @Override
             public void onError(String msg) {
@@ -116,7 +129,6 @@ public class LoginActivity extends BaseActivity {
 
             @Override
             public void onFinished(ResponseMessage mResponse) {
-                MyApplication.isConnecting = false;
                 runOnUiThread(() -> {
                     DialogUtil.getInstance().dimissLoadingDialog();
                     LoginResponse loginResponse = (LoginResponse) mResponse;
@@ -130,19 +142,26 @@ public class LoginActivity extends BaseActivity {
                         }
                         finish();
                     }
+                    MyApplication.isConnecting = false;
                 });
             }
         });
     }
 
-    @OnClick({R.id.login_submit, R.id.login_passwd_visiable})
+    @OnClick({R.id.login_submit, R.id.login_passwd_visiable, R.id.login_register})
     public void onClick(View view) {
         switch (view.getId()) {
             case R.id.login_submit:
-                if ("".equals(loginAccount.getText().toString())) {
-                    showShortToas("用户名不能为空");
+                PhoneUtil phoneUtil = new PhoneUtil();
+                if(phoneUtil.getIMSI(LoginActivity.this) == null || phoneUtil.getIMSI(LoginActivity.this).isEmpty()
+                        || !phoneUtil.hasSimCard(LoginActivity.this)){
+                    showShortToas("未检测到手机卡");
                     return;
                 }
+                /*if ("".equals(loginAccount.getText().toString())) {
+                    showShortToas("手机号不能为空");
+                    return;
+                }*/
                 if ("".equals(loginPasswd.getText().toString())) {
                     showShortToas("密码不能为空");
                     return;
@@ -150,18 +169,31 @@ public class LoginActivity extends BaseActivity {
                 conn();
                 break;
             case R.id.login_passwd_visiable:
+                String digits = "0123456789abcdefghigklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ";
                 if (loginPasswdVisiable.isChecked()) {
                     loginPasswd.setInputType(InputType.TYPE_CLASS_TEXT);
                 } else {
                     loginPasswd.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_PASSWORD);
                 }
+                loginPasswd.setKeyListener(DigitsKeyListener.getInstance(digits));
+                break;
+            case R.id.login_register:
+                startActivity(RegistActivity.class, null);
                 break;
         }
     }
 
     @Override
     public boolean onKeyUp(int keyCode, KeyEvent event) {
-        if (keyCode == KeyEvent.KEYCODE_BACK && event.getAction() == KeyEvent.ACTION_UP && MyApplication.isConnecting) {
+        /*if (keyCode == KeyEvent.KEYCODE_BACK && event.getAction() == KeyEvent.ACTION_UP && MyApplication.isConnecting) {
+            Intent home = new Intent(Intent.ACTION_MAIN);
+            home.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+            home.addCategory(Intent.CATEGORY_HOME);
+            startActivity(home);
+            return true;
+        }
+        return super.onKeyUp(keyCode, event);*/
+        if (keyCode == KeyEvent.KEYCODE_BACK) {
             Intent home = new Intent(Intent.ACTION_MAIN);
             home.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
             home.addCategory(Intent.CATEGORY_HOME);
@@ -169,6 +201,20 @@ public class LoginActivity extends BaseActivity {
             return true;
         }
         return super.onKeyUp(keyCode, event);
+    }
+
+    @SuppressLint("CheckResult")
+    private void applyPermission() {
+        new RxPermissions(this)
+                .requestEach(Manifest.permission.RECORD_AUDIO, Manifest.permission.ACCESS_COARSE_LOCATION,
+                        Manifest.permission.READ_PHONE_STATE, Manifest.permission.CAMERA)
+                .subscribe(permission -> {
+                    if(!permission.granted){
+                        showShortToas("无法获取所需权限");
+                        /*MyApplication.getApplication().closeConn();
+                        System.exit(0);*/
+                    }
+                });
     }
 
 

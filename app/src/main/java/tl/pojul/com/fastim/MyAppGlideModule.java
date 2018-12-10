@@ -19,7 +19,6 @@ public class MyAppGlideModule extends AppGlideModule {
        //BaseApplication application = (BaseApplication) context.getApplicationContext();
         //Glide 底层默认使用 HttpConnection 进 行网络请求,这里替换为 Okhttp 后才能使用本框架,进行 Glide 的加载进度监听
         registry.replace(GlideUrl.class, InputStream.class, new OkHttpUrlLoader.Factory(MyApplication.getApplication().getOkHttpClient()));
-
     }
 
     @Override

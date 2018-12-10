@@ -9,6 +9,8 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Map.Entry;
 
+import tl.pojul.com.fastim.MyApplication;
+
 /**
  * Created by gqb on 2018/5/31.
  */
@@ -105,6 +107,7 @@ public class RequestTimeOut{
                             TimeOutTask mTimeOutTask = requestQuenes.get(removeKeys.get(i));
                             if(mTimeOutTask != null){
                                 mTimeOutTask.iRequest.onError("连接超时");
+                                MyApplication.getApplication().reConn(true);
                             }
                             requestQuenes.remove(removeKeys.get(i));
                         }

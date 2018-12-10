@@ -71,12 +71,12 @@ public class ChatFragment extends BaseFragment {
         TextView tab1Name = tab1.findViewById(R.id.tv);
         //unreadMessage =  tab1.findViewById(R.id.unread_message);
         chatPageTabs.getTabAt(0).setCustomView(tab1);
-        tab1Name.setText("会话");
+        tab1Name.setText(R.string.conversation);
 
         View tab2 = LayoutInflater.from(getActivity()).inflate(R.layout.tab_chat, null);
         TextView tab2Name = tab2.findViewById(R.id.tv);
         chatPageTabs.getTabAt(1).setCustomView(tab2);
-        tab2Name.setText("好友");
+        tab2Name.setText(R.string.friends);
 
         /*View tab3 = LayoutInflater.from(getActivity()).inflate(R.layout.tab_chat, null);
         TextView tab3Name = tab3.findViewById(R.id.tv);

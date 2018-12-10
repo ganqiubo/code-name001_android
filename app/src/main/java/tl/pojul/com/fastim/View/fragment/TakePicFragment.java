@@ -111,7 +111,7 @@ public class TakePicFragment extends BaseFragment {
     private void loadUploadPicRecord() {
         if (!MyApplication.getApplication().isConnected()) {
             smartRefresh.finishLoadmore();
-            showShortToas("与服务器已断开连接");
+            showShortToas(getString(R.string.disconnected));
             return;
         }
         UploadPicRecordReq uploadPicRecordReq = new UploadPicRecordReq();
@@ -128,7 +128,7 @@ public class TakePicFragment extends BaseFragment {
             public void onError(String msg) {
                 new Handler(Looper.getMainLooper()).post(()->{
                     smartRefresh.finishLoadmore();
-                    showShortToas("加载失败");
+                    //showShortToas("加载失败");
                 });
             }
 

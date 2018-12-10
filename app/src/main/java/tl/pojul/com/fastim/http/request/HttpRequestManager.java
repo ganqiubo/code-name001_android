@@ -1,5 +1,7 @@
 package tl.pojul.com.fastim.http.request;
 
+import android.graphics.Color;
+import android.os.Build;
 import android.util.Log;
 
 import com.pojul.fastIM.entity.PicFilter;
@@ -17,6 +19,11 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.zip.GZIPInputStream;
 
+import javax.net.ssl.HttpsURLConnection;
+import javax.net.ssl.SSLContext;
+import javax.net.ssl.SSLSocketFactory;
+
+import info.guardianproject.netcipher.client.TlsOnlySocketFactory;
 import okhttp3.Call;
 import okhttp3.Callback;
 import okhttp3.OkHttpClient;
@@ -66,7 +73,7 @@ public class HttpRequestManager {
         put("可爱", "Lovely");
         put("校花", "Campus Belle");
         put("家居", "Home Furnishing");
-        put("旅游", "Travel");
+        put("旅行", "Travel");
     }};
 
     private static HttpRequestManager httpRequestManager;
@@ -132,6 +139,12 @@ public class HttpRequestManager {
         String finalUrl = url;
         new Thread(() -> {
             try {
+                if (Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP) {
+                    SSLContext sslcontext = SSLContext.getInstance("TLS");
+                    sslcontext.init(null, null, null);
+                    SSLSocketFactory noSSLv3Factory = new TlsOnlySocketFactory(sslcontext.getSocketFactory());
+                    HttpsURLConnection.setDefaultSSLSocketFactory(noSSLv3Factory);
+                }
                 URL url1 = new URL(finalUrl);
                 HttpURLConnection conn = (HttpURLConnection) url1.openConnection();
                 conn.setRequestMethod("GET");
@@ -193,7 +206,7 @@ public class HttpRequestManager {
             url = CharToolsUtil.Utf8URLencode(url);
             pexelsPicsUrlReq(url, callBack);
         }else{
-            url = "https://www.pexels.com/popular-photos/all-time.js?page=" + page;
+            url = "https://www.pexels.com/?dark=true&format=js&page=" + page;
             url = CharToolsUtil.Utf8URLencode(url);
             pexelsPicsUrlReq(url, callBack);
         }

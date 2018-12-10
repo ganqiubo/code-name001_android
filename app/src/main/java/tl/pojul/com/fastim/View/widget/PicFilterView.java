@@ -45,6 +45,20 @@ public class PicFilterView extends LinearLayout {
     TextView moreLabelNote;
     @BindView(R.id.more_label_title)
     TextView moreLabelTitle;
+    @BindView(R.id.other_note)
+    TextView otherNote;
+    @BindView(R.id.nearby)
+    TextView nearbyTv;
+    @BindView(R.id.my_pic)
+    TextView myPic;
+    @BindView(R.id.my_like)
+    TextView myLike;
+    @BindView(R.id.my_collect)
+    TextView myCollect;
+    @BindView(R.id.other_ll)
+    LinearLayout otherLl;
+    @BindView(R.id.pic_labels_note)
+    TextView picLabelsNote;
 
     private PicFilter picFilter;
     private boolean nearBy;
@@ -65,7 +79,6 @@ public class PicFilterView extends LinearLayout {
     }
 
     private void init() {
-
         inflate(getContext(), R.layout.include_pic_filter, this);
         ButterKnife.bind(this);
 
@@ -87,9 +100,11 @@ public class PicFilterView extends LinearLayout {
             unsplash.setEnabled(false);
             pexels.setEnabled(false);
             picFilter.setGallery("脚步");
+            nearbyTv.setSelected(true);
         } else {
             unsplash.setEnabled(true);
             pexels.setEnabled(true);
+            nearbyTv.setSelected(false);
         }
         if (hideLabel) {
             labelLl.setVisibility(GONE);
@@ -142,9 +157,76 @@ public class PicFilterView extends LinearLayout {
             man.setSelected(true);
             woman.setSelected(false);
         }
+        if(picFilter.getOther() != null && !picFilter.getOther().isEmpty()){
+            picLabels.setEnabled(false);
+            picLabelsNote.setEnabled(false);
+        }else{
+            picLabels.setEnabled(true);
+            picLabelsNote.setEnabled(true);
+        }
+        if (picFilter.getOther() != null && !picFilter.getOther().isEmpty()) {
+            if ("附近".equals(picFilter.getOther())) {
+                nearbyTv.setSelected(true);
+                myPic.setSelected(false);
+                myLike.setSelected(false);
+                myCollect.setSelected(false);
+                footSetp.setSelected(true);
+                unsplash.setSelected(false);
+                unsplash.setEnabled(false);
+                pexels.setSelected(false);
+                pexels.setEnabled(false);
+                man.setEnabled(true);
+                woman.setEnabled(true);
+                sexNolimit.setEnabled(true);
+            } else if ("我的图集".equals(picFilter.getOther())) {
+                myPic.setSelected(true);
+                nearbyTv.setSelected(false);
+                myLike.setSelected(false);
+                myCollect.setSelected(false);
+                footSetp.setSelected(true);
+                unsplash.setSelected(false);
+                unsplash.setEnabled(false);
+                pexels.setSelected(false);
+                pexels.setEnabled(false);
+                man.setEnabled(true);
+                woman.setEnabled(true);
+                sexNolimit.setEnabled(true);
+            } else if ("我喜欢的".equals(picFilter.getOther())) {
+                myLike.setSelected(true);
+                nearbyTv.setSelected(false);
+                myPic.setSelected(false);
+                myCollect.setSelected(false);
+                unsplash.setEnabled(true);
+                pexels.setEnabled(true);
+            } else if ("我的收藏".equals(picFilter.getOther())) {
+                myCollect.setSelected(true);
+                nearbyTv.setSelected(false);
+                myPic.setSelected(false);
+                myLike.setSelected(false);
+                unsplash.setEnabled(true);
+                pexels.setEnabled(true);
+            }
+        } else {
+            nearbyTv.setSelected(false);
+            myPic.setSelected(false);
+            myLike.setSelected(false);
+            myCollect.setSelected(false);
+        }
+        checkOthers();
     }
 
-    @OnClick({R.id.foot_setp, R.id.unsplash, R.id.pexels, R.id.man, R.id.woman, R.id.sex_nolimit})
+    private void checkOthers() {
+        if(nearbyTv.isSelected() || myPic.isSelected() || myLike.isSelected() || myCollect.isSelected()){
+            picLabelsNote.setEnabled(false);
+            picLabels.setEnabled(false);
+        }else{
+            picLabelsNote.setEnabled(true);
+            picLabels.setEnabled(true);
+        }
+    }
+
+    @OnClick({R.id.foot_setp, R.id.unsplash, R.id.pexels, R.id.man, R.id.woman, R.id.sex_nolimit, R.id.nearby, R.id.my_pic,
+            R.id.my_like, R.id.my_collect})
     public void onViewClicked(View view) {
         switch (view.getId()) {
             case R.id.foot_setp:
@@ -186,12 +268,73 @@ public class PicFilterView extends LinearLayout {
                 woman.setSelected(false);
                 sexNolimit.setSelected(true);
                 break;
+            case R.id.nearby:
+                nearbyTv.setSelected(!nearbyTv.isSelected());
+                if (nearbyTv.isSelected()) {
+                    myPic.setSelected(false);
+                    myLike.setSelected(false);
+                    myCollect.setSelected(false);
+                    footSetp.setSelected(true);
+                    unsplash.setSelected(false);
+                    unsplash.setEnabled(false);
+                    pexels.setSelected(false);
+                    pexels.setEnabled(false);
+                    man.setEnabled(true);
+                    woman.setEnabled(true);
+                    sexNolimit.setEnabled(true);
+                } else {
+                    unsplash.setEnabled(true);
+                    pexels.setEnabled(true);
+                }
+                checkOthers();
+                break;
+            case R.id.my_pic:
+                myPic.setSelected(!myPic.isSelected());
+                if (myPic.isSelected()) {
+                    nearbyTv.setSelected(false);
+                    myLike.setSelected(false);
+                    myCollect.setSelected(false);
+                    footSetp.setSelected(true);
+                    unsplash.setSelected(false);
+                    unsplash.setEnabled(false);
+                    pexels.setSelected(false);
+                    pexels.setEnabled(false);
+                    man.setEnabled(true);
+                    woman.setEnabled(true);
+                    sexNolimit.setEnabled(true);
+                } else {
+                    unsplash.setEnabled(true);
+                    pexels.setEnabled(true);
+                }
+                checkOthers();
+                break;
+            case R.id.my_like:
+                myLike.setSelected(!myLike.isSelected());
+                if (myLike.isSelected()) {
+                    nearbyTv.setSelected(false);
+                    myPic.setSelected(false);
+                    myCollect.setSelected(false);
+                    unsplash.setEnabled(true);
+                    pexels.setEnabled(true);
+                }
+                checkOthers();
+                break;
+            case R.id.my_collect:
+                myCollect.setSelected(!myCollect.isSelected());
+                if (myCollect.isSelected()) {
+                    nearbyTv.setSelected(false);
+                    myPic.setSelected(false);
+                    myLike.setSelected(false);
+                    unsplash.setEnabled(true);
+                    pexels.setEnabled(true);
+                }
+                checkOthers();
+                break;
         }
     }
 
     public PicFilter getFilter() {
         PicFilter picFilter = new PicFilter();
-        picFilter.setNearBy(nearBy);
         List<String> labels = new ArrayList<>();
         labels.addAll(picLabels.getSelectTags());
         String selfLabel = (moreLabel.getText().toString().replace("，", ","));
@@ -211,6 +354,21 @@ public class PicFilterView extends LinearLayout {
         } else {
             picFilter.setSex(-1);
         }
+        if (nearbyTv.isSelected()) {
+            picFilter.setOther("附近");
+            nearBy = true;
+        } else if (myPic.isSelected()) {
+            picFilter.setOther("我的图集");
+        } else if (myLike.isSelected()) {
+            picFilter.setOther("我喜欢的");
+        } else if (myCollect.isSelected()) {
+            picFilter.setOther("我的收藏");
+        }
+
+        if(!nearbyTv.isSelected()){
+            nearBy = false;
+        }
+        picFilter.setNearBy(nearBy);
         return picFilter;
     }
 
@@ -230,6 +388,11 @@ public class PicFilterView extends LinearLayout {
         man.setEnabled(true);
         woman.setEnabled(true);
         sexNolimit.setEnabled(true);
+    }
+
+    public void showOthers() {
+        otherNote.setVisibility(VISIBLE);
+        otherLl.setVisibility(VISIBLE);
     }
 
 }

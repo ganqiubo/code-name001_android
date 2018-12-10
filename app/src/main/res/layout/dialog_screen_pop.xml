@@ -6,7 +6,7 @@
 
     <tl.pojul.com.fastim.View.widget.MessageFilterView
         android:id="@+id/message_filter_view"
-        android:layout_marginTop="6dp"
+        android:layout_marginTop="2px"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:paddingLeft="5dp"

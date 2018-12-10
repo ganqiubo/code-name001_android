@@ -17,7 +17,7 @@ public class NetWorkStateReceiver extends BroadcastReceiver {
     @Override
     public void onReceive(Context context, Intent intent) {
         if(NetWorkUtil.isNetWorkable(context) && !MyApplication.getApplication().isConnected()){
-            MyApplication.getApplication().reConn();
+            MyApplication.getApplication().reConn(false);
         }
     }
 }

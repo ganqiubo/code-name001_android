@@ -1,18 +1,26 @@
 package tl.pojul.com.fastim.View.activity;
 
 import android.content.Intent;
+import android.content.res.ColorStateList;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.KeyEvent;
 import android.view.View;
 import android.widget.EditText;
+import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
+import com.baidu.location.BDLocation;
+import com.baidu.mapapi.utils.DistanceUtil;
 import com.google.gson.Gson;
+import com.pojul.fastIM.entity.CommunityRoom;
 import com.pojul.fastIM.entity.User;
+import com.pojul.fastIM.message.chat.CommunityMessage;
 import com.pojul.fastIM.message.chat.TagCommuMessage;
+import com.pojul.objectsocket.message.BaseMessage;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -25,8 +33,10 @@ import tl.pojul.com.fastim.R;
 import tl.pojul.com.fastim.View.Adapter.PicPickerAdapter;
 import tl.pojul.com.fastim.View.widget.FlowTagView;
 import tl.pojul.com.fastim.View.widget.UserFilterView;
+import tl.pojul.com.fastim.map.baidu.LocationManager;
 import tl.pojul.com.fastim.util.ArrayUtil;
 import tl.pojul.com.fastim.util.DialogUtil;
+import tl.pojul.com.fastim.util.MyDistanceUtil;
 import tl.pojul.com.fastim.util.SPUtil;
 
 public class TagMessageActivity extends BaseActivity {
@@ -49,6 +59,10 @@ public class TagMessageActivity extends BaseActivity {
     TextView sure;
     @BindView(R.id.filter_view)
     UserFilterView userFilterView;
+    @BindView(R.id.label_note)
+    TextView labelNote;
+    @BindView(R.id.filter_ll)
+    LinearLayout filterLl;
 
     private TagCommuMessage tagCommuMessage;
     private User user;
@@ -58,7 +72,7 @@ public class TagMessageActivity extends BaseActivity {
     /*private List<String> labels = new ArrayList<String>() {{
         add("运动");
         add("求助");
-        add("旅游");
+        add("旅行");
         add("找室友");
         *//*add("交友");
         add("无聊");
@@ -75,6 +89,9 @@ public class TagMessageActivity extends BaseActivity {
         add("添加");
     }};
 
+    private int tageMessType = 0;
+    private String defaultTag = "all";
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -86,12 +103,26 @@ public class TagMessageActivity extends BaseActivity {
             finish();
             return;
         }
+        tageMessType = getIntent().getIntExtra("TagMessageType", 0);
+        defaultTag = getIntent().getStringExtra("Tags");
+        if (tageMessType == 1 && defaultTag == null) {
+            finish();
+            return;
+        }
+        if (tageMessType == 1) {
+            if(!"all".equals(defaultTag)){
+                labelNote.setVisibility(View.GONE);
+                messageLabels.setVisibility(View.GONE);
+                selfLabelEt.setText(defaultTag);
+                selfLabelEt.setTextColor(Color.GRAY);
+                selfLabelEt.setEnabled(false);
+            }
+            sure.setText("发布");
+        }
+
         messageLabels.datas(labels)
-                .listener(new FlowTagView.OnTagSelectedListener() {
-                    @Override
-                    public void onTagSelected(FlowTagView view, int position) {
-                        //showShortToas("选中了:" + position);
-                    }
+                .listener((view, position) -> {
+                    //showShortToas("选中了:" + position);
                 }).commit();
 
         messageImg.setLayoutManager(new GridLayoutManager(this, 3));
@@ -100,11 +131,11 @@ public class TagMessageActivity extends BaseActivity {
     }
 
     @Override
-        protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-            super.onActivityResult(requestCode, resultCode, data);
-        if(requestCode < 100){
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (requestCode < 100) {
             userFilterView.onActivityResult(requestCode, resultCode, data);
-        }else{
+        } else {
             picPickerAdapter.onActivityResult(requestCode, resultCode, data);
         }
     }
@@ -113,21 +144,78 @@ public class TagMessageActivity extends BaseActivity {
     public void onViewClicked(View v) {
         switch (v.getId()) {
             case R.id.sure:
-                if ("".equals(messageTitle.getText().toString()) ) {
+                if ("".equals(messageTitle.getText().toString())) {
                     showShortToas("标题不能为空");
                     return;
                 }
-                if("".equals(messageNote.getText().toString()) && picPickerAdapter.getPics().size() <= 0){
+                if ("".equals(messageNote.getText().toString()) && picPickerAdapter.getPics().size() <= 0) {
                     showShortToas("内容不能为空");
                     return;
                 }
-                tagCommuMessage = setCommunityMessage();
-                Intent intent = new Intent();
-                intent.putExtra("TagCommuMessage", new Gson().toJson(tagCommuMessage));
-                setResult(RESULT_OK, intent);
-                finish();
+                if(tageMessType == 0){
+                    tagCommuMessage = setCommunityMessage();
+                    Intent intent = new Intent();
+                    intent.putExtra("TagCommuMessage", new Gson().toJson(tagCommuMessage));
+                    setResult(RESULT_OK, intent);
+                    finish();
+                }else{
+                    tagCommuMessage = setCommunityMessage();
+                    DialogUtil.getInstance().showLoadingSimple(TagMessageActivity.this, getWindow().getDecorView());
+                    MyApplication.getApplication().registerSendMessage(iSendMessage);
+                    LocationManager.getInstance().registerLocationListener(iLocationListener);
+                }
                 break;
         }
+    }
+
+    private LocationManager.ILocationListener iLocationListener = new LocationManager.ILocationListener() {
+        @Override
+        public void onReceive(BDLocation bdLocation) {
+            LocationManager.getInstance().unRegisterLocationListener(iLocationListener);
+            if(tagCommuMessage == null){
+                showShortToas("fail");
+                DialogUtil.getInstance().dimissLoadingDialog();
+                LocationManager.getInstance().unRegisterLocationListener(iLocationListener);
+                MyApplication.getApplication().registerSendMessage(iSendMessage);
+                return;
+
+            }
+            uploadPrivMess(tagCommuMessage, bdLocation);
+        }
+
+        @Override
+        public void onFail(String msg) {
+            DialogUtil.getInstance().dimissLoadingDialog();
+            LocationManager.getInstance().unRegisterLocationListener(iLocationListener);
+            MyApplication.getApplication().registerSendMessage(iSendMessage);
+            showShortToas("位置获取失败");
+        }
+    };
+
+    private void uploadPrivMess(TagCommuMessage tagCommuMessage, BDLocation bdLocation) {
+        tagCommuMessage.setMessagePrivate(1);
+        if (!MyApplication.getApplication().isConnected()) {
+            showShortToas(getString(R.string.disconnected));
+            return;
+        }
+        tagCommuMessage.setCommunityName(bdLocation.getDistrict());
+        tagCommuMessage.setFrom(user.getUserName());
+        tagCommuMessage.setTo(bdLocation.getProvince() + "_" + bdLocation.getCity());
+
+        CommunityRoom communityRoom = new CommunityRoom();
+        communityRoom.setCommunitySubtype("市");
+        communityRoom.setCountry(bdLocation.getCountry());
+        communityRoom.setProvince(bdLocation.getProvince());
+        communityRoom.setCity(bdLocation.getCity());
+
+        tagCommuMessage.setIsSpaceTravel(MyDistanceUtil.isSpaceTravel(communityRoom, bdLocation, user.getShowCommunityLoc()));
+        tagCommuMessage.setUserSex(user.getSex());
+        tagCommuMessage.setCertificate(user.getCertificate());
+        tagCommuMessage.setNickName(user.getNickName());
+        tagCommuMessage.setPhoto(user.getPhoto());
+        tagCommuMessage.setTimeMill(System.currentTimeMillis());
+
+        MyApplication.ClientSocket.sendData(tagCommuMessage);
     }
 
     @Override
@@ -163,6 +251,31 @@ public class TagMessageActivity extends BaseActivity {
         return tagCommuMessage;
     }
 
+    private MyApplication.ISendMessage iSendMessage = new MyApplication.ISendMessage() {
+
+        @Override
+        public void onSendFinish(BaseMessage message) {
+            if(tagCommuMessage == null || message == null || message.getMessageUid() == null
+                    || !message.getMessageUid().equals(tagCommuMessage.getMessageUid()) ){
+                return;
+            }
+            DialogUtil.getInstance().dimissLoadingDialog();
+            showLongToas("发布成功");
+            finish();
+        }
+
+        @Override
+        public void onSendFail(BaseMessage message) {
+            if(tagCommuMessage == null || message == null || message.getMessageUid() == null
+                    || !message.getMessageUid().equals(tagCommuMessage.getMessageUid()) ){
+                return;
+            }
+            DialogUtil.getInstance().dimissLoadingDialog();
+            MyApplication.getApplication().unRegisterSendMessage(iSendMessage);
+            showLongToas("发布失败");
+        }
+    };
+
     @Override
     public boolean onKeyUp(int keyCode, KeyEvent event) {
         if (keyCode == KeyEvent.KEYCODE_BACK && event.getAction() == KeyEvent.ACTION_UP) {
@@ -170,7 +283,7 @@ public class TagMessageActivity extends BaseActivity {
                     picPickerAdapter.getPics().size() > 0) {
                 DialogUtil.getInstance().showPromptDialog(this, "", "标签消息内容没有保存，确定要退出当前操作？");
                 DialogUtil.getInstance().setDialogClick(str -> {
-                    if("确定".equals(str)){
+                    if ("确定".equals(str)) {
                         finish();
                     }
                 });
@@ -178,5 +291,12 @@ public class TagMessageActivity extends BaseActivity {
             }
         }
         return super.onKeyUp(keyCode, event);
+    }
+
+    @Override
+    protected void onDestroy() {
+        LocationManager.getInstance().unRegisterLocationListener(iLocationListener);
+        MyApplication.getApplication().unRegisterSendMessage(iSendMessage);
+        super.onDestroy();
     }
 }

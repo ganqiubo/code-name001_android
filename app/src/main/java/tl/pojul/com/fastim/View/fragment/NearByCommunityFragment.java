@@ -13,6 +13,7 @@ import android.view.ViewGroup;
 
 import com.baidu.location.BDLocation;
 import com.baidu.mapapi.model.LatLng;
+import com.baidu.mapapi.model.LatLngBounds;
 import com.baidu.mapapi.search.core.SearchResult;
 import com.baidu.mapapi.search.geocode.GeoCodeResult;
 import com.baidu.mapapi.search.geocode.GeoCoder;
@@ -20,15 +21,19 @@ import com.baidu.mapapi.search.geocode.OnGetGeoCoderResultListener;
 import com.baidu.mapapi.search.geocode.ReverseGeoCodeOption;
 import com.baidu.mapapi.search.geocode.ReverseGeoCodeResult;
 import com.baidu.mapapi.search.poi.OnGetPoiSearchResultListener;
+import com.baidu.mapapi.search.poi.PoiBoundSearchOption;
 import com.baidu.mapapi.search.poi.PoiDetailResult;
 import com.baidu.mapapi.search.poi.PoiDetailSearchOption;
+import com.baidu.mapapi.search.poi.PoiFilter;
 import com.baidu.mapapi.search.poi.PoiIndoorResult;
 import com.baidu.mapapi.search.poi.PoiNearbySearchOption;
 import com.baidu.mapapi.search.poi.PoiResult;
 import com.baidu.mapapi.search.poi.PoiSearch;
 import com.baidu.mapapi.search.poi.PoiSortType;
 import com.baidu.mapapi.utils.DistanceUtil;
+import com.google.gson.Gson;
 import com.pojul.fastIM.entity.CommunityRoom;
+import com.pojul.fastIM.entity.LatLonRange;
 import com.pojul.fastIM.message.chat.TagCommuMessage;
 import com.pojul.fastIM.message.request.GetTopMessMultiReq;
 import com.pojul.fastIM.message.response.GetTopMessMultiResp;
@@ -51,6 +56,7 @@ import tl.pojul.com.fastim.View.Adapter.CommunityAdapter;
 import tl.pojul.com.fastim.map.baidu.LocationManager;
 import tl.pojul.com.fastim.socket.Converter.HistoryChatConverter;
 import tl.pojul.com.fastim.util.CustomTimeDown;
+import tl.pojul.com.fastim.util.MyDistanceUtil;
 
 public class NearByCommunityFragment extends BaseFragment implements CustomTimeDown.OnTimeDownListener{
 
@@ -83,6 +89,7 @@ public class NearByCommunityFragment extends BaseFragment implements CustomTimeD
     public static boolean visiable = true;
     private static boolean isResume;
     private long topMessInterval = 20 * 60 * 1000;
+    private int radius = 1000;
 
     public NearByCommunityFragment() {
         // Required empty public constructor
@@ -244,7 +251,7 @@ public class NearByCommunityFragment extends BaseFragment implements CustomTimeD
                 .keyword("学校")
                 .tag("教育培训,高等院校")
                 .location(latLng)
-                .radius(1000));
+                .radius(radius));
 
         mPoiSearch.searchNearby(new PoiNearbySearchOption()
                 .sortType(PoiSortType.distance_from_near_to_far)
@@ -252,7 +259,7 @@ public class NearByCommunityFragment extends BaseFragment implements CustomTimeD
                 .keyword("学校")
                 .tag("教育培训,中学")
                 .location(latLng)
-                .radius(1000));
+                .radius(radius));
 
         mPoiSearch.searchNearby(new PoiNearbySearchOption()
                 .sortType(PoiSortType.distance_from_near_to_far)
@@ -260,15 +267,15 @@ public class NearByCommunityFragment extends BaseFragment implements CustomTimeD
                 .keyword("学校")
                 .tag("教育培训,小学")
                 .location(latLng)
-                .radius(1000));
+                .radius(radius));
 
-        mPoiSearch.searchNearby(new PoiNearbySearchOption()
+        /*mPoiSearch.searchNearby(new PoiNearbySearchOption()
                 .sortType(PoiSortType.distance_from_near_to_far)
-                //.keyword("房地产;住宅区")
-                .keyword("小区")
-                .tag("房地产,住宅区")
+                //.keyword("住宅区")
+                //.tag("房地产,住宅区")
+                .tag("住宅区")
                 .location(latLng)
-                .radius(1000));
+                .radius(radius));*/
 
         mPoiSearch.searchNearby(new PoiNearbySearchOption()
                 .sortType(PoiSortType.distance_from_near_to_far)
@@ -276,7 +283,7 @@ public class NearByCommunityFragment extends BaseFragment implements CustomTimeD
                 .keyword("风景区")
                 .tag("旅游景点,风景区")
                 .location(latLng)
-                .radius(1000));
+                .radius(radius));
 
         mPoiSearch.searchNearby(new PoiNearbySearchOption()
                 .sortType(PoiSortType.distance_from_near_to_far)
@@ -284,7 +291,7 @@ public class NearByCommunityFragment extends BaseFragment implements CustomTimeD
                 .keyword("公园")
                 .tag("旅游景点,公园")
                 .location(latLng)
-                .radius(1000));
+                .radius(radius));
 
         mPoiSearch.searchNearby(new PoiNearbySearchOption()
                 .sortType(PoiSortType.distance_from_near_to_far)
@@ -292,21 +299,27 @@ public class NearByCommunityFragment extends BaseFragment implements CustomTimeD
                 .keyword("动物园")
                 .tag("旅游景点,动物园")
                 .location(latLng)
-                .radius(1000));
+                .radius(radius));
 
         mPoiSearch.searchNearby(new PoiNearbySearchOption()
                 //.keyword("交通设施;火车站")
                 .keyword("火车站")
                 .tag("交通设施,火车站")
                 .location(latLng)
-                .radius(1000));
+                .radius(radius));
         mPoiSearch.searchNearby(new PoiNearbySearchOption()
                 .sortType(PoiSortType.distance_from_near_to_far)
                 //.keyword("交通设施;飞机场")
                 .keyword("飞机场")
                 .tag("交通设施,飞机场")
                 .location(latLng)
-                .radius(1000));
+                .radius(radius));
+
+        LatLonRange range = MyDistanceUtil.getLatLonRange(latLng.longitude, latLng.latitude, 0.7d);
+        mPoiSearch.searchInBound(new PoiBoundSearchOption()
+                .bound(new LatLngBounds.Builder().include(new LatLng(range.getMaxLat(), range.getMinLon()))
+                        .include(new LatLng(range.getMinLat(), range.getMaxLon())).build())
+                .keyword("小区"));
     }
 
     private LocationManager.ILocationListener iLocationListener = new LocationManager.ILocationListener() {
@@ -318,6 +331,8 @@ public class NearByCommunityFragment extends BaseFragment implements CustomTimeD
                 communitySmartLayout.finishRefresh();
                 return;
             }
+            /*bdLocation.setLongitude(116.309049);
+            bdLocation.setLatitude(39.967564);*/
             myBDLocation = LocationManager.getInstance().getBDLocationInCoorType(bdLocation, BDLocation.BDLOCATION_GCJ02_TO_BD09LL);
             addAdministrativeArae(bdLocation);
             switch(locReqTag){
@@ -331,7 +346,7 @@ public class NearByCommunityFragment extends BaseFragment implements CustomTimeD
         public void onFail(String msg) {
             communitySmartLayout.finishRefresh();
             LocationManager.getInstance().unRegisterLocationListener(iLocationListener);
-            showShortToas("获取位置失败");
+            showShortToas(getString(R.string.get_location_fail));
         }
     };
 
@@ -402,6 +417,7 @@ public class NearByCommunityFragment extends BaseFragment implements CustomTimeD
                 communitySmartLayout.finishRefresh();
             }
             if (result.error == SearchResult.ERRORNO.NO_ERROR) {
+                String str  = new Gson().toJson(result.getAllPoi());
                 for(int i = 0; i < result.getAllPoi().size(); i++){
                     if(result.getAllPoi().get(i).uid != null){
                         mPoiSearch.searchPoiDetail(new PoiDetailSearchOption().poiUid(result.getAllPoi().get(i).uid));

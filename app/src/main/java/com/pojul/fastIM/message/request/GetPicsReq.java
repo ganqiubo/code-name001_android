@@ -7,7 +7,7 @@ public class GetPicsReq extends RequestMessage{
 
     private PicFilter picFilter;
     private int num;
-    private int startNum;
+    private long startNum;
     private long fromId;
     private boolean isChoice;
 
@@ -24,10 +24,6 @@ public class GetPicsReq extends RequestMessage{
         this.picFilter = picFilter;
     }
 
-    public int getStartNum() {
-        return startNum;
-    }
-
     public int getNum() {
         return num;
     }
@@ -36,7 +32,11 @@ public class GetPicsReq extends RequestMessage{
         this.num = num;
     }
 
-    public void setStartNum(int startNum) {
+    public long getStartNum() {
+        return startNum;
+    }
+
+    public void setStartNum(long startNum) {
         this.startNum = startNum;
     }
 

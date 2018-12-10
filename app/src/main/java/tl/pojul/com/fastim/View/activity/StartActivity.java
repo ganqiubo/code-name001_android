@@ -37,10 +37,10 @@ public class StartActivity extends BaseActivity implements CustomTimeDown.OnTime
             return;
         }
 
-        mCustomTimeDown = new CustomTimeDown(2000, 1000);
+        mCustomTimeDown = new CustomTimeDown(6000, 1000);
         mCustomTimeDown.setOnTimeDownListener(this);
         mCustomTimeDown.start();
-        Glide.with(this).load("https://images.unsplash.com/photo-1519008138718-6fb663213611?ixlib=rb-0.3.5&ixid=eyJhcHBfaWQiOjEyMDd9&s=03a13a9c68857afd60a030c058fe4678&auto=format&fit=crop&w=334&q=80").into(startBg);
+        //Glide.with(this).load("https://images.unsplash.com/photo-1519008138718-6fb663213611?ixlib=rb-0.3.5&ixid=eyJhcHBfaWQiOjEyMDd9&s=03a13a9c68857afd60a030c058fe4678&auto=format&fit=crop&w=334&q=80").into(startBg);
     }
 
     @Override
@@ -58,5 +58,15 @@ public class StartActivity extends BaseActivity implements CustomTimeDown.OnTime
         }else{
             startActivityAndFinish(LoginActivity.class);
         }
+    }
+
+    @Override
+    protected void onDestroy() {
+        if(mCustomTimeDown != null){
+            mCustomTimeDown.setOnTimeDownListener(null);
+            mCustomTimeDown = null;
+
+        }
+        super.onDestroy();
     }
 }

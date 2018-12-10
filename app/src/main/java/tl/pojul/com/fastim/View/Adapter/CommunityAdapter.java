@@ -28,6 +28,7 @@ import butterknife.BindView;
 import butterknife.ButterKnife;
 import tl.pojul.com.fastim.R;
 import tl.pojul.com.fastim.View.activity.BaseActivity;
+import tl.pojul.com.fastim.View.activity.CommuDeatilActivity;
 import tl.pojul.com.fastim.View.activity.CommunityChatActivity;
 import tl.pojul.com.fastim.View.widget.PolygonImage.view.PolygonImageView;
 import tl.pojul.com.fastim.View.widget.marqueeview.SimpleMF;
@@ -42,9 +43,14 @@ public class CommunityAdapter extends RecyclerView.Adapter<CommunityAdapter.MyVi
     private OnItemClickListener mOnItemClickListener;
     private HashMap<String, List<String>> topmesses;
 
+    private HashMap<String, Integer> communityPhotos = new HashMap<>();
+
     public CommunityAdapter(Context mContext, List<CommunityRoom> mList) {
         this.mContext = mContext;
         this.mList = mList;
+        communityPhotos.put("省", R.drawable.province);
+        communityPhotos.put("区/县", R.drawable.district);
+        communityPhotos.put("市", R.drawable.city);
     }
 
     @Override
@@ -96,6 +102,16 @@ public class CommunityAdapter extends RecyclerView.Adapter<CommunityAdapter.MyVi
             holder.communityTopMessage.startFlipping();
             holder.communityTopMessage.setFlipInterval(RandomUtil.getRandomRange(6000, 15 * 1000));
         }
+        holder.communityPhoto.setOnClickListener(v->{
+            Bundle bundle = new Bundle();
+            bundle.putString("commun_room", new Gson().toJson(communityRoom));
+            ((BaseActivity)mContext).startActivity(CommuDeatilActivity.class, bundle);
+        });
+        /*if(communityPhotos.get(communityRoom.getCommunitySubtype()) != null){
+            holder.communityPhoto.setImageResource(communityPhotos.get(communityRoom.getCommunitySubtype()));
+        }else{
+            holder.communityPhoto.setImageResource(R.drawable.community_normal);
+        }*/
 
     }
 

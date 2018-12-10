@@ -396,7 +396,7 @@ public class CommunityChatActivity extends ChatRoomActivity implements CustomTim
                 if (DialogUtil.getInstance().isScreenPopShow()) {
                     return;
                 }
-                DialogUtil.getInstance().showScreenPop(CommunityChatActivity.this, screen, messageFilter);
+                DialogUtil.getInstance().showScreenPop(CommunityChatActivity.this, screen, messageFilter, false);
                 DialogUtil.getInstance().setScreenPopClick((DialogUtil.ScreenPopClick) messageFilter -> {
                     if (messageFilter != null) {
                         CommunityChatActivity.this.messageFilter = messageFilter;
@@ -496,15 +496,15 @@ public class CommunityChatActivity extends ChatRoomActivity implements CustomTim
     @Override
     public void sendChatMessage(ChatMessage chatMessage) {
         if (!MyApplication.getApplication().isConnected()) {
-            showShortToas("与服务器已断开连接");
+            showShortToas(getString(R.string.disconnected));
             return;
         }
         if (!(chatMessage instanceof CommunityMessage)) {
-            showShortToas("发送数据格式错误");
+            showShortToas(getString(R.string.send_data_format_error));
             return;
         }
         if (mBDLocation == null) {
-            showShortToas("获取不到位置信息");
+            showShortToas(getString(R.string.get_location_fail));
             return;
         }
         CommunityMessage communityMessage = ((CommunityMessage) chatMessage);
@@ -518,6 +518,8 @@ public class CommunityChatActivity extends ChatRoomActivity implements CustomTim
         communityMessage.setNickName(user.getNickName());
         communityMessage.setPhoto(user.getPhoto());
         communityMessage.setTimeMill(System.currentTimeMillis());
+        communityMessage.setLatitude(mBDLocation.getLatitude());
+        communityMessage.setLongitude(mBDLocation.getLongitude());
 
         MyApplication.ClientSocket.sendData(communityMessage);
         messageAdapter.addMessage(communityMessage);
@@ -565,7 +567,7 @@ public class CommunityChatActivity extends ChatRoomActivity implements CustomTim
                 messageAdapter.receiveMessage((ChatMessage) message);
                 chatMessageList.scrollToPosition(messageAdapter.getItemCount() - 1);
             }
-            showLongToas("iReceiveMessage--->" + message.getFrom());
+            //showLongToas("iReceiveMessage--->" + message.getFrom());
         }
     };
 
@@ -621,7 +623,7 @@ public class CommunityChatActivity extends ChatRoomActivity implements CustomTim
 
     @Override
     public void onTick(long l) {
-        Log.e("onTick", "onTick");
+        //Log.e("onTick", "onTick");
         LocationManager.getInstance().registerLocationListener(iLocationListener);
         if(isResume && (System.currentTimeMillis() - lastTopMessMilli) > topMessInterval){
             getTopMess(6);

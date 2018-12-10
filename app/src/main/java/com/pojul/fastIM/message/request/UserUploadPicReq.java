@@ -6,7 +6,8 @@ public class UserUploadPicReq extends RequestMessage{
 
     private long userId;
     private int num;
-    private long lastUploadPicId;
+    //private long lastUploadPicId;
+    private long startNum;
 
     public UserUploadPicReq() {
         super();
@@ -29,11 +30,11 @@ public class UserUploadPicReq extends RequestMessage{
         this.num = num;
     }
 
-    public long getLastUploadPicId() {
-        return lastUploadPicId;
+    public long getStartNum() {
+        return startNum;
     }
 
-    public void setLastUploadPicId(long lastUploadPicId) {
-        this.lastUploadPicId = lastUploadPicId;
+    public void setStartNum(long startNum) {
+        this.startNum = startNum;
     }
 }

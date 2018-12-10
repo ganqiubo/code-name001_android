@@ -122,6 +122,10 @@ public class PicBroseActivity extends BaseActivity {
             case "建筑":
                 hideLabel = true;
                 title.setText(filterStr);
+                List<String> labels = new ArrayList<>();
+                labels.add(filterStr);
+                picFilter.setLabels(labels);
+                picFilter.setGallery("unsplash");
                 break;
             case "附近":
                 hideLabel = false;
@@ -129,6 +133,7 @@ public class PicBroseActivity extends BaseActivity {
                 title.setText(filterStr);
                 break;
             case "更多":
+                picFilter.setGallery("unsplash");
                 hideLabel = false;
                 break;
         }

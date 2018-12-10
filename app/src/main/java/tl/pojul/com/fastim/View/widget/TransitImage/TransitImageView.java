@@ -175,7 +175,6 @@ public class TransitImageView extends android.support.v7.widget.AppCompatImageVi
         startAnimator(progress, endProgress);
     }
 
-    @TargetApi(Build.VERSION_CODES.KITKAT)
     public void setBitmap() {
         Drawable drawable = getDrawable();
         if(drawable == null){

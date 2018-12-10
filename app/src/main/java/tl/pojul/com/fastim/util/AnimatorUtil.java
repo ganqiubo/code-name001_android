@@ -7,7 +7,14 @@ import android.animation.ValueAnimator;
 import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.animation.Animation;
+import android.view.animation.AnimationSet;
+import android.view.animation.RotateAnimation;
+import android.view.animation.ScaleAnimation;
+import android.view.animation.TranslateAnimation;
 import android.widget.ImageView;
+
+import com.pojul.fastIM.entity.ScreenPosition;
 
 import tl.pojul.com.fastim.MyApplication;
 
@@ -145,6 +152,43 @@ public class AnimatorUtil {
         });
         view.setVisibility(View.VISIBLE);
         animatorSet.start();
+    }
+
+    public static void startMoveScaleAni(ScreenPosition from, ScreenPosition to, int type,View view, AnimatorListener callback){
+        float dsX = from.getX() - to.getX();
+        float dsY = from.getY() - to.getY();
+        ValueAnimator ani = ValueAnimator.ofFloat(0, 1);
+        if(type == 1){ //显示
+            view.setScaleX(0);
+            view.setScaleY(0);
+            ani.setStartDelay(100);
+        }else{ //隐藏
+            view.setScaleX(1);
+            view.setScaleY(1);
+        }
+        ani.setDuration(460);
+        view.setVisibility(View.VISIBLE);
+        ani.addUpdateListener(animation -> {
+            float value = (float) ani.getAnimatedValue();
+            view.setTranslationX((from.getX() - dsX * value - view.getWidth() * 0.5f));
+            view.setTranslationY((from.getY() - dsY * value) - view.getHeight() * 0.5f);
+            if(type == 1){
+                view.setScaleX(value);
+                view.setScaleY(value);
+            }else{
+                view.setScaleX(1 - (value));
+                view.setScaleY(1 - (value));
+            }
+            if(value >= 1){
+                if(type == 2){
+                    view.setVisibility(View.GONE);
+                }
+                if(callback != null){
+                    callback.onFinished();
+                }
+            }
+        });
+        ani.start();
     }
 
     public interface AnimatorListener{

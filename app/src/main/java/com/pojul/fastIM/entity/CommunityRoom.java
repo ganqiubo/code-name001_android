@@ -21,6 +21,11 @@ public class CommunityRoom extends BaseEntity implements Comparable{
     private double latitude;
     private double altitude;
     private double distance;
+    private String photo;
+    private String detail;
+    private String manager;
+    private String phone;
+    private int hsaClaimed;
 
     public long getId() {
         return id;
@@ -140,6 +145,46 @@ public class CommunityRoom extends BaseEntity implements Comparable{
 
     public void setDistance(double distance) {
         this.distance = distance;
+    }
+
+    public String getPhoto() {
+        return photo;
+    }
+
+    public void setPhoto(String photo) {
+        this.photo = photo;
+    }
+
+    public String getDetail() {
+        return detail;
+    }
+
+    public void setDetail(String detail) {
+        this.detail = detail;
+    }
+
+    public String getManager() {
+        return manager;
+    }
+
+    public void setManager(String manager) {
+        this.manager = manager;
+    }
+
+    public String getPhone() {
+        return phone;
+    }
+
+    public void setPhone(String phone) {
+        this.phone = phone;
+    }
+
+    public int getHsaClaimed() {
+        return hsaClaimed;
+    }
+
+    public void setHsaClaimed(int hsaClaimed) {
+        this.hsaClaimed = hsaClaimed;
     }
 
     @Override

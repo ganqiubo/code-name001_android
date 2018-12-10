@@ -48,6 +48,17 @@ public class MySQLiteHelper extends SQLiteOpenHelper {
             + "upload_pic_url varchar(120) not null, " // COMMENT '图片地址', "
             + "is_delete int(4) not null default 1)"; //COMMENT '是否已删除：1: 未被删除; 2: 已被删除')";
 
+    /*private static final String CREATE_ITEM_PRIV_USERS = "create table item_priv_users ("
+            + "from_name varchar(20) not null, "
+            + "from_nick_name varchar(20) not null, "
+            + "to_name varchar(20) , "
+            + "tag_mess_uid varchar(40) not null, "
+            + "sex int(4) not null, "
+            + "age int(4) not null, "
+            + "unread_message int(4) not null default 0, "
+            + "photo varchar(120) not null default '', "
+            + "conversation_last_chattime varchar(20) not null)";*/
+
     private MySQLiteHelper(Context context) {
         super(context, DATABASE_NAME, null, DATABASE_VERSION);
         // TODO Auto-generated constructor stub
@@ -72,6 +83,7 @@ public class MySQLiteHelper extends SQLiteOpenHelper {
         db.execSQL(CREATE_CONVERSATION_TABLE);
         db.execSQL(CREATE_UPLOAD_PIC_TABLE);
         db.execSQL(CREATE_PIC_TABLE);
+        //db.execSQL(CREATE_ITEM_PRIV_USERS);
     }
 
     @Override

@@ -11,7 +11,7 @@
         android:layout_marginBottom="8dp"
         android:layout_marginLeft="14dp"
         android:layout_marginRight="14dp"
-        android:layout_marginTop="11dp"
+        android:layout_marginTop="3dp"
         android:text="打球的有木有呀"
         android:textColor="#454545"
         android:textSize="15sp" />

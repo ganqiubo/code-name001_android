@@ -4,6 +4,7 @@ import com.pojul.objectsocket.message.RequestMessage;
 
 public class HistoryChatReq extends RequestMessage{
 
+    private int chatType;
 	private String roomUid;
     private String lastSendTime;
     private int num;
@@ -44,5 +45,12 @@ public class HistoryChatReq extends RequestMessage{
 	public void setRoomUid(String roomUid) {
 		this.roomUid = roomUid;
 	}
-    
+
+    public int getChatType() {
+        return chatType;
+    }
+
+    public void setChatType(int chatType) {
+        this.chatType = chatType;
+    }
 }

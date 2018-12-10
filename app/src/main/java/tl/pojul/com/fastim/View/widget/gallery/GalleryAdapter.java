@@ -29,7 +29,6 @@ import me.jessyan.progressmanager.ProgressManager;
 import me.jessyan.progressmanager.body.ProgressInfo;
 import tl.pojul.com.fastim.GlideApp;
 import tl.pojul.com.fastim.R;
-import tl.pojul.com.fastim.util.GlideUtil;
 
 public class GalleryAdapter extends PagerAdapter {
 

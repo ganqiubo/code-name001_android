@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<selector xmlns:android="http://schemas.android.com/apk/res/android">
+    <item
+        android:state_pressed="false">
+        <bitmap android:src="@drawable/album_ic_image_camera_white"
+            android:tint="#eeeeee"/>
+s
+    </item>
+    <item android:state_pressed="true">
+        <bitmap android:src="@drawable/album_ic_image_camera_white"
+            android:tint="@color/yellow_pressed"/>
+    </item>
+</selector>

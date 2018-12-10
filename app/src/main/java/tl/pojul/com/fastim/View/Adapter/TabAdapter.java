@@ -28,6 +28,7 @@ import tl.pojul.com.fastim.View.activity.FollowedUsersActivity;
 import tl.pojul.com.fastim.View.activity.LikeUserActivity;
 import tl.pojul.com.fastim.View.activity.MyPageActivity;
 import tl.pojul.com.fastim.View.activity.PicBroseActivity;
+import tl.pojul.com.fastim.View.activity.TagMessageActivity;
 import tl.pojul.com.fastim.View.activity.UserPicsActivity;
 import tl.pojul.com.fastim.View.activity.UserTagMessActivity;
 import tl.pojul.com.fastim.util.RandomUtil;
@@ -71,15 +72,15 @@ public class TabAdapter extends RecyclerView.Adapter<TabAdapter.MyViewHolder> {
         holder.note.setText(resourceIdTitle.getTitle());
         if(resourceIdTitle.getTitle().equals("对象")){
             if(SPUtil.getInstance().getUser().getSex() == 0){
-                holder.note.setText("找个男盆友");
+                holder.note.setText("找男盆友");
             }else{
-                holder.note.setText("找个女盆友");
+                holder.note.setText("找女盆友");
             }
         }else if(resourceIdTitle.getTitle().equals("伴侣")){
             if(SPUtil.getInstance().getUser().getSex() == 0){
-                holder.note.setText("找个老公");
+                holder.note.setText("找老公");
             }else{
-                holder.note.setText("找个老婆");
+                holder.note.setText("找老婆");
             }
         }
         /*if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP && position < colors.size()) {
@@ -141,9 +142,39 @@ public class TabAdapter extends RecyclerView.Adapter<TabAdapter.MyViewHolder> {
                         bundle = new Bundle();
                         bundle.putString("filter", "更多");
                         ((BaseActivity)mContext).startActivity(PicBroseActivity.class, bundle);
-                    }else{
-
+                    }else if("bored".equals(type)){
+                        bundle = new Bundle();
+                        bundle.putInt("TagMessageType", 1);
+                        bundle.putString("Tags", ("all"));
+                        ((BaseActivity)mContext).startActivity(TagMessageActivity.class, bundle);
                     }
+                    break;
+                case "聊天":
+                case "逛街":
+                case "看电影":
+                case "吃饭":
+                case "散步":
+                    bundle = new Bundle();
+                    bundle.putInt("TagMessageType", 1);
+                    bundle.putString("Tags", ("好无聊,陪" + holder.note.getText().toString()));
+                    ((BaseActivity)mContext).startActivity(TagMessageActivity.class, bundle);
+                    break;
+                case "打球":
+                case "游泳":
+                case "健身":
+                    bundle = new Bundle();
+                    bundle.putInt("TagMessageType", 1);
+                    bundle.putString("Tags", ("好无聊,运动,陪" + holder.note.getText().toString()));
+                    ((BaseActivity)mContext).startActivity(TagMessageActivity.class, bundle);
+                    break;
+                case "找女盆友":
+                case "找男盆友":
+                case "找老婆":
+                case "找老公":
+                    bundle = new Bundle();
+                    bundle.putInt("TagMessageType", 1);
+                    bundle.putString("Tags", (holder.note.getText().toString()));
+                    ((BaseActivity)mContext).startActivity(TagMessageActivity.class, bundle);
                     break;
                 /*case "":
                     break;*/

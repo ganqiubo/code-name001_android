@@ -7,6 +7,7 @@ public class ChatMessage extends BaseMessage{
 	protected int chatType;
 	protected int isRead;
 	protected int sendProgress;
+	protected String note;
 
 	public ChatMessage() {
 		super();
@@ -40,5 +41,13 @@ public class ChatMessage extends BaseMessage{
 
 	public void setSendProgress(int sendProgress) {
 		this.sendProgress = sendProgress;
+	}
+
+	public String getNote() {
+		return note;
+	}
+
+	public void setNote(String note) {
+		this.note = note;
 	}
 }

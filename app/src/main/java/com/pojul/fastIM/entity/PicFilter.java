@@ -11,6 +11,12 @@ public class PicFilter {
     private List<String> labels;
     private String gallery = "脚步";
     private int sex = -1;
+    private String other;
+    private int page;
+    private int index;
+    private int subIndex;
+    private long picId;
+    private boolean hasMore = true;
 
     public boolean isNearBy() {
         return nearBy;
@@ -66,5 +72,53 @@ public class PicFilter {
 
     public void setLon(double lon) {
         this.lon = lon;
+    }
+
+    public String getOther() {
+        return other;
+    }
+
+    public void setOther(String other) {
+        this.other = other;
+    }
+
+    public int getPage() {
+        return page;
+    }
+
+    public void setPage(int page) {
+        this.page = page;
+    }
+
+    public int getIndex() {
+        return index;
+    }
+
+    public void setIndex(int index) {
+        this.index = index;
+    }
+
+    public int getSubIndex() {
+        return subIndex;
+    }
+
+    public void setSubIndex(int subIndex) {
+        this.subIndex = subIndex;
+    }
+
+    public long getPicId() {
+        return picId;
+    }
+
+    public void setPicId(long picId) {
+        this.picId = picId;
+    }
+
+    public boolean isHasMore() {
+        return hasMore;
+    }
+
+    public void setHasMore(boolean hasMore) {
+        this.hasMore = hasMore;
     }
 }

@@ -14,13 +14,20 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import com.google.gson.Gson;
+import com.pojul.fastIM.entity.AddFriend;
+import com.pojul.fastIM.entity.Conversation;
 import com.pojul.fastIM.entity.User;
 import com.pojul.fastIM.message.request.FollowUserReq;
+import com.pojul.fastIM.message.request.FriendReq;
+import com.pojul.fastIM.message.request.GetUserInfoReq;
 import com.pojul.fastIM.message.request.LikeFollowInfoReq;
 import com.pojul.fastIM.message.request.LikeUserReq;
 import com.pojul.fastIM.message.request.UpdateAutographReq;
+import com.pojul.fastIM.message.request.UpdateNickReq;
 import com.pojul.fastIM.message.request.UpdateUserPhotoReq;
+import com.pojul.fastIM.message.response.GetUserInfoResp;
 import com.pojul.fastIM.message.response.LikeFollowInfoResp;
+import com.pojul.fastIM.message.response.UpdateNickResp;
 import com.pojul.fastIM.message.response.UpdateUserPhotoResp;
 import com.pojul.objectsocket.message.ResponseMessage;
 import com.pojul.objectsocket.socket.SocketRequest;
@@ -37,6 +44,8 @@ import tl.pojul.com.fastim.MyApplication;
 import tl.pojul.com.fastim.R;
 import tl.pojul.com.fastim.View.fragment.ChatFragment;
 import tl.pojul.com.fastim.View.widget.PolygonImage.view.PolygonImageView;
+import tl.pojul.com.fastim.dao.ConversationDao;
+import tl.pojul.com.fastim.util.DateUtil;
 import tl.pojul.com.fastim.util.DensityUtil;
 import tl.pojul.com.fastim.util.DialogUtil;
 import tl.pojul.com.fastim.util.GlideUtil;
@@ -98,8 +107,8 @@ public class MyPageActivity extends BaseActivity {
     TextView age;
     @BindView(R.id.sex)
     ImageView sex;
-    @BindView(R.id.certificate)
-    TextView certificate;
+    @BindView(R.id.vip)
+    LinearLayout vip;
     @BindView(R.id.my_photos)
     TextView myPhotos;
     @BindView(R.id.my_tag_mess)
@@ -122,6 +131,7 @@ public class MyPageActivity extends BaseActivity {
     private int visitType = 1; // 0: 访问自己; 1: 访问好友; 2: 访问陌生人
     private final static int REQUEST_CODE_USERINFO = 87;
     private static final int LIKE_FOLLOW_INFO = 969;
+    private final static int GET_USERINFO = 812;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -166,7 +176,10 @@ public class MyPageActivity extends BaseActivity {
                 //reqLikeFollow();
                 initView();
             } else {
-                reqUserInfo(visitedUserName);
+                visitType = 2;
+                likeRl.setClickable(false);
+                followRl.setClickable(false);
+                mHandler.sendEmptyMessageDelayed(GET_USERINFO, 100);
             }
         }
 
@@ -254,9 +267,14 @@ public class MyPageActivity extends BaseActivity {
         String certi = visitedUser.getCertificate() == 0 ? "未实名认证" : "已实名认证";
         age.setText(visitedUser.getAge() + " 岁•  " + sexStr + " ");
         sex.setImageResource(visitedUser.getSex() == 0 ? R.drawable.woman : R.drawable.man);
-        certificate.setText("•  " + certi);
+        if(visitedUser.getNumberValidTime() == null || visitedUser.getNumberValidTime().isEmpty() ||
+                DateUtil.isDateOverdue(visitedUser.getNumberValidTime())){
+            vip.setVisibility(View.GONE);
+        }else{
+            vip.setVisibility(View.VISIBLE);
+        }
         if (visitedUser.getAutograph() != null && !visitedUser.getAutograph().isEmpty()) {
-            autograph.setText("个性签名：" + visitedUser.getAutograph());
+            autograph.setText("" + visitedUser.getAutograph());
         }
         String birthdayType = visitedUser.getBirthdayType() == 0 ? "农历" : "阳历";
         birthday.setText("出生日期：" + visitedUser.getBirthday().split(" ")[0] + "(" + birthdayType + ")");
@@ -296,7 +314,7 @@ public class MyPageActivity extends BaseActivity {
             graduateSchool.setText("毕业学校：" + visitedUser.getGraduateSchool());
             graduateSchool.setVisibility(View.VISIBLE);
         }
-        credit.setText("诚信指数：" + visitedUser.getCredit());
+        credit.setText("信誉度：" + visitedUser.getCredit());
         if (visitedUser.getCertificate() == 1) {
             certificateRl.setVisibility(View.GONE);
         }
@@ -312,14 +330,51 @@ public class MyPageActivity extends BaseActivity {
 
     }
 
-    private void reqUserInfo(String visitedUserName) {
+    private void reqUserInfo() {
+        if(visitedUserName == null){
+            finish();
+            return;
+        }
+        GetUserInfoReq req = new GetUserInfoReq();
+        req.setUserName(visitedUserName);
+        DialogUtil.getInstance().showLoadingSimple(this, rootView);
+        new SocketRequest().request(MyApplication.ClientSocket, req, new SocketRequest.IRequest() {
+            @Override
+            public void onError(String msg) {
+                runOnUiThread(()->{
+                    DialogUtil.getInstance().dimissLoadingDialog();
+                    showShortToas(msg);
+                    finish();
+                });
+            }
+
+            @Override
+            public void onFinished(ResponseMessage mResponse) {
+                runOnUiThread(()->{
+                    if(mResponse.getCode() == 200){
+                        DialogUtil.getInstance().dimissLoadingDialog();
+                        visitedUser = ((GetUserInfoResp)mResponse).getUser();
+                        if(visitedUser == null){
+                            finish();
+                            return;
+                        }else{
+                            reqLikeFollow();
+                            initView();
+                        }
+                    }else{
+                        showShortToas(mResponse.getMessage());
+                        finish();
+                    }
+                });
+            }
+        });
 
     }
 
 
     @OnClick({R.id.photo, R.id.back, R.id.edit, R.id.like_rl, R.id.follow_rl, R.id.say_hello,
             R.id.add_friend, R.id.chat, R.id.autograph_edit, R.id.my_photos_rl, R.id.my_tag_mess_rl,
-            R.id.my_be_reported_rl, R.id.certificate_rl, R.id.mypage_photo})
+            R.id.my_be_reported_rl, R.id.certificate_rl, R.id.mypage_photo, R.id.nick_name})
     public void onViewClicked(View view) {
         switch (view.getId()) {
             case R.id.photo:
@@ -344,10 +399,39 @@ public class MyPageActivity extends BaseActivity {
                 reqFollow();
                 break;
             case R.id.say_hello:
+                User visitUser = SPUtil.getInstance().getUser();
+                if(visitUser == null || visitUser.getUserName() == null || visitUser.getUserName().equals(visitedUser.getUserName())){
+                    showShortToas("数据错误");
+                    return;
+                }
+                DialogUtil.getInstance().showAddFriendDialog(MyPageActivity.this, "打招呼");
+                DialogUtil.getInstance().setDialogClick(str -> {
+                    if(str == null){
+                        str = "";
+                    }
+                    addFriend(str, visitUser, 2);
+                });
                 break;
             case R.id.add_friend:
+                visitUser = SPUtil.getInstance().getUser();
+                if(visitUser == null || visitUser.getUserName() == null || visitUser.getUserName().equals(visitedUser.getUserName())){
+                    showShortToas("数据错误");
+                    return;
+                }
+                DialogUtil.getInstance().showAddFriendDialog(MyPageActivity.this, "添加好友");
+                DialogUtil.getInstance().setDialogClick(str -> {
+                    if(str == null){
+                        str = "";
+                    }
+                    addFriend(str, visitUser, 1);
+                });
                 break;
             case R.id.chat:
+                Bundle bundle = new Bundle();
+                bundle.putInt("chat_room_type", 1);
+                bundle.putString("chat_room_name", visitedUser.getNickName());
+                bundle.putString("friend", new Gson().toJson(visitedUser));
+                startActivity(SingleChatRoomActivity.class, bundle);
                 break;
             case R.id.autograph_edit:
                 DialogUtil.getInstance().showEditDialog(MyPageActivity.this, "修改签名", "新签名");
@@ -356,6 +440,10 @@ public class MyPageActivity extends BaseActivity {
                 });
                 break;
             case R.id.my_photos_rl:
+                bundle = new Bundle();
+                String json = new Gson().toJson(visitedUser);
+                bundle.putString("user", json);
+                startActivity(UserPicsActivity.class, bundle);
                 break;
             case R.id.my_tag_mess_rl:
                 break;
@@ -368,7 +456,97 @@ public class MyPageActivity extends BaseActivity {
                     updatePhoto(1);
                 }
                 break;
+            case R.id.nick_name:
+                if (visitType == 0) {
+                    DialogUtil.getInstance().showEditDialog(MyPageActivity.this, "修改昵称", "新昵称", 15);
+                    DialogUtil.getInstance().setDialogClick(str -> {
+                        updateNickName(str);
+                    });
+                }
+                break;
         }
+    }
+
+    private void updateNickName(String str) {
+        UpdateNickReq req = new UpdateNickReq();
+        req.setNickName(str);
+        DialogUtil.getInstance().showLoadingSimple(this, getWindow().getDecorView());
+        new SocketRequest().request(MyApplication.ClientSocket, req, new SocketRequest.IRequest() {
+            @Override
+            public void onError(String msg) {
+                runOnUiThread(()->{
+                    showShortToas(msg);
+                    DialogUtil.getInstance().dimissLoadingDialog();
+                });
+            }
+
+            @Override
+            public void onFinished(ResponseMessage mResponse) {
+                runOnUiThread(()->{
+                    if(mResponse.getCode() == 200){
+                        visitedUser.setNickName(str);
+                        SPUtil.getInstance().putUser(visitedUser);
+                        nickName.setText(str);
+                    }else{
+                        showShortToas(mResponse.getMessage());
+                    }
+                    DialogUtil.getInstance().dimissLoadingDialog();
+                });
+            }
+        });
+    }
+
+    private void addFriend(String str, User visitUser, int type) {
+        FriendReq req = new FriendReq();
+        AddFriend addFriend = new AddFriend();
+        addFriend.setReqUserName(visitUser.getUserName());
+        addFriend.setReqedUserName(visitedUser.getUserName());
+        addFriend.setReqType(type);
+        addFriend.setReqText(str);
+        addFriend.setReqUserInfo(visitUser);
+        req.setAddFriend(addFriend);
+        new SocketRequest().request(MyApplication.ClientSocket, req, new SocketRequest.IRequest() {
+            @Override
+            public void onError(String msg) {
+                runOnUiThread(()->{
+                    showShortToas(msg);
+                });
+            }
+
+            @Override
+            public void onFinished(ResponseMessage mResponse) {
+                runOnUiThread(()->{
+                    if(mResponse.getCode() == 200){
+
+                    }else{
+                        if(mResponse .getCode() == 202 && type == 2){
+                            ConversationDao conversationDao = new ConversationDao();
+                            if(!conversationDao.isSingleConversationExit(visitedUser.getUserName(), visitUser.getUserName())){
+                                Conversation conversation = new Conversation();
+                                conversation.setConversationName(visitedUser.getNickName());
+                                conversation.setConversationFrom(visitedUser.getUserName());
+                                conversation.setConversationPhoto(visitedUser.getPhoto().getFilePath());
+                                conversation.setConversationLastChat(str);
+                                conversation.setConversationLastChattime(DateUtil.getFormatDate());
+                                conversation.setConversationOwner(visitUser.getUserName());
+                                conversation.setUnreadMessage(0);
+                                conversation.setConversionUid("");
+                                conversation.setConversationType(1);
+                                conversationDao.insertConversation(conversation);
+                            }
+                            Intent intent = new Intent(MyPageActivity.this, SingleChatRoomActivity.class);
+                            Bundle bundle=new Bundle();
+                            bundle.putInt("chat_room_type", 1);
+                            bundle.putString("chat_room_name", visitedUser.getNickName());
+                            bundle.putString("friend", new Gson().toJson(visitedUser));
+                            intent.putExtras(bundle);
+                            startActivity(intent);
+                        }
+                        showShortToas(mResponse.getMessage());
+                    }
+                });
+            }
+        });
     }
 
     private void reqFollow() {
@@ -491,7 +669,11 @@ public class MyPageActivity extends BaseActivity {
                     if (type == 0) {
                         req.setRawPhotoName(FileClassUtil.getNetFileName(visitedUser.getPhoto().getFilePath()));
                     } else {
-                        req.setRawPhotoName(FileClassUtil.getNetFileName(visitedUser.getMypagePhoto().getFilePath()));
+                        if(visitedUser.getMypagePhoto() == null){
+                            req.setRawPhotoName(null);
+                        }else{
+                            req.setRawPhotoName(FileClassUtil.getNetFileName(visitedUser.getMypagePhoto().getFilePath()));
+                        }
                     }
                     DialogUtil.getInstance().showLoadingSimple(MyPageActivity.this, getWindow().getDecorView());
                     new SocketRequest().request(MyApplication.ClientSocket, req, new SocketRequest.IRequest() {
@@ -568,6 +750,9 @@ public class MyPageActivity extends BaseActivity {
             switch (msg.what) {
                 case LIKE_FOLLOW_INFO:
                     activity.get().reqLikeFollow();
+                    break;
+                case GET_USERINFO:
+                    activity.get().reqUserInfo();
                     break;
             }
         }

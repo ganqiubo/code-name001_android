@@ -109,7 +109,7 @@
             android:id="@+id/chat_contents"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:background="#f0f0f0"
+            android:background="#f6f6f6"
             >
         </android.support.v7.widget.RecyclerView>
     </com.scwang.smartrefresh.layout.SmartRefreshLayout>

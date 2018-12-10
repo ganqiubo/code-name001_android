@@ -7,8 +7,9 @@
 
     <View
         android:layout_width="match_parent"
-        android:layout_height="1px"
-        android:background="#e1e1e1"/>
+        android:layout_height="2dp"
+        android:rotation="180"
+        android:background="@drawable/shape_gradient"/>
 
     <EditText
         android:id="@+id/subreply_text"

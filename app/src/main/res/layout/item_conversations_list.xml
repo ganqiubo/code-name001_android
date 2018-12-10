@@ -81,16 +81,26 @@
 
                 <TextView
                     android:id="@+id/unread_message"
-                    android:layout_width="20dp"
-                    android:layout_height="20dp"
-                    android:background="@drawable/shape_unsend_message"
-                    android:text="1"
-                    android:gravity="center"
-                    android:textColor="#ffffff"
+                    android:layout_width="17dp"
+                    android:layout_height="wrap_content"
                     android:layout_gravity="center"
                     android:layout_marginTop="5dp"
-                    android:textSize="10sp"
-                    />
+                    android:background="@drawable/shape_unsend_message"
+                    android:gravity="center"
+                    android:text="1"
+                    android:textColor="#ffffff"
+                    android:textSize="10sp" />
+
+                <TextView
+                    android:visibility="gone"
+                    android:id="@+id/has_unread_message"
+                    android:layout_width="8dp"
+                    android:layout_height="8dp"
+                    android:layout_gravity="center"
+                    android:layout_marginTop="5dp"
+                    android:background="@drawable/shape_unsend_message"
+                    android:gravity="center"
+                    android:textSize="10sp" />
             </LinearLayout>
         </RelativeLayout>
 

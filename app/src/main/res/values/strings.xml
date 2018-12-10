@@ -1,5 +1,28 @@
 <resources>
-    <string name="app_name">脚步圈</string>
+    <string name="app_name">FootStep</string>
+    <string name="chat">chat</string>
+    <string name="upload">upload</string>
+    <string name="community">community</string>
+    <string name="more">more</string>
+    <string name="conversation">conversation</string>
+    <string name="friends">friends</string>
+    <string name="upload_img_note">Description: The uploaded image will be saved to the cloud server. Other users can see, comment and collect the uploaded photos. The uploaded images are divided into location images and normal images. The location images can be displayed on the corresponding map.</string>
+    <string name="upload_process">upload process</string>
+    <string name="fill_information">information</string>
+    <string name="location_optional">Location</string>
+    <string name="select_image">image</string>
+    <string name="upload_success">success</string>
+    <string name="upload_normal_image">upload normal image</string>
+    <string name="upload_location_image">upload location image</string>
+    <string name="upload_task">upload task</string>
+    <string name="not_uploaded_task">not uploaded task</string>
+    <string name="upload_record">upload record</string>
+    <string name="upload_empty">Upload the record is empty, upload a beautiful picture and share it with others.</string>
+    <string name="disconnected">Disconnected from the server</string>
+    <string name="send_data_format_error">Send data format error</string>
+    <string name="get_location_fail">Failed to get location</string>
+
+
     <string name="title_activity_base">BaseActivity</string>
 
     <!-- TODO: Remove or change this placeholder text -->

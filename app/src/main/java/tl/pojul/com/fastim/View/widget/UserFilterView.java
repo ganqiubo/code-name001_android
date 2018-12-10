@@ -4,6 +4,8 @@ import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Looper;
 import android.support.annotation.Nullable;
 import android.util.AttributeSet;
 import android.widget.CheckBox;
@@ -12,20 +14,27 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.RadioButton;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 import com.pojul.fastIM.entity.AgeRange;
 import com.pojul.fastIM.entity.User;
 import com.pojul.fastIM.entity.UserFilter;
+import com.pojul.fastIM.message.request.GetUsersByNameReq;
+import com.pojul.fastIM.message.response.GetUsersByNameResp;
+import com.pojul.objectsocket.message.ResponseMessage;
+import com.pojul.objectsocket.socket.SocketRequest;
 
 import java.util.List;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
+import tl.pojul.com.fastim.MyApplication;
 import tl.pojul.com.fastim.R;
 import tl.pojul.com.fastim.View.activity.BaseActivity;
 import tl.pojul.com.fastim.View.activity.WhiteBlackActivity;
+import tl.pojul.com.fastim.converter.UserConverter;
 import tl.pojul.com.fastim.util.ArrayUtil;
 import tl.pojul.com.fastim.util.DialogUtil;
 
@@ -247,6 +256,9 @@ public class UserFilterView extends LinearLayout {
             }
             whiteUsers = new Gson().fromJson(json, new TypeToken<List<User>>(){}.getType());
             whiteListTv.setText(ArrayUtil.getUserNicknames(whiteUsers));
+            if(!whiteListTv.getText().toString().isEmpty()){
+                setWhiteBlackEnable(1);
+            }
         }else if(requestCode == REQUEST_CODE_BLACK && resultCode == Activity.RESULT_OK){
             String json = data.getExtras().getString("Users");
             if(json ==null){
@@ -254,6 +266,9 @@ public class UserFilterView extends LinearLayout {
             }
             blackUsers = new Gson().fromJson(json, new TypeToken<List<User>>(){}.getType());
             blackListTv.setText(ArrayUtil.getUserNicknames(blackUsers));
+            if(!blackListTv.getText().toString().isEmpty()){
+                setWhiteBlackEnable(2);
+            }
         }
     }
 
@@ -314,6 +329,116 @@ public class UserFilterView extends LinearLayout {
             filter.setCertificatEnabled(false);
         }
         return filter;
+    }
+
+    /**
+     * 设置中完成
+     * */
+    public void setUserFilter(UserFilter userFilter) {
+        if(userFilter == null){
+            return;
+        }
+        this.filter = userFilter;
+        if(filter.getWhiteListNames() != null && filter.getWhiteListNames().size() > 0){
+            reqUserinfos(filter.getWhiteListNames(), 1);
+        }
+        if(filter.getBlackListNames() != null && filter.getBlackListNames().size() > 0){
+            reqUserinfos(filter.getBlackListNames(), 2);
+        }
+        if(!userFilter.isFilterEnabled()){
+            whiteBlackCb.setChecked(false);
+            whiteListRb.setChecked(true);
+            sexManRb.setChecked(true);
+            allCb.setChecked(true);
+        }else{
+            if(filter.isWhiteListEnabled() || filter.isBlackListEnabled()){
+                whiteBlackCb.setChecked(true);
+                if(filter.isWhiteListEnabled()){
+                    whiteListRb.setChecked(true);
+                }else{
+                    blackListRb.setChecked(true);
+                }
+            }else {
+                whiteBlackCb.setChecked(false);
+            }
+            if(filter.isAgeEnabled()){
+                ageRangeCb.setChecked(true);
+                ageRangeRsb.setValue(filter.getMinAge(), filter.getMaxAge());
+                minAge = filter.getMinAge();
+                maxAge = filter.getMaxAge();
+                ageRangeTv.setText((minAge + "-" + maxAge + "岁"));
+            }else{
+                ageRangeCb.setChecked(false);
+            }
+            if(filter.isSexEnabled()){
+                sexCb.setChecked(true);
+                if(filter.getSex() == 0){
+                    sexWomanRb.setChecked(true);
+                    sexManRb.setChecked(false);
+                }else{
+                    sexWomanRb.setChecked(false);
+                    sexManRb.setChecked(true);
+                }
+            }else{
+                sexCb.setChecked(false);
+            }
+            if(filter.isCreditEnabled()){
+                creditCb.setChecked(true);
+                creditMsb.setValue(filter.getCredit());
+                credit = filter.getCredit();
+                creditTv.setText("> " + credit);
+            }else{
+                creditCb.setChecked(false);
+            }
+            if(filter.isCertificatEnabled()){
+                certificationCb.setChecked(true);
+            }else{
+                certificationCb.setChecked(false);
+            }
+        }
+    }
+
+    private void reqUserinfos(List<String> listNames, int type) {
+        GetUsersByNameReq req = new GetUsersByNameReq();
+        req.setUserNames(listNames);
+        DialogUtil.getInstance().showLoadingSimple(getContext(), ((Activity)getContext()).getWindow().getDecorView());
+        new SocketRequest().request(MyApplication.ClientSocket, req, new SocketRequest.IRequest() {
+            @Override
+            public void onError(String msg) {
+                new Handler(Looper.getMainLooper()).post(()->{
+                    DialogUtil.getInstance().dimissLoadingDialog();
+                    Toast.makeText(getContext(), "获取用户信息失败", Toast.LENGTH_SHORT).show();
+                });
+            }
+
+            @Override
+            public void onFinished(ResponseMessage mResponse) {
+                new Handler(Looper.getMainLooper()).post(()->{
+                    DialogUtil.getInstance().dimissLoadingDialog();
+                    if(mResponse.getCode() == 200){
+                        List<User> users = new UserConverter().converByOrder(listNames, ((GetUsersByNameResp)mResponse).getUsers());
+                        if(type == 1){
+                            whiteUsers = users;
+                            whiteListTv.setText(ArrayUtil.getUserNicknames(whiteUsers));
+                        }else if(type == 2){
+                            blackUsers = users;
+                            blackListTv.setText(ArrayUtil.getUserNicknames(blackUsers));
+                        }
+                    }else{
+                        Toast.makeText(getContext(), "获取用户信息失败", Toast.LENGTH_SHORT).show();
+                    }
+                });
+            }
+        });
+    }
+
+    public void setWhiteBlackEnable(int type){
+        whiteBlackCb.setChecked(true);
+        if(type == 1){
+            whiteListRb.setChecked(true);
+        }else if(type ==2){
+            blackListRb.setChecked(true);
+        }
     }
 
 }

@@ -3,26 +3,31 @@ package tl.pojul.com.fastim.View.fragment;
 
 import android.os.Bundle;
 import android.support.annotation.Nullable;
-import android.support.v4.app.Fragment;
 import android.support.v7.widget.GridLayoutManager;
-import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.RelativeLayout;
+import android.widget.TextView;
 
 import com.pojul.fastIM.entity.ResourceIdTitle;
 
-import java.nio.charset.MalformedInputException;
 import java.util.ArrayList;
-import java.util.List;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
+import butterknife.OnClick;
 import butterknife.Unbinder;
+import tl.pojul.com.fastim.MyApplication;
 import tl.pojul.com.fastim.R;
 import tl.pojul.com.fastim.View.Adapter.TabAdapter;
+import tl.pojul.com.fastim.View.activity.AddFriendActivity;
+import tl.pojul.com.fastim.View.activity.BaseActivity;
+import tl.pojul.com.fastim.View.activity.MainActivity;
+import tl.pojul.com.fastim.View.activity.NearByMessActivity;
+import tl.pojul.com.fastim.View.activity.NearByPeopleActivity;
+import tl.pojul.com.fastim.View.activity.SettingActivity;
 import tl.pojul.com.fastim.View.widget.MyGridLayoutManager;
 
 public class MoreFragment extends BaseFragment {
@@ -35,19 +40,39 @@ public class MoreFragment extends BaseFragment {
     @BindView(R.id.bored_note_lists)
     RecyclerView boredNoteLists;
     Unbinder unbinder;
-    @BindView(R.id.near_by)
-    RelativeLayout nearBy;
+    @BindView(R.id.mine_note)
+    TextView mineNote;
+    @BindView(R.id.beauty_pic_note)
+    TextView beautyPicNote;
+    @BindView(R.id.recommend_note)
+    TextView recommendNote;
+    @BindView(R.id.nearby_message)
+    RelativeLayout nearbyMessage;
+    @BindView(R.id.setting)
+    RelativeLayout setting;
+    @BindView(R.id.nearby_people)
+    RelativeLayout nearbyPeople;
+    @BindView(R.id.has_unread_message)
+    TextView hasUnreadMessage;
+    @BindView(R.id.has_unread_people)
+    TextView hasUnreadPeople;
+    @BindView(R.id.has_unread_friendreq)
+    TextView hasUnreadFriendreq;
+    @BindView(R.id.friend_req)
+    RelativeLayout friendReq;
+    @BindView(R.id.has_unread_setting)
+    TextView hasUnreadSetting;
 
-    private ArrayList mineDatas = new ArrayList(){{
+    private ArrayList mineDatas = new ArrayList() {{
         add(new ResourceIdTitle(R.drawable.my_page, "主页"));
         add(new ResourceIdTitle(R.drawable.my_pic, "自拍/写真"));
         add(new ResourceIdTitle(R.drawable.publish_mess, "发布的消息"));
         add(new ResourceIdTitle(R.drawable.like_man, "喜欢的人"));
         add(new ResourceIdTitle(R.drawable.follow, "关注的人"));
-        add(new ResourceIdTitle(R.drawable.walk, "足迹"));
+        //add(new ResourceIdTitle(R.drawable.walk, "足迹"));
     }};
 
-    private ArrayList picDatas = new ArrayList(){{
+    private ArrayList picDatas = new ArrayList() {{
         add(new ResourceIdTitle(R.drawable.choiceness_normal, "精选"));
         add(new ResourceIdTitle(R.drawable.home_location_normal, "附近"));
         add(new ResourceIdTitle(R.drawable.scenery, "风景"));
@@ -56,7 +81,7 @@ public class MoreFragment extends BaseFragment {
         add(new ResourceIdTitle(R.drawable.more_tab, "更多"));
     }};
 
-    private ArrayList boredData = new ArrayList(){{
+    private ArrayList boredData = new ArrayList() {{
         add(new ResourceIdTitle(R.drawable.chat, "聊天"));
         add(new ResourceIdTitle(R.drawable.saunter, "逛街"));
         add(new ResourceIdTitle(R.drawable.movie, "看电影"));
@@ -101,15 +126,57 @@ public class MoreFragment extends BaseFragment {
         picAdapter = new TabAdapter(getContext(), picDatas, "pic");
         beautyPicNoteLists.setAdapter(picAdapter);
 
-        GridLayoutManager gridLayoutManager2 = new MyGridLayoutManager(getContext(), 3);
+        /*GridLayoutManager gridLayoutManager2 = new MyGridLayoutManager(getContext(), 3);
         boredNoteLists.setLayoutManager(gridLayoutManager2);
         boredAdapter = new TabAdapter(getContext(), boredData, "bored");
-        boredNoteLists.setAdapter(boredAdapter);
+        boredNoteLists.setAdapter(boredAdapter);*/
+
+        notifyHasRecomds();
+
+    }
+
+    public void notifyHasRecomds(){
+        if(MyApplication.hasRecomdMess){
+            hasUnreadMessage.setVisibility(View.VISIBLE);
+        }else{
+            hasUnreadMessage.setVisibility(View.GONE);
+        }
+        if(MyApplication.hasRecomdProple){
+            hasUnreadPeople.setVisibility(View.VISIBLE);
+        }else{
+            hasUnreadPeople.setVisibility(View.GONE);
+        }
+        MainActivity mainActivity = ((MainActivity)getActivity());
+        if(mainActivity != null && mainActivity.recomdsTv != null){
+            if(MyApplication.hasRecomdMess || MyApplication.hasRecomdProple){
+                mainActivity.recomdsTv.setVisibility(View.VISIBLE);
+            }else{
+                mainActivity.recomdsTv.setVisibility(View.GONE);
+            }
+        }
     }
 
     @Override
     public void onDestroyView() {
         super.onDestroyView();
         unbinder.unbind();
+    }
+
+    @OnClick({R.id.nearby_message, R.id.nearby_people, R.id.setting, R.id.friend_req})
+    public void onViewClicked(View view) {
+        switch (view.getId()) {
+            case R.id.nearby_message:
+                ((BaseActivity) getContext()).startActivity(NearByMessActivity.class, null);
+                break;
+            case R.id.nearby_people:
+                ((BaseActivity) getContext()).startActivity(NearByPeopleActivity.class, null);
+                break;
+            case R.id.setting:
+                ((BaseActivity) getContext()).startActivity(SettingActivity.class, null);
+                break;
+            case R.id.friend_req:
+                ((BaseActivity) getContext()).startActivity(AddFriendActivity.class, null);
+                break;
+        }
     }
 }

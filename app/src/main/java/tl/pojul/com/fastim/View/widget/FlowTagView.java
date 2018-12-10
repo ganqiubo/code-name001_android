@@ -197,6 +197,9 @@ public class FlowTagView extends View {
 
     @Override
     public boolean onTouchEvent(MotionEvent event) {
+        if(!isEnabled()){
+            return super.onTouchEvent(event);
+        }
         switch (event.getAction()) {
             case MotionEvent.ACTION_DOWN:
                 mTouchX = event.getX();

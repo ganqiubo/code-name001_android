@@ -164,7 +164,6 @@ public class UserSelectActivity extends BaseActivity {
                         if (getFriendsResponse.getFriends() != null && getFriendsResponse.getFriends().size() > 0) {
                             refreshData(getFriendsResponse.getFriends());
                         } else {
-                            showShortToas("未查询到数据");
                         }
                     } else {
                         userList.setVisibility(View.VISIBLE);

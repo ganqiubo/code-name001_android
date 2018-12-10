@@ -78,7 +78,7 @@ public class UploadingPicAdapter extends RecyclerView.Adapter<UploadingPicAdapte
             holder.uploadingPicUpload.setOnClickListener(v->{
                 if(PicUploadManager.getInstance().isTaskValid(uploadPicTask)){
                     if (!MyApplication.getApplication().isConnected()) {
-                        Toast.makeText(mContext, "与服务器已断开连接", Toast.LENGTH_SHORT).show();
+                        Toast.makeText(mContext, mContext.getString(R.string.disconnected), Toast.LENGTH_SHORT).show();
                         return;
                     }
                     PicUploadManager.getInstance().uploadPic(uploadPicTask, uploadPic.getId());

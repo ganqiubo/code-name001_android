@@ -41,6 +41,10 @@ public class MessageFilterView extends LinearLayout {
     TextView efficative;
     @BindView(R.id.efficative_nolimit)
     TextView efficativeNolimit;
+    @BindView(R.id.effective_note)
+    TextView effectiveNote;
+    @BindView(R.id.effective_ll)
+    LinearLayout effectiveLl;
 
     private List<String> labels = MyApplication.tagMessLabels;
 
@@ -107,10 +111,10 @@ public class MessageFilterView extends LinearLayout {
             man.setSelected(true);
             woman.setSelected(false);
         }
-        if(messageFilter.getEfficative() == -1){
+        if (messageFilter.getEfficative() == -1) {
             efficativeNolimit.setSelected(true);
             efficative.setSelected(false);
-        }else{
+        } else {
             efficativeNolimit.setSelected(false);
             efficative.setSelected(true);
         }
@@ -177,13 +181,16 @@ public class MessageFilterView extends LinearLayout {
         } else {
             messageFilter.setSex(-1);
         }
-        if(efficative.isSelected()){
+        if (efficative.isSelected()) {
             messageFilter.setEfficative(0);
-        }else{
+        } else {
             messageFilter.setEfficative(-1);
         }
         return messageFilter;
     }
 
-
+    public void hideEffective() {
+        effectiveNote.setVisibility(GONE);
+        effectiveLl.setVisibility(GONE);
+    }
 }

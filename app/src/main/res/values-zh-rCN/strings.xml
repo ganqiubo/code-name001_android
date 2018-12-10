@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">脚步圈</string>
+    <string name="chat">聊天</string>
+	<string name="upload">上传</string>
+	<string name="community">社区</string>
+	<string name="more">更多</string>
+	<string name="conversation">会话</string>
+	<string name="friends">好友</string>
+	<string name="upload_img_note">说明：上传图片将保存到云服务器上，其他用户可以看到、评论和收藏您上传的美图；上传图片分为位置图片和普通图片，其中位置图片可以显示在对应的地图上</string>
+	<string name="upload_process">上传流程</string>
+	<string name="fill_information">填写信息</string>
+	<string name="location_optional">位置(可选)</string>
+	<string name="select_image">选择图片</string>
+	<string name="upload_success">上传成功</string>
+	<string name="upload_normal_image">上传普通图片</string>
+	<string name="upload_location_image">上传位置图片</string>
+	<string name="upload_task">上传任务</string>
+	<string name="not_uploaded_task">未上传数据</string>
+	<string name="upload_record">上传记录</string>
+	<string name="upload_empty">上传记录为空哦，赶快上传一张美美哒图片与别人一起分享吧</string>
+	<string name="disconnected">与服务器已断开连接</string>
+	<string name="send_data_format_error">发送数据格式错误</string>
+	<string name="get_location_fail">獲取位置失敗</string>
+</resources>

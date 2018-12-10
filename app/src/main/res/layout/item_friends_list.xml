@@ -12,10 +12,11 @@
 
         <tl.pojul.com.fastim.View.widget.PolygonImage.view.PolygonImageView
             android:id="@+id/friend_photo"
-            android:layout_width="70dp"
-            android:layout_height="70dp"
-            android:layout_marginLeft="5dp"
-            android:padding="13dp"
+            android:layout_width="48dp"
+            android:layout_height="48dp"
+            android:layout_marginLeft="18dp"
+            android:layout_marginTop="13dp"
+            android:layout_marginBottom="13dp"
             android:src="@drawable/photo_default"
             app:poly_corner_radius="10"
             app:poly_rotation_angle="10"
@@ -23,49 +24,46 @@
             app:poly_vertices="0" />
 
         <RelativeLayout
+            android:id="@+id/item_rl"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:id="@+id/item_rl"
-            android:clickable="true"
-            >
+            android:layout_marginLeft="5dp"
+            android:clickable="true">
 
             <TextView
                 android:id="@+id/friend_nickname"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="昵称"
                 android:layout_alignParentTop="true"
                 android:layout_marginTop="15dp"
-                android:textSize="17sp"
+                android:text="昵称"
                 android:textColor="#222222"
-                />
+                android:textSize="17sp" />
 
             <TextView
                 android:id="@+id/friend_autograph"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_alignParentBottom="true"
-                android:text="个性签名"
-                android:textSize="15sp"
                 android:layout_marginBottom="15dp"
-                android:textColor="#666666"
                 android:ellipsize="end"
                 android:lines="1"
-                />
+                android:text="个性签名"
+                android:textColor="#666666"
+                android:textSize="14sp" />
 
             <TextView
                 android:id="@+id/unread_message"
                 android:layout_width="22dp"
                 android:layout_height="22dp"
-                android:background="@drawable/shape_unsend_message"
-                android:text="5"
                 android:layout_alignParentRight="true"
-                android:gravity="center"
-                android:textColor="#ffffff"
-                android:textSize="11sp"
-                android:layout_marginTop="18dp"
                 android:layout_marginRight="30dp"
-                />
+                android:layout_marginTop="18dp"
+                android:background="@drawable/shape_unsend_message"
+                android:gravity="center"
+                android:text="5"
+                android:textColor="#ffffff"
+                android:textSize="11sp" />
         </RelativeLayout>
 
     </LinearLayout>

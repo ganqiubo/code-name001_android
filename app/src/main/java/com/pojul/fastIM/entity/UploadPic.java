@@ -5,7 +5,7 @@ import java.sql.ResultSet;
 
 public class UploadPic extends BaseEntity{
 
-	private long id;
+	private long id = -1;
 	private int userId;
 	private int uploadPicType;
 	private int isDelete= 1;

@@ -15,7 +15,15 @@
     <uses-permission android:name="android.permission.CHANGE_WIFI_STATE" />
     <uses-permission android:name="android.permission.READ_PHONE_STATE" />
     <uses-permission android:name="android.permission.ACCESS_NOTIFICATION_POLICY" />
+    <uses-permission android:name="android.permission.DISABLE_KEYGUARD" />
+    <uses-permission android:name="android.permission.PROCESS_OUTGOING_CALLS" />
+    <uses-permission android:name="android.permission.FLASHLIGHT" />
+    <uses-permission android:name="android.permission.CAMERA" />
 
+    <uses-feature android:name="android.hardware.camera" />
+    <uses-feature android:name="android.hardware.autofocus" />
+
+    <!-- <uses-permission android:name="android.permission.WAKE_LOCK" /> -->
     <application
         android:name=".MyApplication"
         android:allowBackup="true"
@@ -39,6 +47,7 @@
             android:theme="@style/AppTheme.NoActionBar" />
         <activity
             android:name=".View.activity.LoginActivity"
+            android:launchMode="singleInstance"
             android:process=":process1"
             android:screenOrientation="portrait"
             android:theme="@style/AppTheme.NoActionBar" />
@@ -107,7 +116,9 @@
         <activity
             android:name=".View.activity.WhiteBlackListActivity"
             android:process=":process1" />
-        <activity android:name=".View.activity.UserSearchActivity" />
+        <activity
+            android:name=".View.activity.UserSearchActivity"
+            android:process=":process1" />
         <activity
             android:name=".View.activity.TagReplyActivity"
             android:process=":process1" />
@@ -183,6 +194,53 @@
             android:theme="@style/AppTheme.NoActionBar" />
         <activity
             android:name=".View.activity.PicBroseActivity"
+            android:process=":process1"
+            android:theme="@style/AppTheme.NoActionBar" />
+        <activity
+            android:name=".View.activity.PrivateReplyActivity"
+            android:process=":process1"
+            android:theme="@style/AppTheme.NoActionBar" />
+        <activity
+            android:name=".View.activity.NearByMessActivity"
+            android:process=":process1"
+            android:theme="@style/AppTheme.NoActionBar" />
+        <activity
+            android:name=".View.activity.NearByPeopleActivity"
+            android:process=":process1"
+            android:theme="@style/AppTheme.NoActionBar" />
+        <activity
+            android:name=".View.activity.LockScreenActivity"
+            android:configChanges="navigation|orientation|screenLayout|screenSize|touchscreen|keyboard|keyboardHidden|uiMode|layoutDirection|smallestScreenSize"
+            android:excludeFromRecents="true"
+            android:launchMode="singleInstance"
+            android:noHistory="false"
+            android:process=":process1"
+            android:screenOrientation="portrait"
+            android:taskAffinity="tl.pojul.com.fastim.lockscreen"
+            android:theme="@style/Activity.Translucent" />
+        <activity
+            android:name=".View.activity.AddFriendActivity"
+            android:launchMode="singleInstance"
+            android:process=":process1"
+            android:taskAffinity="tl.pojul.com.fastim.lockscreen"
+            android:theme="@style/AppTheme.NoActionBar" />
+        <activity
+            android:name=".View.activity.SettingActivity"
+            android:process=":process1"
+            android:theme="@style/AppTheme.NoActionBar" />
+        <activity
+            android:name=".View.activity.RegistActivity"
+            android:process=":process1"
+            android:theme="@style/AppTheme.NoActionBar" />
+        <activity
+            android:name=".View.activity.PayMemberActivity"
+            android:process=":process1"
+            android:theme="@style/AppTheme.NoActionBar" />
+        <activity
+            android:name=".View.activity.CommuDeatilActivity"
+            android:process=":process1"
+            android:theme="@style/AppTheme.NoActionBar" />
+        <activity android:name=".View.activity.CustomScanActivity"
             android:process=":process1"
             android:theme="@style/AppTheme.NoActionBar"/>
     </application>

@@ -2,8 +2,90 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical">
+    android:orientation="vertical"
+    android:background="#ffffff">
 
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="50dp"
+        android:background="#ffffff">
 
+        <ImageView
+            android:id="@+id/back"
+            android:layout_width="35dp"
+            android:layout_height="match_parent"
+            android:src="@drawable/selector_back_gray"
+            android:scaleType="fitCenter"
+            android:rotation="180"
+            android:clickable="true"
+            android:background="@drawable/ripple_normal"
+            android:paddingTop="17dp"
+            android:paddingBottom="17dp"/>
+
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_marginTop="7dp"
+            android:layout_marginBottom="7dp"
+            android:layout_toLeftOf="@+id/search"
+            android:layout_toRightOf="@+id/back">
+
+            <EditText
+                android:id="@+id/search_et"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:background="@drawable/shape_et"
+                android:layout_centerVertical="true"
+                android:paddingLeft="3dp"
+                android:textSize="12sp"
+                android:textColorHint="#aaaaaa"
+                android:textColor="#666666"
+                android:textCursorDrawable="@null"
+                android:maxLength="60"
+                android:hint="搜索"/>
+
+        </RelativeLayout>
+
+        <ImageView
+            android:id="@+id/search"
+            android:layout_width="35dp"
+            android:layout_height="match_parent"
+            android:src="@drawable/selector_search"
+            android:scaleType="fitCenter"
+            android:clickable="true"
+            android:background="@drawable/ripple_normal"
+            android:layout_alignParentRight="true"
+            android:paddingTop="16dp"
+            android:paddingBottom="17dp"/>
+
+    </RelativeLayout>
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="1.5dp"
+        android:background="#f1f1f1" />
+
+    <com.scwang.smartrefresh.layout.SmartRefreshLayout
+        android:id="@+id/smart_refresh"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_above="@+id/input_rl"
+        android:layout_below="@+id/header_line"
+        android:background="#f1f1f1">
+
+        <android.support.v7.widget.RecyclerView
+            android:id="@+id/result"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:scrollbars="vertical"
+            android:paddingLeft="5dp"
+            android:paddingRight="5dp"
+            android:scrollbarStyle="insideOverlay"
+            android:scrollbarThumbVertical="@drawable/corners_scroll_bar"
+            android:scrollbarSize="5dp"
+            android:paddingBottom="10dp"
+            android:background="#ffffff">
+        </android.support.v7.widget.RecyclerView>
+    </com.scwang.smartrefresh.layout.SmartRefreshLayout>
 
 </LinearLayout>

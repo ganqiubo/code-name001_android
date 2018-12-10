@@ -30,7 +30,6 @@
         android:layout_width="18dp"
         android:layout_height="18dp"
         android:background="@drawable/shape_unsend_message"
-        android:text="0"
         android:layout_toRightOf="@+id/iv"
         android:gravity="center"
         android:textColor="#ffffff"

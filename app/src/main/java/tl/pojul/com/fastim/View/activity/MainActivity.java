@@ -16,10 +16,15 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 
+import com.pojul.fastIM.entity.NewVersion;
+import com.pojul.fastIM.message.request.CheckTagEffictiveReq;
+import com.pojul.fastIM.message.request.GetNewVersionReq;
 import com.pojul.fastIM.message.request.GetTagMessLabelsReq;
 import com.pojul.fastIM.message.request.PicFilterLabelReq;
+import com.pojul.fastIM.message.response.GetNewVersionResp;
 import com.pojul.fastIM.message.response.GetTagMessLabelsResp;
 import com.pojul.fastIM.message.response.PicFilterLabelResp;
 import com.pojul.objectsocket.message.ResponseMessage;
@@ -33,9 +38,13 @@ import tl.pojul.com.fastim.R;
 import tl.pojul.com.fastim.View.fragment.ChatFragment;
 import tl.pojul.com.fastim.View.fragment.CommunityFragment;
 import tl.pojul.com.fastim.View.fragment.MoreFragment;
+import tl.pojul.com.fastim.View.fragment.NearByCommunityFragment;
 import tl.pojul.com.fastim.View.fragment.TakePicFragment;
 import tl.pojul.com.fastim.View.widget.MyViewPager;
 import tl.pojul.com.fastim.util.ArrayUtil;
+import tl.pojul.com.fastim.util.DensityUtil;
+import tl.pojul.com.fastim.util.DialogUtil;
+import tl.pojul.com.fastim.util.VersionUtil;
 
 public class MainActivity extends BaseActivity {
 
@@ -47,8 +56,12 @@ public class MainActivity extends BaseActivity {
     //public HomeFragment homeFragment;
     public ChatFragment chatFragment;
     public TakePicFragment takePicFragment;
-    public CommunityFragment communityFragment;
+    //public CommunityFragment communityFragment;
+    public NearByCommunityFragment nearByCommunityFragment;
     public MoreFragment moreFragment;
+    public TextView recomdsTv;
+
+    public static NewVersion newVersion;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -63,12 +76,12 @@ public class MainActivity extends BaseActivity {
     private void applyPermission() {
         new RxPermissions(this)
                 .requestEach(Manifest.permission.RECORD_AUDIO, Manifest.permission.ACCESS_COARSE_LOCATION,
-                        Manifest.permission.READ_PHONE_STATE)
+                        Manifest.permission.READ_PHONE_STATE, Manifest.permission.CAMERA)
                 .subscribe(permission -> {
                     if(!permission.granted){
                         showLongToas("无法获取所需权限");
-                        MyApplication.getApplication().closeConn();
-                        System.exit(0);
+                        /*MyApplication.getApplication().closeConn();
+                        System.exit(0);*/
                     }
                 });
     }
@@ -108,28 +121,36 @@ public class MainActivity extends BaseActivity {
         ImageView tab2Icon = tab2.findViewById(R.id.iv);
         TextView tab2Tv = tab2.findViewById(R.id.note);
         unreadMessage =  tab2.findViewById(R.id.unread_message);
-        tab2Tv.setText("聊天");
+        tab2Tv.setText(R.string.chat);
         tabLayout.getTabAt(0).setCustomView(tab2);
         tab2Icon.setImageResource(R.drawable.selector_tab_chat);
 
         View tab3 = LayoutInflater.from(this).inflate(R.layout.tab_main, null);
         ImageView tab3Icon = tab3.findViewById(R.id.iv);
         TextView tab3Tv = tab3.findViewById(R.id.note);
-        tab3Tv.setText("上传");
+        tab3Tv.setText(R.string.upload);
         tabLayout.getTabAt(1).setCustomView(tab3);
         tab3Icon.setImageResource(R.drawable.selector_tab_take_pic);
 
         View tab4 = LayoutInflater.from(this).inflate(R.layout.tab_main, null);
         ImageView tab4Icon = tab4.findViewById(R.id.iv);
         TextView tab4Tv = tab4.findViewById(R.id.note);
-        tab4Tv.setText("社区");
+        tab4Tv.setText(R.string.community);
         tabLayout.getTabAt(2).setCustomView(tab4);
         tab4Icon.setImageResource(R.drawable.selector_tab_community);
 
         View tab5 = LayoutInflater.from(this).inflate(R.layout.tab_main, null);
         ImageView tab5Icon = tab5.findViewById(R.id.iv);
         TextView tab5Tv = tab5.findViewById(R.id.note);
-        tab5Tv.setText("更多");
+        recomdsTv = tab5.findViewById(R.id.unread_message);
+        //recomdsTv.setVisibility(View.VISIBLE);
+        RelativeLayout.LayoutParams params = (RelativeLayout.LayoutParams) recomdsTv.getLayoutParams();
+        params.width = DensityUtil.dp2px(this, 6);
+        params.height = DensityUtil.dp2px(this, 6);
+        params.topMargin = DensityUtil.dp2px(this, 5);
+        params.leftMargin = -DensityUtil.dp2px(this, 9);
+        recomdsTv.setLayoutParams(params);
+        tab5Tv.setText(R.string.more);
         tabLayout.getTabAt(3).setCustomView(tab5);
         tab5Icon.setImageResource(R.drawable.select_more_tab);
 
@@ -161,6 +182,43 @@ public class MainActivity extends BaseActivity {
 
         updateTagMessLabels();
         updatePicLabels();
+
+        checkNewVersion();
+    }
+
+    private void checkNewVersion() {
+        GetNewVersionReq req = new GetNewVersionReq();
+        new SocketRequest().request(MyApplication.ClientSocket, req, new SocketRequest.IRequest() {
+            @Override
+            public void onError(String msg) {}
+
+            @Override
+            public void onFinished(ResponseMessage mResponse) {
+                runOnUiThread(()->{
+                    if(mResponse.getCode() == 200){
+                        newVersion = ((GetNewVersionResp)mResponse).getNewVersion();
+                        String currentVersion = "" + new VersionUtil().packageCode(MainActivity.this);
+                        if(!newVersion.getVersionCode().equals(currentVersion)){
+                            showUpdateDialog();
+                        }
+                    }
+                });
+            }
+        });
+
+    }
+
+    private void showUpdateDialog() {
+        if(newVersion == null){
+            return;
+        }
+        DialogUtil.getInstance().showPromptDialog(this, "发现新版本", "发现新版本，是否现在更新？" +
+                "\n更新说明：\n" + newVersion.getNote());
+        DialogUtil.getInstance().setDialogClick(str -> {
+            if("确定".equals(str)){
+                MyApplication.getApplication().updateApk();
+            }
+        });
     }
 
     private void updatePicLabels() {
@@ -234,8 +292,8 @@ public class MainActivity extends BaseActivity {
                     break;
                 case 2:
                     if(fragments.get(position) == null){
-                        communityFragment = new CommunityFragment();
-                        fragments.set(2, communityFragment);
+                        nearByCommunityFragment = new NearByCommunityFragment();
+                        fragments.set(2, nearByCommunityFragment);
                     }
                     break;
                 case 3:
@@ -294,6 +352,12 @@ public class MainActivity extends BaseActivity {
         }else{
             unreadMessage.setVisibility(View.GONE);
         }
+    }
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+        MyApplication.getApplication().setMainActivity(this);
     }
 
     @Override

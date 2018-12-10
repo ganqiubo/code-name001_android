@@ -135,6 +135,19 @@ public class SelectUserAdapter extends RecyclerView.Adapter<SelectUserAdapter.My
         notifyDataSetChanged();
     }
 
+    public void addList(UserSelect userSelect) {
+        if(userSelect == null){
+            return;
+        }
+        synchronized (mList) {
+            if(containsUser(userSelect.getUser().getUserName())){
+                return;
+            }
+            mList.add(userSelect);
+            notifyDataSetChanged();
+        }
+    }
+
     public boolean containsUser(String userName){
         for(int i =0; i < mList.size(); i++){
             if(mList.get(i).getUser().getUserName().equals(userName)){

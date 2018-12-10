@@ -4,6 +4,7 @@ import com.baidu.location.BDLocation;
 import com.baidu.mapapi.model.LatLng;
 import com.baidu.mapapi.utils.DistanceUtil;
 import com.pojul.fastIM.entity.CommunityRoom;
+import com.pojul.fastIM.entity.LatLonRange;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
@@ -50,6 +51,31 @@ public class MyDistanceUtil {
             }
         }
         return 0;
+    }
+
+    /**
+     * @param longitude
+     * @param latitude
+     * @param distance 距离(Km)
+     * */
+    public static LatLonRange getLatLonRange(double longitude, double latitude, double distance){
+        LatLonRange latLonRange = new LatLonRange();
+        double r = 6371;//地球半径千米
+        double dlng =  2*Math.asin(Math.sin(distance/(2*r))/Math.cos(latitude*Math.PI/180));
+        dlng = dlng*180/Math.PI;//角度转为弧度
+        double dlat = distance/r;
+        dlat = dlat*180/Math.PI;
+        double minlat =latitude-dlat;
+        double maxlat = latitude+dlat;
+        double minlng = longitude -dlng;
+        double maxlng = longitude + dlng;
+        latLonRange.setMinLat(minlat);
+        latLonRange.setMinLon(minlng);
+        latLonRange.setMaxLat(maxlat);
+        latLonRange.setMaxLon(maxlng);
+        latLonRange.setRawLat(latitude);
+        latLonRange.setRawLon(longitude);
+        return latLonRange;
     }
 
 }

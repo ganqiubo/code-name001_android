@@ -8,11 +8,16 @@ public class CommunityMessage extends ChatMessage{
     private long id;
     private String communityName;
     private int isSpaceTravel; // 0: 穿越; 1: 非穿越;
+    private int age;
     private int userSex;
     private int certificate;
     private String nickName;
     private StringFile photo;
     private long timeMill;
+    private int messagePrivate;
+    private double longitude;
+    private double latitude;
+    private double distance;
 
     public CommunityMessage() {
         super();
@@ -88,6 +93,46 @@ public class CommunityMessage extends ChatMessage{
 
     public void setId(long id) {
         this.id = id;
+    }
+
+    public int getMessagePrivate() {
+        return messagePrivate;
+    }
+
+    public void setMessagePrivate(int messagePrivate) {
+        this.messagePrivate = messagePrivate;
+    }
+
+    public double getLongitude() {
+        return longitude;
+    }
+
+    public void setLongitude(double longitude) {
+        this.longitude = longitude;
+    }
+
+    public double getLatitude() {
+        return latitude;
+    }
+
+    public void setLatitude(double latitude) {
+        this.latitude = latitude;
+    }
+
+    public int getAge() {
+        return age;
+    }
+
+    public void setAge(int age) {
+        this.age = age;
+    }
+
+    public double getDistance() {
+        return distance;
+    }
+
+    public void setDistance(double distance) {
+        this.distance = distance;
     }
 
     @Override

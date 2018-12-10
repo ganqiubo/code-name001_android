@@ -13,7 +13,7 @@ import java.io.IOException;
 
 public class SocketRequest {
 
-    protected long defaultTimeOut = 25000;
+    protected long defaultTimeOut = 18000;
 
     public long getDefaultTimeOut() {
         return defaultTimeOut;
@@ -58,8 +58,8 @@ public class SocketRequest {
     }
 
     public interface IRequest{
-        public void onError(String msg);
-        public void onFinished(ResponseMessage mResponse);
+        void onError(String msg);
+        void onFinished(ResponseMessage mResponse);
     }
 
     public interface IRequestConn{

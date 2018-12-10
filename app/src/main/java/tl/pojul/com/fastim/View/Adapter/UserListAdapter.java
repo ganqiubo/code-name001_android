@@ -52,7 +52,7 @@ public class UserListAdapter extends RecyclerView.Adapter<UserListAdapter.MyView
             ((BaseActivity)mContext).startActivity(MyPageActivity.class, bundle);
         });
 
-        if (extendUser.getIsFriend() <= 0){
+        /*if (extendUser.getIsFriend() <= 0){
             holder.chat.setVisibility(View.GONE);
             holder.chat.setOnClickListener(null);
             holder.addFriend.setVisibility(View.VISIBLE);
@@ -66,7 +66,7 @@ public class UserListAdapter extends RecyclerView.Adapter<UserListAdapter.MyView
             holder.chat.setOnClickListener(v->{
 
             });
-        }
+        }*/
     }
 
     @Override
