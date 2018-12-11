@@ -641,7 +641,7 @@ public class MyApplication extends DaemonApplication {
         //return new DaemonConfigurations(configuration1, configuration2, listener);
     }
 
-    public void reConn(boolean ignoreIsConn) {
+    public synchronized void reConn(boolean ignoreIsConn) {
         if(isConnecting){
             return;
         }
@@ -689,7 +689,10 @@ public class MyApplication extends DaemonApplication {
         }, Constant.HOST, Constant.PORT);
     }
 
-    public void tokenLogin(String arrays) {
+    public synchronized void tokenLogin(String arrays) {
+        if(!isConnecting){
+            return;
+        }
         LoginByTokenReq loginByTokenReq = new LoginByTokenReq();
         loginByTokenReq.setDeviceType("Android");
         loginByTokenReq.setTokenId(arrays);
