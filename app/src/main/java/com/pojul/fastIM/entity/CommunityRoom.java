@@ -26,6 +26,9 @@ public class CommunityRoom extends BaseEntity implements Comparable{
     private String manager;
     private String phone;
     private int hsaClaimed;
+    private int follows;
+    private int hasFollowed;
+    private int notifyLevel;
 
     public long getId() {
         return id;
@@ -190,6 +193,30 @@ public class CommunityRoom extends BaseEntity implements Comparable{
     @Override
     public String toString() {
         return new Gson().toJson(this);
+    }
+
+    public int getFollows() {
+        return follows;
+    }
+
+    public void setFollows(int follows) {
+        this.follows = follows;
+    }
+
+    public int getHasFollowed() {
+        return hasFollowed;
+    }
+
+    public void setHasFollowed(int hasFollowed) {
+        this.hasFollowed = hasFollowed;
+    }
+
+    public int getNotifyLevel() {
+        return notifyLevel;
+    }
+
+    public void setNotifyLevel(int notifyLevel) {
+        this.notifyLevel = notifyLevel;
     }
 
     @Override

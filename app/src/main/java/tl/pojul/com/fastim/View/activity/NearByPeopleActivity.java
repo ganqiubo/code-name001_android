@@ -8,6 +8,7 @@ import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.View;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.baidu.location.BDLocation;
@@ -66,6 +67,8 @@ public class NearByPeopleActivity extends BaseActivity {
     private int num = 20;
     private int page = 0;
     private List<LocUser> recomdLocUsers = new ArrayList<>();
+    @BindView(R.id.empty_ll)
+    LinearLayout emptyLl;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -138,9 +141,9 @@ public class NearByPeopleActivity extends BaseActivity {
                         nearByUserAdapter.addDatas(recomdLocUsers);
                         MyApplication.hasRecomdProple = false;
                         isInit = false;
-                        if(MyApplication.getApplication().getMainActivity() != null || MyApplication.getApplication().getMainActivity().moreFragment != null){
+                        /*if(MyApplication.getApplication().getMainActivity() != null || MyApplication.getApplication().getMainActivity().moreFragment != null){
                             MyApplication.getApplication().getMainActivity().moreFragment.notifyHasRecomds();
-                        }
+                        }*/
                     }
                     reqNearbyUser();
                 });
@@ -168,6 +171,7 @@ public class NearByPeopleActivity extends BaseActivity {
                     smartRefresh.finishRefresh();
                     DialogUtil.getInstance().dimissLoadingDialog();
                     showShortToas(msg);
+                    updateView();
                 });
             }
 
@@ -188,6 +192,7 @@ public class NearByPeopleActivity extends BaseActivity {
                     smartRefresh.finishLoadmore();
                     smartRefresh.finishRefresh();
                     DialogUtil.getInstance().dimissLoadingDialog();
+                    updateView();
                 });
             }
         });
@@ -237,6 +242,16 @@ public class NearByPeopleActivity extends BaseActivity {
                     }
                 });
                 break;
+        }
+    }
+
+    private void updateView() {
+        if(mList.size()<=0){
+            propleList.setVisibility(View.GONE);
+            emptyLl.setVisibility(View.VISIBLE);
+        }else{
+            propleList.setVisibility(View.VISIBLE);
+            emptyLl.setVisibility(View.GONE);
         }
     }
 

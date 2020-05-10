@@ -1,70 +1,47 @@
 package tl.pojul.com.fastim.View.fragment;
 
-
 import android.os.Bundle;
 import android.support.annotation.Nullable;
+import android.support.design.widget.TabLayout;
 import android.support.v4.app.Fragment;
-import android.support.v7.widget.RecyclerView;
-import android.util.Log;
+import android.support.v4.app.FragmentManager;
+import android.support.v4.app.FragmentPagerAdapter;
+import android.support.v4.view.ViewPager;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
-import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
+import butterknife.OnClick;
 import butterknife.Unbinder;
 import tl.pojul.com.fastim.R;
 import tl.pojul.com.fastim.View.activity.BaseActivity;
-import tl.pojul.com.fastim.View.widget.PolygonImage.view.PolygonImageView;
-import tl.pojul.com.fastim.View.widget.sowingmap.SowingMap;
+import tl.pojul.com.fastim.View.activity.SettingActivity;
+import tl.pojul.com.fastim.View.widget.MyViewPager;
 
 public class HomeFragment extends BaseFragment {
 
-    @BindView(R.id.home_choiceness_icon)
-    ImageView homeChoicenessIcon;
-    @BindView(R.id.chioseness_pics)
-    SowingMap chiosenessPics;
-    Unbinder unbinder;
-    @BindView(R.id.chioseness_nearby)
-    RecyclerView chiosenessNearby;
-    @BindView(R.id.chioseness_photo)
-    PolygonImageView chiosenessPhoto;
-    @BindView(R.id.chioseness_nickname)
-    TextView chiosenessNickname;
-    @BindView(R.id.chioseness_user_info)
-    LinearLayout chiosenessUserInfo;
-    @BindView(R.id.chioseness_location_icon)
-    ImageView chiosenessLocationIcon;
-    @BindView(R.id.chioseness_location)
-    TextView chiosenessLocation;
-    @BindView(R.id.chioseness_location_ll)
-    LinearLayout chiosenessLocationLl;
-    @BindView(R.id.chioseness_date)
-    TextView chiosenessDate;
-    @BindView(R.id.home_choiceness_nearby)
-    ImageView homeChoicenessNearby;
-    @BindView(R.id.recommend)
-    RecyclerView recommend;
+    @BindView(R.id.container)
+    MyViewPager viewPage;
+    @BindView(R.id.page_tabs)
+    TabLayout pageTabs;
+    @BindView(R.id.filter)
+    ImageView filter;
+    @BindView(R.id.setting)
+    ImageView setting;
 
     private View view;
-    private HashMap<String, MoveTargetPos> sowingViewMpvePos;
-    private static final String TAG = "HomeFragment";
-
-
-    private List<String> chiosenesses = new ArrayList<String>() {{
-        add("http://e.hiphotos.baidu.com/image/pic/item/fcfaaf51f3deb48fd0e9be27fc1f3a292cf57842.jpg");
-        add("http://f.hiphotos.baidu.com/image/pic/item/3812b31bb051f8195bf514a9d6b44aed2f73e705.jpg");
-        add("http://c.hiphotos.baidu.com/image/pic/item/09fa513d269759eeef490028befb43166d22df3c.jpg");
-        add("http://imglf0.nosdn0.126.net/img/Sk5OZVhRaUZtSFg5bVR3SGtOeTlIQzJCdFRRUUpQYUNRTllSUzNKVVpTcXBMSmNZU2Q5T1pRPT0.jpg?imageView&thumbnail=500x0&quality=96&stripmeta=0&type=jpg");
-        add("https://timgsa.baidu.com/timg?image&quality=80&size=b9999_10000&sec=1532179773763&di=9f843b3e3a13e0f103711a7ba1a911cf&imgtype=0&src=http%3A%2F%2Fimg.mp.itc.cn%2Fupload%2F20161018%2F3bf24a8ceb974b0f9cf354fdb86d1271_th.jpg");
-    }};
+    private Unbinder unbinder;
+    public HomeChoiceFragment homeChoiceFragment;
+    private DailyPicFragment dailyPicFragment;
+    private List<Fragment> fragments = new ArrayList<>();
+    private SectionsPagerAdapter mSectionsPagerAdapter;
 
     public HomeFragment() {
         // Required empty public constructor
@@ -87,141 +64,101 @@ public class HomeFragment extends BaseFragment {
     @Override
     public void onActivityCreated(@Nullable Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
+        homeChoiceFragment = new HomeChoiceFragment();
+        dailyPicFragment = new DailyPicFragment();
+        //trendsFragment = new TrendsFragment();
+        fragments.add(homeChoiceFragment);
+        fragments.add(dailyPicFragment);
+        //fragments.add(trendsFragment);
+        mSectionsPagerAdapter = new SectionsPagerAdapter(getChildFragmentManager());
 
-        initView();
+        viewPage.setAdapter(mSectionsPagerAdapter);
+        pageTabs.setupWithViewPager(viewPage);
 
-    }
+        View tab1 = LayoutInflater.from(getActivity()).inflate(R.layout.tab_chat, null);
+        TextView tab1Name = tab1.findViewById(R.id.tv);
+        //unreadMessage =  tab1.findViewById(R.id.unread_message);
+        pageTabs.getTabAt(0).setCustomView(tab1);
+        tab1Name.setText("精选");
 
-    private void initView() {
-        ((BaseActivity) getActivity()).resisterPauseListener(pauseListener);
-        chiosenessPics.setImgs(chiosenesses);
-        chiosenessPics.startLoop();
-        chiosenessPics.setSowingProgressLis(sowingProgressLis);
-    }
+        View tab2 = LayoutInflater.from(getActivity()).inflate(R.layout.tab_chat, null);
+        TextView tab2Name = tab2.findViewById(R.id.tv);
+        pageTabs.getTabAt(1).setCustomView(tab2);
+        tab2Name.setText("每日一图");
 
-    private SowingMap.SowingProgressListener sowingProgressLis = new SowingMap.SowingProgressListener() {
-        @Override
-        public void onFinish(int currentPosition) {}
+        /*View tab3 = LayoutInflater.from(getActivity()).inflate(R.layout.tab_chat, null);
+        TextView tab3Name = tab3.findViewById(R.id.tv);
+        chatPageTabs.getTabAt(2).setCustomView(tab3);
+        tab3Name.setText("动态");*/
 
-        @Override
-        public void onProgress(int currentPosition, int nextPosition, float progress, boolean reversed) {
-            if(reversed){
-                if(progress <= 0.4f){
-                    float moveProgress = (0.4f - progress) / 0.4f;
-                    SowingNoteViewIn(moveProgress);
-                }else if(progress >= 0.6f){
-                    float moveProgress = (1- progress) / 0.4f;
-                    SowingNoteViewOut(moveProgress);
+        viewPage.setHorizontalScrollBarEnabled(true);
+        viewPage.setCurrentItem(0);
+        viewPage.setOffscreenPageLimit(2);
+        viewPage.addOnPageChangeListener(new ViewPager.OnPageChangeListener() {
+
+            @Override
+            public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
+            }
+
+            @Override
+            public void onPageSelected(int position) {
+                if(position == 0){
+                    setting.setVisibility(View.VISIBLE);
+                    filter.setVisibility(View.GONE);
                 }else{
-
-                }
-            }else{
-                if(progress <= 0.4f){
-                    float moveProgress = progress / 0.4f;
-                    SowingNoteViewOut(moveProgress);
-                }else if(progress >= 0.6f){
-                    float moveProgress = (progress - 0.6f) / 0.4f;
-                    SowingNoteViewIn(moveProgress);
-                }else{
-
+                    setting.setVisibility(View.GONE);
+                    filter.setVisibility(View.VISIBLE);
                 }
             }
-            //chiosenessUserInfo.setTranslationX();
-        }
-    };
 
-    private void SowingNoteViewIn(float progress) {
-        if(sowingViewMpvePos == null){
-            setSowingViewMpvePos();
-        }
-        float UserInfoPosX = sowingViewMpvePos.get("UserInfoPosX").rawPosX - (sowingViewMpvePos.get("UserInfoPosX").dsX * (1 - progress));
-        float LocationLlY = sowingViewMpvePos.get("LocationLlY").rawPosY + (sowingViewMpvePos.get("LocationLlY").dsY * (1 - progress));
-        float DateX = sowingViewMpvePos.get("DateX").rawPosX + (sowingViewMpvePos.get("UserInfoPosX").dsX * (1 - progress));
-        //Log.e(TAG, "SowingNoteViewIn------>UserInfoPosX: " + UserInfoPosX + "; LocationLlY: " + LocationLlY + "; DateX: " + DateX + "; progress: " + progress);
-        chiosenessUserInfo.setTranslationX(UserInfoPosX);
-        chiosenessLocationLl.setTranslationY(LocationLlY);
-        chiosenessDate.setTranslationX(DateX);
-    }
-
-    private void SowingNoteViewOut(float progress) {
-        if(sowingViewMpvePos == null){
-            setSowingViewMpvePos();
-        }
-        float UserInfoPosX = sowingViewMpvePos.get("UserInfoPosX").rawPosX - (sowingViewMpvePos.get("UserInfoPosX").dsX * progress);
-        float LocationLlY = sowingViewMpvePos.get("LocationLlY").rawPosY + (sowingViewMpvePos.get("LocationLlY").dsY * progress);
-        float DateX = sowingViewMpvePos.get("DateX").rawPosX + (sowingViewMpvePos.get("UserInfoPosX").dsX * progress);
-        //Log.e(TAG, "SowingNoteViewOut------>UserInfoPosX: " + UserInfoPosX + "; LocationLlY: " + LocationLlY + "; DateX: " + DateX + "; progress: " + progress);
-        chiosenessUserInfo.setTranslationX(UserInfoPosX);
-        chiosenessLocationLl.setTranslationY(LocationLlY);
-        chiosenessDate.setTranslationX(DateX);
-    }
-
-    private void setSowingViewMpvePos(){
-        sowingViewMpvePos = new HashMap<>();
-        MoveTargetPos moveTargetPosUser = new MoveTargetPos();
-        moveTargetPosUser.rawPosX = chiosenessUserInfo.getTranslationX();
-        moveTargetPosUser.dsX = (chiosenessUserInfo.getMeasuredWidth() + chiosenessUserInfo.getX() + 2);
-        sowingViewMpvePos.put("UserInfoPosX", moveTargetPosUser);
-
-        MoveTargetPos moveTargetPosLocation = new MoveTargetPos();
-        moveTargetPosLocation.rawPosY = chiosenessLocationLl.getTranslationY();
-        moveTargetPosLocation.dsY = (chiosenessPics.getMeasuredHeight() + chiosenessLocationLl.getHeight() + 2);
-        sowingViewMpvePos.put("LocationLlY", moveTargetPosLocation);
-
-        MoveTargetPos moveTargetPosDate = new MoveTargetPos();
-        moveTargetPosDate.rawPosX = chiosenessDate.getTranslationX();
-        moveTargetPosDate.dsX = (chiosenessPics.getMeasuredWidth() + chiosenessDate.getMeasuredWidth() + 2);
-        sowingViewMpvePos.put("DateX", moveTargetPosDate);
-    }
-
-    private BaseActivity.PauseListener pauseListener = new BaseActivity.PauseListener() {
-        @Override
-        public void onPause() {
-            if (chiosenessPics == null) {
-                return;
+            @Override
+            public void onPageScrollStateChanged(int state) {
             }
-            chiosenessPics.onResume(false);
+        });
+    }
+
+    public class SectionsPagerAdapter extends FragmentPagerAdapter {
+
+        public SectionsPagerAdapter(FragmentManager fm) {
+            super(fm);
         }
 
         @Override
-        public void onResume() {
-            if (chiosenessPics == null) {
-                return;
-            }
-            chiosenessPics.onResume(true);
+        public Fragment getItem(int position) {
+            return fragments.get(position);
         }
-    };
+
+        @Override
+        public int getCount() {
+            return fragments.size();
+        }
+
+        @Override
+        public CharSequence getPageTitle(int position) {
+            return null;
+        }
+
+        @Override
+        public void destroyItem(ViewGroup container, int position, Object object) {
+//            super.destroyItem(container, position, object);
+        }
+    }
+
+    @OnClick({R.id.filter, R.id.setting})
+    public void onViewClicked(View view) {
+        switch (view.getId()) {
+            case R.id.filter:
+                dailyPicFragment.onFilterClick(filter);
+                break;
+            case R.id.setting:
+                ((BaseActivity) getContext()).startActivity(SettingActivity.class, null);
+                break;
+        }
+    }
 
     @Override
     public void onDestroyView() {
-        try{
-            unbinder.unbind();
-            sowingProgressLis = null;
-            chiosenessPics.onDestory();
-            ((BaseActivity) getActivity()).unResisterPauseListener(pauseListener);
-        }catch (Exception e){}
+        unbinder.unbind();
         super.onDestroyView();
-    }
-
-    @Override
-    public void setUserVisibleHint(boolean isVisibleToUser) {
-        super.setUserVisibleHint(isVisibleToUser);
-        if (chiosenessPics == null) {
-            return;
-        }
-        if (!isVisibleToUser) {
-            chiosenessPics.stopLoop();
-        } else {
-            chiosenessPics.startLoop();
-        }
-    }
-
-    class MoveTargetPos{
-        public float rawPosX;
-        public float rawPosY;
-        public float targetPosX;
-        public float targetPosY;
-        public float dsX;
-        public float dsY;
     }
 }

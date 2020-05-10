@@ -39,7 +39,7 @@
                 <TextView
                     android:id="@+id/reply_nick_name"
                     android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
+                    android:layout_height="match_parent"
                     android:text="韩信"
                     android:textColor="#666666"
                     android:textSize="12sp" />
@@ -52,7 +52,7 @@
                     <TextView
                         android:id="@+id/reply_certificate"
                         android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
+                        android:layout_height="match_parent"
                         android:layout_gravity="center"
                         android:text="已实名"
                         android:textColor="#777777"
@@ -95,24 +95,24 @@
                     android:src="@drawable/pressed_reply_gray" />
 
                 <ImageView
-                    android:visibility="gone"
                     android:id="@+id/reply_thumb_up"
                     android:layout_width="21dp"
                     android:layout_height="21dp"
                     android:layout_gravity="center"
                     android:clickable="true"
                     android:padding="2dp"
-                    android:src="@drawable/selector_thumb_up_hollow" />
+                    android:src="@drawable/selector_thumb_up_hollow"
+                    android:visibility="gone" />
 
                 <TextView
-                    android:visibility="gone"
                     android:id="@+id/reply_thumb_num"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_gravity="center"
                     android:text="12"
                     android:textColor="@color/selector_text_gray_yellow"
-                    android:textSize="12sp" />
+                    android:textSize="12sp"
+                    android:visibility="gone" />
             </LinearLayout>
         </RelativeLayout>
 
@@ -154,6 +154,7 @@
             android:layout_height="8dp" />
 
         <View
+            android:id="@+id/line"
             android:layout_width="wrap_content"
             android:layout_height="1.5px"
             android:background="#e1e1e1" />

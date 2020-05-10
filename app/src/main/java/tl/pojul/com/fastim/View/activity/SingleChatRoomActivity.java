@@ -350,7 +350,7 @@ public class SingleChatRoomActivity extends ChatRoomActivity {
                 messageAdapter.receiveMessage((ChatMessage) message);
                 chatMessageList.scrollToPosition(messageAdapter.getItemCount() - 1);
             }
-            showLongToas("iReceiveMessage--->" + message.getFrom());
+            //showLongToas("iReceiveMessage--->" + message.getFrom());
         }
     };
 

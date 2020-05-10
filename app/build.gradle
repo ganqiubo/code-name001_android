@@ -6,8 +6,8 @@ android {
         applicationId "tl.pojul.com.fastim"
         minSdkVersion 16
         targetSdkVersion 26
-        versionCode 2
-        versionName "1.21"
+        versionCode 3
+        versionName "1.22"
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
         multiDexEnabled true
 
@@ -19,8 +19,8 @@ android {
 
         signingConfigs {
             debug {
-                //storeFile file('D:\\gitPro\\code-name001_android\\code-name001_android\\debug.jks')
-                storeFile file('F:\\gitPro\\code-name001_android\\debug.jks')
+                storeFile file('D:\\gitPro\\code-name001_android\\code-name001_android\\keystore.jks')
+                //storeFile file('F:\\gitPro\\code-name001_android\\debug.jks')
                 storePassword "123456"
                 keyAlias "key0"
                 keyPassword "123456"
@@ -87,11 +87,18 @@ dependencies {
     implementation 'com.github.chrisbanes:PhotoView:2.0.0'
     implementation 'com.android.support:multidex:1.0.1'
     implementation 'me.jessyan:progressmanager:1.5.0'
-    implementation "com.github.bumptech.glide:okhttp3-integration:4.6.1"
+    implementation 'com.github.bumptech.glide:okhttp3-integration:4.6.1'
     implementation 'com.romainpiel.shimmer:library:1.4.0@aar'
     implementation 'info.guardianproject.netcipher:netcipher:1.2'
     implementation 'com.lahm.library:easy-protector-release:latest.release'
-    implementation 'com.google.zxing:core:3.2.1'      //zxing核心依赖
-    implementation 'com.journeyapps:zxing-android-embedded:3.3.0'  //生成二维码依赖
+    implementation 'com.google.zxing:core:3.2.1'
+    //zxing核心依赖
+    implementation 'com.journeyapps:zxing-android-embedded:3.3.0'
+    //生成二维码依赖
+    implementation files('libs/umeng-share-core-6.9.4.jar')
+    implementation files('libs/umeng-sharetool-6.9.4.jar')
+    implementation files('libs/umeng-share-wechat-simplify-6.9.4.jar')
+    implementation files('libs/umeng-common-2.0.1.jar')
 
+    implementation 'com.tencent.mm.opensdk:wechat-sdk-android-with-mta:+'
 }

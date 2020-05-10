@@ -37,6 +37,7 @@ import tl.pojul.com.fastim.MyApplication;
 import tl.pojul.com.fastim.R;
 import tl.pojul.com.fastim.View.activity.BaseActivity;
 import tl.pojul.com.fastim.View.activity.GalleryActivity;
+import tl.pojul.com.fastim.View.activity.MyPageActivity;
 import tl.pojul.com.fastim.View.activity.PrivateReplyActivity;
 import tl.pojul.com.fastim.View.activity.TagReplyActivity;
 import tl.pojul.com.fastim.View.widget.JustifyTextView;
@@ -87,6 +88,11 @@ public class TagMessAdapter extends RecyclerView.Adapter<TagMessAdapter.ViewHold
         TagCommuMessage tagMessage = mList.get(position);
 
         GlideUtil.setImageBitmapNoOptions(tagMessage.getPhoto().getFilePath(), holder.photo);
+        holder.photo.setOnClickListener(v->{
+            Bundle bundle = new Bundle();
+            bundle.putString("userName", tagMessage.getFrom());
+            ((BaseActivity)mContext).startActivity(MyPageActivity.class, bundle);
+        });
         holder.nickName.setText(tagMessage.getNickName());
         holder.age.setText((tagMessage.getAge() + "岁"));
         holder.distance.setText(MyDistanceUtil.getDisttanceStr(tagMessage.getDistance()));

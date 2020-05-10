@@ -140,7 +140,7 @@ public class TakePicFragment extends BaseFragment {
                         addRecordsEnd(((UploadPicRecordResp)mResponse).getUploadPics());
                     }else{
                         smartRefresh.setEnableLoadmore(false);
-                        showShortToas(mResponse.getMessage());
+                        //showShortToas(mResponse.getMessage());
                     }
                 });
             }

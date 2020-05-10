@@ -27,6 +27,7 @@ import butterknife.ButterKnife;
 import tl.pojul.com.fastim.R;
 import tl.pojul.com.fastim.View.activity.BaseActivity;
 import tl.pojul.com.fastim.View.activity.MoreSubReplyActivity;
+import tl.pojul.com.fastim.View.activity.MyPageActivity;
 import tl.pojul.com.fastim.View.activity.TagReplyActivity;
 import tl.pojul.com.fastim.View.widget.JustifyTextView;
 import tl.pojul.com.fastim.View.widget.PolygonImage.view.PolygonImageView;
@@ -126,6 +127,11 @@ public class ReplyAdapter extends RecyclerView.Adapter<ReplyAdapter.BaseViewHold
     private void bindReplys(ReplysViewHolder holder, int position) {
         ReplyMessage replyMessage = mList.get(position);
         GlideUtil.setImageBitmap(replyMessage.getPhoto().getFilePath(), holder.replyPhoto, 0.5f);
+        holder.replyPhoto.setOnClickListener(v->{
+            Bundle bundle = new Bundle();
+            bundle.putString("userName", replyMessage.getUserName());
+            ((BaseActivity)mContext).startActivity(MyPageActivity.class, bundle);
+        });
         holder.replyNickName.setText(replyMessage.getNickName());
         if (replyMessage.getCertificate() == 0) {
             holder.replyCertificate.setText("未实名认证");

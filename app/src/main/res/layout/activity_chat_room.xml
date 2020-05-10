@@ -2,14 +2,14 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:fitsSystemWindows="true"
     android:orientation="vertical">
 
     <RelativeLayout
         android:id="@+id/header"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:background="#ffffff"
+        android:layout_height="68dp"
+        android:paddingTop="35dp"
+        android:background="@color/status_bar"
         >
 
         <TextView
@@ -18,9 +18,8 @@
             android:layout_height="wrap_content"
             android:layout_alignParentTop="true"
             android:layout_centerHorizontal="true"
-            android:padding="15dp"
             android:text="好友"
-            android:textColor="#454545"
+            android:textColor="#ffffff"
             android:textSize="16dp" />
     </RelativeLayout>
 

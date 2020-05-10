@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical">
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="68dp"
+        android:background="@color/status_bar"
+        android:paddingTop="28dp">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:layout_centerHorizontal="true"
+            android:gravity="center"
+            android:text="首页"
+            android:textColor="#ffffff"
+            android:textSize="16sp" />
+
+
+        <ImageView
+            android:id="@+id/setting"
+            android:layout_width="62dp"
+            android:layout_height="match_parent"
+            android:background="@drawable/ripple_normal_statusbar"
+            android:clickable="true"
+            android:paddingBottom="8dp"
+            android:paddingTop="8dp"
+            android:src="@drawable/setting_normal"
+            android:tint="#ffffff" />
+
+        <ImageView
+            android:id="@+id/filter"
+            android:layout_width="62dp"
+            android:layout_height="match_parent"
+            android:background="@drawable/ripple_normal_statusbar"
+            android:clickable="true"
+            android:paddingBottom="11dp"
+            android:paddingTop="11dp"
+            android:src="@drawable/screen"
+            android:layout_alignParentRight="true"
+            android:tint="#ffffff" />
+    </RelativeLayout>
+
+    <com.scwang.smartrefresh.layout.SmartRefreshLayout
+        android:id="@+id/smart_refresh"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_above="@+id/input_rl"
+        android:layout_below="@+id/header_line"
+        android:background="#f2f2f2">
+
+        <android.support.v7.widget.RecyclerView
+            android:id="@+id/pic_list"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:background="#f2f2f2"
+            android:scrollbarSize="5dp"
+            android:scrollbarStyle="insideOverlay"
+            android:scrollbarThumbVertical="@drawable/corners_scroll_bar"
+            android:scrollbars="vertical"></android.support.v7.widget.RecyclerView>
+    </com.scwang.smartrefresh.layout.SmartRefreshLayout>
+
+</LinearLayout>

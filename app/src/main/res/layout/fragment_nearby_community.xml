@@ -7,8 +7,9 @@
     <RelativeLayout
         android:id="@+id/header"
         android:layout_width="match_parent"
-        android:layout_height="50dp"
-        android:background="#ffffff">
+        android:layout_height="68dp"
+        android:paddingTop="28dp"
+        android:background="@color/status_bar">
 
         <TextView
             android:layout_width="wrap_content"
@@ -16,7 +17,7 @@
             android:layout_centerHorizontal="true"
             android:gravity="center"
             android:text="社区"
-            android:textColor="#676767"
+            android:textColor="#ffffff"
             android:textSize="16sp" />
     </RelativeLayout>
 
@@ -33,17 +34,14 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_below="@+id/header_line">
-        <ScrollView
+
+        <android.support.v7.widget.RecyclerView
+            android:id="@+id/community_list"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:background="#ffffff">
-            <android.support.v7.widget.RecyclerView
-                android:id="@+id/community_list"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:background="#ffffff">
-            </android.support.v7.widget.RecyclerView>
-        </ScrollView>
+        </android.support.v7.widget.RecyclerView>
+
     </com.scwang.smartrefresh.layout.SmartRefreshLayout>
 
 </LinearLayout>

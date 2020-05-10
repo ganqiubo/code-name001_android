@@ -1,5 +1,7 @@
 package com.pojul.fastIM.entity;
 
+import java.util.List;
+
 public class ThirdPicLikes extends BaseEntity{
 
     private String userName;
@@ -10,6 +12,8 @@ public class ThirdPicLikes extends BaseEntity{
     private int hasThumbuped;
     private int thumbupNum;
     private String gallery;
+    private List<PicComment> picComments;
+    private int comments;
 
     public String getUserName() {
         return userName;
@@ -73,5 +77,21 @@ public class ThirdPicLikes extends BaseEntity{
 
     public void setGallery(String gallery) {
         this.gallery = gallery;
+    }
+
+    public List<PicComment> getPicComments() {
+        return picComments;
+    }
+
+    public void setPicComments(List<PicComment> picComments) {
+        this.picComments = picComments;
+    }
+
+    public int getComments() {
+        return comments;
+    }
+
+    public void setComments(int comments) {
+        this.comments = comments;
     }
 }

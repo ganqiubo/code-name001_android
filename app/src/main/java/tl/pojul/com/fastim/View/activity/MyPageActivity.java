@@ -758,6 +758,4 @@ public class MyPageActivity extends BaseActivity {
         }
     }
 
-
-
 }

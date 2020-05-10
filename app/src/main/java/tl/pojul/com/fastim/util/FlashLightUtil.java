@@ -27,7 +27,7 @@ public class FlashLightUtil {
                 m_Camera = Camera.open();
                 Camera.Parameters mParameters;
                 mParameters = m_Camera.getParameters();
-                mParameters.setFlashMode(Camera.Parameters.FLASH_MODE_TORCH);
+                mParameters.setFlashMode(Camera.Parameters.FLASH_MODE_ON);
                 m_Camera.setParameters(mParameters);
             } catch (Exception e) {
                 Log.e(TAG, e.getMessage());

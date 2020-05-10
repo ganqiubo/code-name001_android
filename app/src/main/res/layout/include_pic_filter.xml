@@ -59,7 +59,7 @@
                 android:layout_height="wrap_content"
                 android:layout_gravity="center"
                 android:textSize="10sp"
-                android:text="(暂不支持中文)："
+                android:text="(英文标签更准确)："
                 android:textColor="#888888"
                 android:layout_centerVertical="true"/>
 
@@ -129,6 +129,7 @@
             android:background="@drawable/select_tag_bt"/>
 
         <TextView
+            android:visibility="gone"
             android:id="@+id/pexels"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -139,6 +140,21 @@
             android:paddingLeft="8dp"
             android:paddingRight="8dp"
             android:text="pexels 图库"
+            android:layout_marginLeft="8dp"
+            android:clickable="true"
+            android:background="@drawable/select_tag_bt"/>
+
+        <TextView
+            android:id="@+id/pixabay"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textColor="@color/selector_text_white_gray"
+            android:textSize="11sp"
+            android:paddingTop="4dp"
+            android:paddingBottom="4dp"
+            android:paddingLeft="8dp"
+            android:paddingRight="8dp"
+            android:text="pixabay 图库"
             android:layout_marginLeft="8dp"
             android:clickable="true"
             android:background="@drawable/select_tag_bt"/>
@@ -224,6 +240,7 @@
     </LinearLayout>
 
     <TextView
+        android:visibility="gone"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:padding="5dp"
@@ -232,6 +249,7 @@
         android:textSize="13sp" />
 
    <LinearLayout
+       android:visibility="gone"
        android:layout_width="wrap_content"
        android:layout_height="wrap_content"
        android:layout_marginTop="1dp"

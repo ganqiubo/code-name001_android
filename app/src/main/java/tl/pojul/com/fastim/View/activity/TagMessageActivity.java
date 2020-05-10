@@ -63,9 +63,12 @@ public class TagMessageActivity extends BaseActivity {
     TextView labelNote;
     @BindView(R.id.filter_ll)
     LinearLayout filterLl;
+    @BindView(R.id.level)
+    TextView level;
 
     private TagCommuMessage tagCommuMessage;
     private User user;
+    private String manager;
 
     private List<String> labels = MyApplication.tagMessLabels;
 
@@ -105,6 +108,7 @@ public class TagMessageActivity extends BaseActivity {
         }
         tageMessType = getIntent().getIntExtra("TagMessageType", 0);
         defaultTag = getIntent().getStringExtra("Tags");
+        manager = getIntent().getStringExtra("manager");
         if (tageMessType == 1 && defaultTag == null) {
             finish();
             return;
@@ -140,7 +144,7 @@ public class TagMessageActivity extends BaseActivity {
         }
     }
 
-    @OnClick({R.id.sure})
+    @OnClick({R.id.sure, R.id.level})
     public void onViewClicked(View v) {
         switch (v.getId()) {
             case R.id.sure:
@@ -165,7 +169,24 @@ public class TagMessageActivity extends BaseActivity {
                     LocationManager.getInstance().registerLocationListener(iLocationListener);
                 }
                 break;
+            case R.id.level:
+                showLevelPop();
+                break;
         }
+    }
+
+    private void showLevelPop(){
+        List<String> datas = new ArrayList<>();
+        datas.add("普通");
+        datas.add("重要");
+        datas.add("紧急");
+        DialogUtil.getInstance().showPopList(this, datas, level);
+        DialogUtil.getInstance().setDialogClick(str -> {
+            if(!str.equals(level.getText().toString())){
+                level.setText(str);
+            }
+            //level.setText(str);
+        });
     }
 
     private LocationManager.ILocationListener iLocationListener = new LocationManager.ILocationListener() {
@@ -248,6 +269,18 @@ public class TagMessageActivity extends BaseActivity {
         }*/
         tagCommuMessage.setChatType(3);
         tagCommuMessage.setUserFilter(userFilterView.getUserFilter());
+        if("紧急".equals(level.getText().toString())){
+            tagCommuMessage.setLevel(1);
+        }else if("重要".equals(level.getText().toString())){
+            tagCommuMessage.setLevel(2);
+        }else{
+            tagCommuMessage.setLevel(3);
+        }
+        if(manager != null && manager.equals(user.getUserName())){
+            tagCommuMessage.setManagerNotrify(true);
+        }else{
+            tagCommuMessage.setManagerNotrify(false);
+        }
         return tagCommuMessage;
     }
 

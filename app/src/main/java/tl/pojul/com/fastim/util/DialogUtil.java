@@ -2,12 +2,17 @@ package tl.pojul.com.fastim.util;
 
 import android.app.AlertDialog;
 import android.app.Dialog;
+import android.content.ClipData;
+import android.content.ClipboardManager;
 import android.content.Context;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.os.Handler;
 import android.os.Looper;
+import android.os.PowerManager;
 import android.support.annotation.Nullable;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.text.InputFilter;
 import android.view.Gravity;
 import android.view.LayoutInflater;
@@ -44,9 +49,15 @@ import com.pojul.fastIM.message.chat.TagCommuMessage;
 import com.pojul.fastIM.message.chat.VideoMessage;
 import com.pojul.objectsocket.utils.FileClassUtil;
 import java.io.File;
+import java.io.FileOutputStream;
+import java.io.OutputStreamWriter;
+import java.util.ArrayList;
+import java.util.List;
+
 import butterknife.BindView;
 import tl.pojul.com.fastim.MyApplication;
 import tl.pojul.com.fastim.R;
+import tl.pojul.com.fastim.View.Adapter.PopListAdapter;
 import tl.pojul.com.fastim.View.widget.LoadingDialog;
 import tl.pojul.com.fastim.View.widget.MessageFilterView;
 import tl.pojul.com.fastim.View.widget.PicFilterView;
@@ -124,7 +135,8 @@ public class DialogUtil {
     }
 
     public void showLoadingSimple(Context context, View rootView) {
-        try{
+        showLoadingDialog(context, "加载中");
+        /*try{
             View popView = LayoutInflater.from(context).inflate(R.layout.dialog_loading_simple, null);
             loadingSimplePop = new PopupWindow(popView, ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT);
             loadingSimplePop.setBackgroundDrawable(new BitmapDrawable());
@@ -132,7 +144,7 @@ public class DialogUtil {
             // 设置可以触摸弹出框以外的区域
             loadingSimplePop.setOutsideTouchable(false);
             loadingSimplePop.showAtLocation(rootView, Gravity.CENTER, 0, 0);
-        }catch(Exception e){}
+        }catch(Exception e){}*/
     }
 
     public void showDetailImgDialogPop(Context context, ChatMessage message, ImageView rawView, int popType) {
@@ -547,6 +559,31 @@ public class DialogUtil {
         });
     }
 
+    public void showEditCommuDetail(Context context){
+        AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(context);
+        View view = View.inflate(context, R.layout.dialog_edit_commudeatil, null);
+        EditText editText = view.findViewById(R.id.content);
+        dialogBuilder.setView(view);
+        AlertDialog dialog = dialogBuilder.create();
+        dialog.show();
+        view.findViewById(R.id.left_button).setOnClickListener(v->{
+            if(editText.getText().toString().isEmpty()){
+                Toast.makeText(context, "内容不能为空", Toast.LENGTH_SHORT).show();
+                return;
+            }
+            if(dialogClick != null){
+                dialogClick.onclick(editText.getText().toString());
+                setDialogClick(null);
+                dialog.dismiss();
+            }
+        });
+
+        view.findViewById(R.id.right_button).setOnClickListener(v->{
+            setDialogClick(null);
+            dialog.dismiss();
+        });
+    }
+
     public void showEditDialog(Context context, String title, String note, int maxLen){
         AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(context);
         View view = View.inflate(context, R.layout.dialog_edit, null);
@@ -753,6 +790,123 @@ public class DialogUtil {
             setDialogClick(null);
             dialog.dismiss();
         });
+    }
+
+    public void showGalleryMorePop(Context context, View showDown){
+        LinearLayout popView = (LinearLayout) LayoutInflater.from(context).inflate(R.layout.dialog_gallery_morepop, null);
+        PopupWindow popupWindow = new PopupWindow(popView, DensityUtil.dp2px(context, 120),
+                ViewGroup.LayoutParams.WRAP_CONTENT);
+        popupWindow.setBackgroundDrawable(new BitmapDrawable());
+        popupWindow.setFocusable(true);
+        // 设置可以触摸弹出框以外的区域
+        popupWindow.setOutsideTouchable(false);
+        popupWindow.showAsDropDown(showDown, 0, -DensityUtil.dp2px(context, 6));
+        popView.findViewById(R.id.save).setOnClickListener(v->{
+            if(dialogClick != null){
+                dialogClick.onclick("save");
+            }
+            dialogClick = null;
+            popupWindow.dismiss();
+        });
+        popView.findViewById(R.id.share).setOnClickListener(v->{
+            if(dialogClick != null){
+                dialogClick.onclick("share");
+            }
+            dialogClick = null;
+            popupWindow.dismiss();
+        });
+        /*popView.findViewById(R.id.lock_wallper).setOnClickListener(v->{
+            if(dialogClick != null){
+                dialogClick.onclick("lock_wallper");
+            }
+            dialogClick = null;
+            popupWindow.dismiss();
+        });
+        popView.findViewById(R.id.desktop_wallper).setOnClickListener(v->{
+            if(dialogClick != null){
+                dialogClick.onclick("desktop_wallper");
+            }
+            dialogClick = null;
+            popupWindow.dismiss();
+        });*/
+    }
+
+    public void showAdminInfo(Context context, String account, String passwd){
+        AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(context);
+        View view = View.inflate(context, R.layout.dialog_admin_info, null);
+        ((TextView)view.findViewById(R.id.account)).setText("账号：" + account);
+        ((TextView)view.findViewById(R.id.passwd)).setText("密码：" + passwd);
+        dialogBuilder.setView(view);
+        AlertDialog dialog = dialogBuilder.create();
+        dialog.setCancelable(false);
+        dialog.show();
+        view.findViewById(R.id.remembered).setOnClickListener(v->{
+            DialogUtil.getInstance().showLoadingDialog(context, "写入文件中...");
+            String path= (SPUtil.getInstance().getString(Constant.BASE_STORAGE_PATH ) +
+                    "/footstep/file/account.txt");
+            File file = new File(path);
+            if(file.exists()){
+                file.delete();
+            }
+            if(!file.getParentFile().exists()){
+                file.getParentFile().mkdirs();
+            }
+            FileOutputStream fos = null;
+            OutputStreamWriter writer = null;
+            try {
+                fos=new FileOutputStream(file);
+                writer=new OutputStreamWriter(fos,"utf-8");
+                String content = "账号：" + account + "\n密码：" + passwd;
+                writer.write(content);
+                dialog.dismiss();
+                Toast.makeText(context, "账号信息已被保存至" + path + "下", Toast.LENGTH_LONG).show();
+            }catch (Exception e){
+                Toast.makeText(context, "文件写入失败", Toast.LENGTH_SHORT).show();
+            }finally {
+                DialogUtil.getInstance().dimissLoadingDialog();
+                try{
+                    writer.close();
+                    fos.close();
+                }catch(Exception e){}
+            }
+        });
+    }
+
+    public void showPopList(Context context, List<String> datas, View downAt){
+        RecyclerView popView = (RecyclerView) LayoutInflater.from(context).inflate(R.layout.dialog_pop_list, null);
+        PopupWindow popupWindow = new PopupWindow(popView, ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+        popupWindow.setBackgroundDrawable(new BitmapDrawable());
+        popupWindow.setFocusable(true);
+        // 设置可以触摸弹出框以外的区域
+        popupWindow.setOutsideTouchable(false);
+        popupWindow.setWidth(DensityUtil.dp2px(context, 70));
+        popView.setLayoutManager(new LinearLayoutManager(context));
+        PopListAdapter adapter = new PopListAdapter(context, datas, position -> {
+            if(dialogClick != null){
+                dialogClick.onclick(datas.get(position));
+            }
+            popupWindow.dismiss();
+        });
+        popView.setAdapter(adapter);
+        popupWindow.showAsDropDown(downAt, -10, 5);
+    }
+
+    public void showGuideDialog(Context context){
+        AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(context);
+        View view = View.inflate(context, R.layout.dialog_guide, null);
+        dialogBuilder.setView(view);
+        dialog = dialogBuilder.create();
+        dialog.setCancelable(false);
+        dialog.show();
+        view.findViewById(R.id.knows).setOnClickListener(v->{
+            dimissDialog();
+            SPUtil.getInstance().putInt(SPUtil.SHOW_SCREEN_GUIDE, 1);
+        });
+        view.findViewById(R.id.gotoopen).setOnClickListener(v->{
+            DeviceUtil.toSelfSetting(MyApplication.getApplication());
+            SPUtil.getInstance().putInt(SPUtil.SHOW_SCREEN_GUIDE, 1);
+        });
+
     }
 
     public void setDialogClick(DialogClick dialogClick) {

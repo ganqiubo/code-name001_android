@@ -1,280 +1,91 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:orientation="vertical">
 
     <RelativeLayout
         android:layout_width="match_parent"
-        android:layout_height="50dp">
+        android:layout_height="68dp"
+        android:background="@color/status_bar"
+        android:paddingTop="28dp">
 
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="match_parent"
-            android:text="首页"
-            android:textSize="16sp"
-            android:textColor="#676767"
+            android:layout_centerHorizontal="true"
             android:gravity="center"
-            android:layout_centerHorizontal="true"/>
+            android:text="首页"
+            android:textColor="#ffffff"
+            android:textSize="16sp" />
+
+        <RelativeLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentRight="true">
+
+            <ImageView
+                android:id="@+id/setting"
+                android:layout_width="62dp"
+                android:layout_height="match_parent"
+                android:background="@drawable/ripple_normal_statusbar"
+                android:clickable="true"
+                android:paddingBottom="8dp"
+                android:paddingTop="8dp"
+                android:src="@drawable/setting_normal"
+                android:tint="#ffffff" />
+
+            <ImageView
+                android:visibility="gone"
+                android:id="@+id/filter"
+                android:layout_width="62dp"
+                android:layout_height="match_parent"
+                android:background="@drawable/ripple_normal_statusbar"
+                android:clickable="true"
+                android:paddingBottom="11dp"
+                android:paddingTop="11dp"
+                android:src="@drawable/screen"
+                android:tint="#ffffff" />
+        </RelativeLayout>
 
         <ImageView
             android:layout_width="62dp"
             android:layout_height="match_parent"
-            android:layout_centerVertical="true"
-            android:layout_alignParentRight="true"
-            android:paddingTop="12dp"
-            android:paddingBottom="12dp"
-            android:background="@drawable/ripple_normal"
-            android:src="@drawable/selector_home_set"
-            android:clickable="true"
-            />
-
-        <ImageView
-            android:layout_width="62dp"
-            android:layout_height="match_parent"
-            android:layout_centerVertical="true"
             android:layout_alignParentLeft="true"
-            android:paddingTop="14dp"
-            android:paddingBottom="14dp"
-            android:background="@drawable/ripple_normal"
-            android:src="@drawable/selector_home_class_search"
+            android:background="@drawable/ripple_normal_statusbar"
             android:clickable="true"
-            />
+            android:paddingBottom="10dp"
+            android:paddingTop="10dp"
+            android:src="@drawable/class_search_normal"
+            android:tint="#ffffff"
+            android:visibility="gone"/>
     </RelativeLayout>
+
+    <android.support.design.widget.TabLayout
+        android:id="@+id/page_tabs"
+        android:layout_width="match_parent"
+        android:layout_height="32dp"
+        android:layout_gravity="top"
+        app:tabGravity="fill"
+        app:tabIndicatorHeight="1dp"
+        app:tabIndicatorColor="@color/status_bar"
+        app:tabMode="fixed"
+        app:tabSelectedTextColor="@color/status_bar"
+        app:tabTextColor="#aaaaaa"
+        android:background="#ffffff"
+        android:fillViewport="false" />
 
     <View
         android:layout_width="match_parent"
-        android:layout_height="2px"
+        android:layout_height="1px"
         android:background="#e1e1e1" />
 
-    <ScrollView
+    <tl.pojul.com.fastim.View.widget.MyViewPager
+        android:id="@+id/container"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:orientation="vertical"
-        >
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:orientation="vertical">
+        android:layout_weight="1" />
 
-            <RelativeLayout
-                android:layout_width="match_parent"
-                android:layout_height="40dp"
-                android:paddingLeft="3dp"
-                android:paddingRight="3dp"
-                android:layout_marginTop="5dp"
-                >
-
-                <ImageView
-                    android:id="@+id/home_choiceness_icon"
-                    android:layout_width="26dp"
-                    android:layout_height="26dp"
-                    android:src="@drawable/choiceness_pressed"
-                    android:layout_centerVertical="true"/>
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="精选"
-                    android:layout_toRightOf="@id/home_choiceness_icon"
-                    android:layout_centerVertical="true"
-                    android:textSize="14sp"
-                    android:layout_marginLeft="2dp"
-                    />
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="match_parent"
-                    android:text="更多>"
-                    android:layout_alignParentRight="true"
-                    android:layout_centerVertical="true"
-                    android:clickable="true"
-                    android:gravity="center"
-                    android:textSize="14sp"
-                    android:layout_marginRight="8dp"
-                    android:textColor="@color/selector_text_color"
-                    />
-            </RelativeLayout>
-
-            <RelativeLayout
-                android:layout_width="match_parent"
-                android:layout_height="180dp">
-
-                <tl.pojul.com.fastim.View.widget.sowingmap.SowingMap
-                    android:id="@+id/chioseness_pics"
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:clickable="true">
-                </tl.pojul.com.fastim.View.widget.sowingmap.SowingMap>
-
-                <RelativeLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_alignParentBottom="true">
-
-                    <LinearLayout
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:orientation="horizontal"
-                        android:id="@+id/chioseness_user_info"
-                        android:layout_marginLeft="8dp"
-                        android:clickable="true"
-                        >
-
-                        <tl.pojul.com.fastim.View.widget.PolygonImage.view.PolygonImageView
-                            android:id="@+id/chioseness_photo"
-                            android:layout_width="24dp"
-                            android:layout_height="24dp"
-                            android:src="@drawable/photo_default"
-                            app:poly_border="true"
-                            app:poly_border_color="#44b8e2"
-                            app:poly_border_width="1dp"
-                            app:poly_corner_radius="10"
-                            android:padding="2dp"
-                            app:poly_rotation_angle="10"
-                            app:poly_shadow_color="#ff000000"
-                            app:poly_shadow="true"
-                            android:layout_gravity="center"
-                            app:poly_vertices="0" />
-
-                        <TextView
-                            android:layout_width="60dp"
-                            android:layout_height="wrap_content"
-                            android:textSize="10sp"
-                            android:id="@+id/chioseness_nickname"
-                            android:textColor="#eeeeee"
-                            android:text="超哥"
-                            android:ellipsize="middle"
-                            android:singleLine="true"
-                            android:layout_marginLeft="1dp"
-                            android:layout_gravity="center"
-                            />
-                    </LinearLayout>
-
-                    <LinearLayout
-                        android:id="@+id/chioseness_location_ll"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:orientation="horizontal"
-                        android:layout_marginTop="1dp"
-                        android:layout_marginLeft="8dp"
-                        android:layout_marginBottom="10dp"
-                        android:layout_below="@+id/chioseness_user_info">
-                        <ImageView
-                            android:id="@+id/chioseness_location_icon"
-                            android:layout_width="12dp"
-                            android:layout_height="12dp"
-                            android:padding="1dp"
-                            android:src="@drawable/home_location_normal"
-                            android:layout_gravity="center"
-                            />
-
-                        <TextView
-                            android:layout_width="120dp"
-                            android:layout_height="wrap_content"
-                            android:textSize="10sp"
-                            android:id="@+id/chioseness_location"
-                            android:textColor="#eeeeee"
-                            android:text="湖南省.大庸市.张家界"
-                            android:ellipsize="middle"
-                            android:singleLine="true"
-                            android:layout_gravity="center"
-                            />
-                    </LinearLayout>
-                </RelativeLayout>
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:textSize="10sp"
-                    android:id="@+id/chioseness_date"
-                    android:textColor="#eeeeee"
-                    android:text="2018-08-07"
-                    android:layout_alignParentRight="true"
-                    android:layout_alignParentBottom="true"
-                    android:layout_marginBottom="15dp"
-                    android:layout_marginRight="12dp"
-                    />
-            </RelativeLayout>
-
-            <RelativeLayout
-                android:layout_width="match_parent"
-                android:layout_height="40dp"
-                android:paddingLeft="3dp"
-                android:paddingRight="3dp"
-                android:layout_marginTop="5dp"
-                >
-
-                <ImageView
-                    android:id="@+id/home_choiceness_nearby"
-                    android:layout_width="26dp"
-                    android:layout_height="26dp"
-                    android:src="@drawable/nearby_pressed"
-                    android:layout_centerVertical="true"/>
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="附近"
-                    android:layout_toRightOf="@id/home_choiceness_nearby"
-                    android:layout_centerVertical="true"
-                    android:textSize="14sp"
-                    android:layout_marginLeft="2dp"
-                    />
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="match_parent"
-                    android:text="更多>"
-                    android:layout_alignParentRight="true"
-                    android:layout_centerVertical="true"
-                    android:clickable="true"
-                    android:gravity="center"
-                    android:textSize="14sp"
-                    android:layout_marginRight="8dp"
-                    android:textColor="@color/selector_text_color"
-                    />
-            </RelativeLayout>
-
-            <android.support.v7.widget.RecyclerView
-                android:id="@+id/chioseness_nearby"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content">
-            </android.support.v7.widget.RecyclerView>
-
-            <LinearLayout
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="center"
-                android:layout_marginTop="10dp"
-                android:orientation="horizontal">
-                <View
-                    android:layout_width="110dp"
-                    android:layout_height="1px"
-                    android:layout_gravity="center"
-                    android:background="#cdcdcd"/>
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:textSize="12sp"
-                    android:textColor="#ababab"
-                    android:text="  推荐  "/>
-
-                <View
-                    android:layout_width="110dp"
-                    android:layout_height="1px"
-                    android:layout_gravity="center"
-                    android:background="#cdcdcd"/>
-            </LinearLayout>
-
-            <android.support.v7.widget.RecyclerView
-                android:id="@+id/recommend"
-                android:layout_width="match_parent"
-                android:layout_height="500dp">
-            </android.support.v7.widget.RecyclerView>
-        </LinearLayout>
-    </ScrollView>
 </LinearLayout>
 

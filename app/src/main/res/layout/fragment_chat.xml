@@ -9,20 +9,21 @@
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:fitsSystemWindows="true"
         android:background="#ffffff"
         android:orientation="vertical">
 
         <RelativeLayout
             android:layout_width="match_parent"
-            android:layout_height="52dp">
+            android:layout_height="68dp"
+            android:background="@color/status_bar"
+            android:paddingTop="28dp">
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="match_parent"
                 android:text="@string/chat"
                 android:textSize="16sp"
-                android:textColor="#676767"
-                android:padding="15dp"
+                android:textColor="#ffffff"
+                android:gravity="center"
                 android:layout_centerHorizontal="true"/>
 
             <ImageView
@@ -50,9 +51,9 @@
             android:layout_gravity="top"
             app:tabGravity="fill"
             app:tabIndicatorHeight="1dp"
-            app:tabIndicatorColor="#1296db"
+            app:tabIndicatorColor="@color/status_bar"
             app:tabMode="fixed"
-            app:tabSelectedTextColor="#1296db"
+            app:tabSelectedTextColor="@color/status_bar"
             app:tabTextColor="#aaaaaa"
             android:background="#ffffff"
             android:fillViewport="false" />

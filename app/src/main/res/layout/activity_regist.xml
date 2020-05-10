@@ -3,7 +3,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:fitsSystemWindows="true"
-    android:background="#ff5755"
+    android:background="@color/status_bar"
     android:orientation="vertical">
 
     <RelativeLayout
@@ -83,7 +83,7 @@
                     android:layout_height="match_parent"
                     android:background="#00ffffff"
                     android:padding="5dp"
-                    android:textSize="13sp"
+                    android:textSize="14sp"
                     android:textColor="#a1a1a1"
                     android:textColorHint="#d1d1d1"
                     android:maxLength="15"
@@ -122,7 +122,7 @@
                     android:layout_height="match_parent"
                     android:background="#00ffffff"
                     android:padding="5dp"
-                    android:textSize="13sp"
+                    android:textSize="14sp"
                     android:textColor="#a1a1a1"
                     android:gravity="center_vertical"
                     android:textColorHint="#d1d1d1"
@@ -162,7 +162,7 @@
                     android:layout_height="match_parent"
                     android:background="#00ffffff"
                     android:padding="5dp"
-                    android:textSize="13sp"
+                    android:textSize="14sp"
                     android:gravity="center_vertical"
                     android:textColor="#a1a1a1"
                     android:textColorHint="#d1d1d1"
@@ -202,7 +202,7 @@
                     android:layout_height="match_parent"
                     android:background="#00ffffff"
                     android:padding="5dp"
-                    android:textSize="13sp"
+                    android:textSize="14sp"
                     android:textColor="#a1a1a1"
                     android:maxLength="15"
                     android:textColorHint="#d1d1d1"
@@ -246,7 +246,7 @@
                     android:layout_height="match_parent"
                     android:background="#00ffffff"
                     android:padding="5dp"
-                    android:textSize="13sp"
+                    android:textSize="14sp"
                     android:textColor="#a1a1a1"
                     android:textColorHint="#d1d1d1"
                     android:inputType="textPassword"
@@ -264,10 +264,61 @@
                 android:text="注：生日、性别信息注册后不能修改"
                 android:layout_below="@+id/passwd_sure_ll"
                 android:layout_marginLeft="5dp"
-                android:layout_marginTop="3dp"
+                android:layout_marginTop="4dp"
                 android:layout_alignLeft="@+id/passwd_sure_ll"
                 android:layout_alignRight="@+id/passwd_sure_ll"
                 />
+
+            <LinearLayout
+                android:id="@+id/privacy_ll"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:layout_below="@+id/effective_note"
+                android:layout_centerHorizontal="true"
+                android:paddingLeft="5dp"
+                android:layout_marginTop="5dp">
+
+                <CheckBox
+                    android:id="@+id/agree"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:buttonTint="#bbb"
+                    android:scaleX="0.8"
+                    android:scaleY="0.8"/>
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textSize="12sp"
+                    android:textColor="#aaa"
+                    android:text="已阅读并同意"/>
+
+                <TextView
+                    android:id="@+id/user_agree"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textSize="12sp"
+                    android:paddingTop="5dp"
+                    android:paddingBottom="5dp"
+                    android:paddingRight="5dp"
+                    android:textColor="@color/blue1"
+                    android:clickable="true"
+                    android:text="《用户协议》"/>
+
+                <TextView
+                    android:id="@+id/privacy_detail"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textSize="12sp"
+                    android:paddingTop="5dp"
+                    android:paddingBottom="5dp"
+                    android:paddingRight="5dp"
+                   android:textColor="@color/blue1"
+                    android:clickable="true"
+                    android:text="《隐私协议》"/>
+
+            </LinearLayout>
 
             <Button
                 android:id="@+id/register"
@@ -275,7 +326,7 @@
                 android:layout_marginLeft="65dp"
                 android:layout_marginRight="65dp"
                 android:layout_height="32dp"
-                android:layout_marginTop="30dp"
+                android:layout_marginTop="48dp"
                 android:background="@drawable/regist_bt_bg"
                 android:text="注册"
                 android:textSize="14sp"

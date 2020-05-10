@@ -9,6 +9,7 @@ import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.os.SystemClock;
+import android.util.Log;
 
 import com.marswin89.marsdaemon.DaemonConfigurations;
 import com.marswin89.marsdaemon.IDaemonStrategy;
@@ -37,6 +38,7 @@ public class DaemonStrategy21 implements IDaemonStrategy{
 
 	@Override
 	public void onPersistentCreate(final Context context, DaemonConfigurations configs) {
+		Log.e("DaemonStrategy21", "onPersistentCreate----->");
 		Intent intent = new Intent();
 		ComponentName componentName = new ComponentName(context.getPackageName(), configs.DAEMON_ASSISTANT_CONFIG.SERVICE_NAME);
 		intent.setComponent(componentName);
@@ -67,6 +69,7 @@ public class DaemonStrategy21 implements IDaemonStrategy{
 
 	@Override
 	public void onDaemonAssistantCreate(final Context context, DaemonConfigurations configs) {
+		Log.e("DaemonStrategy21", "onDaemonAssistantCreate----->");
 		Intent intent = new Intent();
 		ComponentName componentName = new ComponentName(context.getPackageName(), configs.PERSISTENT_CONFIG.SERVICE_NAME);
 		intent.setComponent(componentName);
@@ -96,6 +99,7 @@ public class DaemonStrategy21 implements IDaemonStrategy{
 	
 	@Override
 	public void onDaemonDead() {
+		Log.e("DaemonStrategy21", "onDaemonDead----->");
 		mAlarmManager.setRepeating(AlarmManager.ELAPSED_REALTIME, SystemClock.elapsedRealtime(), 100, mPendingIntent);
 		
 		if(mConfigs != null && mConfigs.LISTENER != null){

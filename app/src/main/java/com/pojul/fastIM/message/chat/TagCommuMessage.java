@@ -19,6 +19,8 @@ public class TagCommuMessage extends CommunityMessage{
     private int hasReport;
     public boolean isThumbsUping;
     private int replysNum;
+    private boolean isManagerNotrify;
+    private int level;
 
     public List<ReplyMessage> getReplys() {
         return replys;
@@ -114,6 +116,22 @@ public class TagCommuMessage extends CommunityMessage{
 
     public void setReplysNum(int replysNum) {
         this.replysNum = replysNum;
+    }
+
+    public boolean isManagerNotrify() {
+        return isManagerNotrify;
+    }
+
+    public void setManagerNotrify(boolean managerNotrify) {
+        isManagerNotrify = managerNotrify;
+    }
+
+    public int getLevel() {
+        return level;
+    }
+
+    public void setLevel(int level) {
+        this.level = level;
     }
 
     @Override

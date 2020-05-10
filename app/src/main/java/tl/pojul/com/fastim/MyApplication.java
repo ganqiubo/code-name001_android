@@ -15,6 +15,7 @@ import android.os.Handler;
 import android.os.Looper;
 import android.os.PowerManager;
 import android.support.multidex.MultiDex;
+import android.support.v4.content.FileProvider;
 import android.util.Log;
 import android.widget.Toast;
 
@@ -23,6 +24,7 @@ import com.baidu.mapapi.SDKInitializer;
 import com.baidu.mapapi.model.LatLng;
 import com.baidu.mapapi.utils.DistanceUtil;
 import com.lahm.library.EasyProtectorLib;
+import com.lahm.library.EmulatorCheckCallback;
 import com.marswin89.marsdaemon.DaemonApplication;
 import com.marswin89.marsdaemon.DaemonConfigurations;
 import com.pojul.fastIM.entity.NearByPeople;
@@ -30,6 +32,7 @@ import com.pojul.fastIM.entity.User;
 import com.pojul.fastIM.message.other.NotifyHasRecommend;
 import com.pojul.fastIM.message.other.NotifyAcceptFriend;
 import com.pojul.fastIM.message.other.NotifyFriendReq;
+import com.pojul.fastIM.message.other.NotifyManagerNotify;
 import com.pojul.fastIM.message.other.NotifyPayMemberOk;
 import com.pojul.fastIM.message.request.LoginByTokenReq;
 import com.pojul.fastIM.message.request.UpdateLocReq;
@@ -49,6 +52,9 @@ import com.scwang.smartrefresh.layout.api.RefreshHeader;
 import com.scwang.smartrefresh.layout.api.RefreshLayout;
 import com.scwang.smartrefresh.layout.constant.SpinnerStyle;
 import com.scwang.smartrefresh.layout.header.ClassicsHeader;
+import com.umeng.commonsdk.UMConfigure;
+import com.umeng.socialize.PlatformConfig;
+import com.umeng.socialize.UMShareConfig;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -67,6 +73,7 @@ import tl.pojul.com.fastim.View.activity.LockScreenActivity;
 import tl.pojul.com.fastim.View.activity.LoginActivity;
 import tl.pojul.com.fastim.View.activity.MainActivity;
 import tl.pojul.com.fastim.View.activity.RegistActivity;
+import tl.pojul.com.fastim.View.activity.TagReplyActivity;
 import tl.pojul.com.fastim.View.broadcast.MarsDaemonReceiver1;
 import tl.pojul.com.fastim.View.broadcast.MarsDaemonReceiver2;
 import tl.pojul.com.fastim.View.broadcast.NetWorkStateReceiver;
@@ -163,6 +170,7 @@ public class MyApplication extends DaemonApplication {
     }};
 
     private OkHttpClient mOkHttpClient;
+    private int lastUpdateApkProgress = 0;
 
     static {//static 代码段可以防止内存泄露
         //设置全局的Header构建器
@@ -186,6 +194,7 @@ public class MyApplication extends DaemonApplication {
     public void onCreate() {
         super.onCreate();
         String processName = getProcessName(this);
+        Log.e(TAG, "processName: " + processName);
         if(!"tl.pojul.com.fastim:process1".equals(processName)){
             return;
         }
@@ -199,6 +208,15 @@ public class MyApplication extends DaemonApplication {
         LocationManager.Instance(getApplicationContext());
         initData();
         initNetWorkReceive();
+
+        /**
+         *分享
+         **/
+        UMConfigure.init(this,"5c4c1a86f1f556b484000125"
+                ,"umeng",UMConfigure.DEVICE_TYPE_PHONE,"");
+        PlatformConfig.setWeixin("wx4ebfa21ac55aa743", "5c017d2f6ec59c46620d82c044a1985a");
+
+
         //user = SPUtil.getInstance().getUser();
 
         /*pm = (PowerManager) this.getSystemService(Context.POWER_SERVICE);
@@ -239,7 +257,8 @@ public class MyApplication extends DaemonApplication {
         //listenPhoneState();
 
 
-        Log.e(TAG, "checkIsRunningInEmulator: " + EasyProtectorLib.checkIsRunningInEmulator() +
+        Log.e(TAG, "checkIsRunningInEmulator: " + EasyProtectorLib.checkIsRunningInEmulator(getApplicationContext(),
+                emulatorInfo -> {}) +
             "checkIsXposedExist: " + EasyProtectorLib.checkIsXposedExist());
 
     }
@@ -251,7 +270,7 @@ public class MyApplication extends DaemonApplication {
             public void onCallStateChanged(int state, String incomingNumber) {
                 switch (state) {
                     case TelephonyManager.CALL_STATE_IDLE:
-                        isCalling = false;
+                        isCalling = false;se
                         break;
                     default:
                         isCalling = true;
@@ -438,6 +457,12 @@ public class MyApplication extends DaemonApplication {
                         addFriendUtil.onNotifyAcceptFriend(((NotifyAcceptFriend)message), getApplicationContext());
                         return;
                     }
+
+                    if(message instanceof NotifyManagerNotify){
+                        notifyManagerNoyify((NotifyManagerNotify)message);
+                        return;
+                    }
+
                     message.setIsSend(1);
                     for(int i = 0; i< IReceiveMessages.size(); i++){
                         IReceiveMessage iReceiveMessage = IReceiveMessages.get(i);
@@ -463,6 +488,13 @@ public class MyApplication extends DaemonApplication {
         });
     }
 
+    private void notifyManagerNoyify(NotifyManagerNotify message) {
+        Intent intent = new Intent(getApplicationContext(), TagReplyActivity.class);
+        intent.putExtra("tagMessUid", message.getMessUid());
+        NotifyUtil.notify("通知公告消息", "来自" + message.getManagerNickname(), message.getMessageTitle(),
+                message.getManagerPhoto(), intent, getApplicationContext());
+    }
+
     private void notifyPayMemberOk(NotifyPayMemberOk message) {
         User user = SPUtil.getInstance().getUser();
         if(user == null){
@@ -475,15 +507,19 @@ public class MyApplication extends DaemonApplication {
                 user.getPhoto().getFilePath(), intent, getApplicationContext());
     }
 
+    /**
+     * 暂时弃用
+     * */
     private void notifyHasRecommend(NotifyHasRecommend message) {
-        if(message.getRecommendtype() == 1){
+        /*if(message.getRecommendtype() == 1){
             hasRecomdMess = true;
         }else if(message.getRecommendtype() == 2){
             hasRecomdProple = true;
         }
-        if(mainActivity != null && mainActivity.moreFragment != null){
-            mainActivity.moreFragment.notifyHasRecomds();
-        }
+        if(mainActivity != null && mainActivity.homeFragment != null
+                && mainActivity.homeFragment.homeChoiceFragment != null){
+            mainActivity.homeFragment.homeChoiceFragment.notifyHasRecomds();
+        }*/
     }
 
 
@@ -538,7 +574,9 @@ public class MyApplication extends DaemonApplication {
             @Override
             public void onConnClosed() {
                 new Handler(Looper.getMainLooper()).post(()->{
-                    showLongToas("lose connection");
+                    /*if(!MyApplication.isConnecting) {
+                        showShortToas("lose connection");
+                    }*/
                     Log.e(TAG, "onConnClosed");
                 });
                 //showLongToas("lose connection");
@@ -735,10 +773,11 @@ public class MyApplication extends DaemonApplication {
                 }*/
             } else if (Intent.ACTION_SCREEN_OFF.equals(intent.getAction())) {
                 //1：不可用; 2: 会员可用; 3: 可以体验; 其他: 体验过期时间
-                long validStatus = new KeyguardGalleryUtil().validStatus();
+                /*long validStatus = new KeyguardGalleryUtil().validStatus();
                 Log.e("validStatus", "validStatus: " + validStatus);
                 if(SPUtil.getInstance().getInt(SPUtil.SHOW_KEYGUARD_GALLERY, 1) == 1 &&
-                        validStatus != 1 && validStatus != 3) {
+                        validStatus != 1 && validStatus != 3) {*/
+                if(SPUtil.getInstance().getInt(SPUtil.SHOW_KEYGUARD_GALLERY, 1) == 1){
                     Intent lockScreenIntent = new Intent(getApplicationContext(), LockScreenActivity.class);
                     lockScreenIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
                     startActivity(lockScreenIntent);
@@ -761,6 +800,7 @@ public class MyApplication extends DaemonApplication {
             fileApk.delete();
         }
         isUpdateApk = true;
+        lastUpdateApkProgress = 0;
         DownLoadManager.getInstance().downloadFile("http://47.93.31.206:8080/resources/app/detail/footstep_signed1.0.apk",
                 (file.getAbsolutePath() + "/footstep.apk"),
                 new DownloadCallBack());
@@ -777,6 +817,11 @@ public class MyApplication extends DaemonApplication {
         @Override
         public void downloadProgress(DownloadTask task) {
             super.downloadProgress(task);
+            Log.e(TAG, "progress: " + task.getProgress());
+            if((task.getProgress()-lastUpdateApkProgress) < 2){
+                return;
+            }
+            lastUpdateApkProgress = task.getProgress();
             NotifyUtil.notifyUpdateApk(task.getProgress(), getApplicationContext());
         }
 
@@ -796,7 +841,17 @@ public class MyApplication extends DaemonApplication {
                 intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
                 intent.setAction(Intent.ACTION_VIEW);  //设置intent的Action属性
                 String type = FileUtil.getMIMEType(file);  //获取文件file的MIME类型
-                intent.setDataAndType(/*uri*/Uri.fromFile(file), type);   //设置intent的data和Type属性。
+
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+                    intent.setFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
+                    Uri contentUri = FileProvider.getUriForFile(getApplicationContext(), BuildConfig.APPLICATION_ID + ".fileProvider", file);
+                    intent.setDataAndType(contentUri, "application/vnd.android.package-archive");
+                } else {
+                    intent.setDataAndType(Uri.fromFile(file), "application/vnd.android.package-archive");
+                    intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                }
+
+                //intent.setDataAndType(/*uri*/Uri.fromFile(file), type);   //设置intent的data和Type属性。
                 startActivity(intent);     //比如说你的MIME类型是打开邮箱，但是你手机里面没装邮箱客户端，就会报错。
             }catch (Exception e){
                 showShortToas("找不到对应的文件查看器");

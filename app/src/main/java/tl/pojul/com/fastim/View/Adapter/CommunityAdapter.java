@@ -10,13 +10,17 @@ import android.text.style.ForegroundColorSpan;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
+import com.bumptech.glide.Glide;
 import com.google.gson.Gson;
+import com.pojul.fastIM.entity.CommunityMessEntity;
 import com.pojul.fastIM.entity.CommunityRoom;
 import com.pojul.fastIM.message.chat.TagCommuMessage;
+import com.pojul.objectsocket.utils.LogUtil;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -107,17 +111,52 @@ public class CommunityAdapter extends RecyclerView.Adapter<CommunityAdapter.MyVi
             bundle.putString("commun_room", new Gson().toJson(communityRoom));
             ((BaseActivity)mContext).startActivity(CommuDeatilActivity.class, bundle);
         });
+        if(communityRoom.getPhoto() != null &&
+                 !communityRoom.getPhoto().isEmpty()){
+            Glide.with(mContext).load(communityRoom.getPhoto()).into(holder.communityPhoto);
+        }else{
+            Glide.with(mContext).load(R.drawable.photo_default).into(holder.communityPhoto);
+        }
+        if(communityRoom.getFollows() > 0){
+            holder.follows.setVisibility(View.VISIBLE);
+            holder.followsIv.setVisibility(View.VISIBLE);
+            holder.follows.setText(("" + communityRoom.getFollows()));
+        }else{
+            holder.follows.setVisibility(View.GONE);
+            holder.followsIv.setVisibility(View.GONE);
+        }
         /*if(communityPhotos.get(communityRoom.getCommunitySubtype()) != null){
             holder.communityPhoto.setImageResource(communityPhotos.get(communityRoom.getCommunitySubtype()));
         }else{
             holder.communityPhoto.setImageResource(R.drawable.community_normal);
         }*/
-
     }
 
     @Override
     public int getItemCount() {
         return mList != null ? mList.size() : 0;
+    }
+
+    public void setBasewInfo(List<CommunityRoom> communityRooms) {
+        if(communityRooms == null){
+            return;
+        }
+        for (int i = 0; i < communityRooms.size(); i++) {
+            setItemBaseInfo(communityRooms.get(i));
+        }
+    }
+
+    private void setItemBaseInfo(CommunityRoom communityRoom) {
+        synchronized (mList){
+            for (int i = 0; i < mList.size(); i++) {
+                CommunityRoom rawCommunityRoom = mList.get(i);
+                if(rawCommunityRoom.getCommunityUid().equals(communityRoom.getCommunityUid())){
+                    rawCommunityRoom.setFollows(communityRoom.getFollows());
+                    rawCommunityRoom.setPhoto(communityRoom.getPhoto());
+                    break;
+                }
+            }
+        }
     }
 
     class MyViewHolder extends RecyclerView.ViewHolder {
@@ -136,6 +175,10 @@ public class CommunityAdapter extends RecyclerView.Adapter<CommunityAdapter.MyVi
         RelativeLayout itemRl;
         @BindView(R.id.item_community_ll)
         LinearLayout itemCommunityLl;
+        @BindView(R.id.follows_iv)
+        ImageView followsIv;
+        @BindView(R.id.follows)
+        TextView follows;
 
         public MyViewHolder(View itemView) {
             super(itemView);
@@ -160,6 +203,7 @@ public class CommunityAdapter extends RecyclerView.Adapter<CommunityAdapter.MyVi
     }
 
     public void addCommunity(CommunityRoom communityRoom) {
+        LogUtil.e(communityRoom.getName()+"<----addCommunity--->");
         synchronized (mList) {
             for (int i = 0; i < mList.size(); i++) {
                 CommunityRoom community = mList.get(i);
@@ -167,6 +211,7 @@ public class CommunityAdapter extends RecyclerView.Adapter<CommunityAdapter.MyVi
                     return;
                 }
             }
+            LogUtil.e(communityRoom.getName()+"<----addCommunity111--->");
             mList.add(communityRoom);
             Collections.sort(mList);
             notifyDataSetChanged();

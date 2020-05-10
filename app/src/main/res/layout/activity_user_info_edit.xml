@@ -2,14 +2,14 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:fitsSystemWindows="true"
     android:orientation="vertical"
     android:background="#f6f6f6">
 
     <RelativeLayout
         android:layout_width="match_parent"
-        android:layout_height="50dp"
-        android:background="#ffffff">
+        android:layout_height="68dp"
+        android:paddingTop="28dp"
+        android:background="@color/status_bar">
 
         <TextView
             android:layout_width="wrap_content"
@@ -17,7 +17,7 @@
             android:layout_centerHorizontal="true"
             android:gravity="center"
             android:text="基本信息"
-            android:textColor="#676767"
+            android:textColor="#ffffff"
             android:textSize="16sp" />
     </RelativeLayout>
 

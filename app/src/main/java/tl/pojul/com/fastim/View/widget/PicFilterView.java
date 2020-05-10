@@ -33,6 +33,8 @@ public class PicFilterView extends LinearLayout {
     TextView unsplash;
     @BindView(R.id.pexels)
     TextView pexels;
+    @BindView(R.id.pixabay)
+    TextView pixabay;
     @BindView(R.id.man)
     TextView man;
     @BindView(R.id.woman)
@@ -99,11 +101,13 @@ public class PicFilterView extends LinearLayout {
         if (nearBy) {
             unsplash.setEnabled(false);
             pexels.setEnabled(false);
+            pixabay.setEnabled(false);
             picFilter.setGallery("脚步");
             nearbyTv.setSelected(true);
         } else {
             unsplash.setEnabled(true);
             pexels.setEnabled(true);
+            pixabay.setEnabled(true);
             nearbyTv.setSelected(false);
         }
         if (hideLabel) {
@@ -126,6 +130,7 @@ public class PicFilterView extends LinearLayout {
             footSetp.setSelected(true);
             unsplash.setSelected(false);
             pexels.setSelected(false);
+            pixabay.setSelected(false);
             moreLabelNote.setVisibility(GONE);
             moreLabelTitle.setText("更多标签：");
             enableSex();
@@ -133,10 +138,18 @@ public class PicFilterView extends LinearLayout {
             footSetp.setSelected(false);
             unsplash.setSelected(true);
             pexels.setSelected(false);
+            pixabay.setSelected(false);
             moreLabelNote.setVisibility(GONE);
             moreLabelTitle.setText("更多标签：");
             disableSex();
-        } else {
+        } else if("pixabay".equals(picFilter.getGallery())){
+            footSetp.setSelected(false);
+            unsplash.setSelected(false);
+            pixabay.setSelected(true);
+            moreLabelTitle.setText("更多标签");
+            moreLabelNote.setVisibility(VISIBLE);
+            disableSex();
+        }else {
             footSetp.setSelected(false);
             unsplash.setSelected(false);
             pexels.setSelected(true);
@@ -175,6 +188,8 @@ public class PicFilterView extends LinearLayout {
                 unsplash.setEnabled(false);
                 pexels.setSelected(false);
                 pexels.setEnabled(false);
+                pixabay.setSelected(false);
+                pixabay.setEnabled(false);
                 man.setEnabled(true);
                 woman.setEnabled(true);
                 sexNolimit.setEnabled(true);
@@ -188,6 +203,8 @@ public class PicFilterView extends LinearLayout {
                 unsplash.setEnabled(false);
                 pexels.setSelected(false);
                 pexels.setEnabled(false);
+                pixabay.setSelected(false);
+                pixabay.setEnabled(false);
                 man.setEnabled(true);
                 woman.setEnabled(true);
                 sexNolimit.setEnabled(true);
@@ -198,6 +215,7 @@ public class PicFilterView extends LinearLayout {
                 myCollect.setSelected(false);
                 unsplash.setEnabled(true);
                 pexels.setEnabled(true);
+                pixabay.setEnabled(true);
             } else if ("我的收藏".equals(picFilter.getOther())) {
                 myCollect.setSelected(true);
                 nearbyTv.setSelected(false);
@@ -205,6 +223,7 @@ public class PicFilterView extends LinearLayout {
                 myLike.setSelected(false);
                 unsplash.setEnabled(true);
                 pexels.setEnabled(true);
+                pixabay.setEnabled(true);
             }
         } else {
             nearbyTv.setSelected(false);
@@ -225,7 +244,7 @@ public class PicFilterView extends LinearLayout {
         }
     }
 
-    @OnClick({R.id.foot_setp, R.id.unsplash, R.id.pexels, R.id.man, R.id.woman, R.id.sex_nolimit, R.id.nearby, R.id.my_pic,
+    @OnClick({R.id.foot_setp, R.id.pixabay, R.id.unsplash, R.id.pexels, R.id.man, R.id.woman, R.id.sex_nolimit, R.id.nearby, R.id.my_pic,
             R.id.my_like, R.id.my_collect})
     public void onViewClicked(View view) {
         switch (view.getId()) {
@@ -233,6 +252,7 @@ public class PicFilterView extends LinearLayout {
                 footSetp.setSelected(true);
                 unsplash.setSelected(false);
                 pexels.setSelected(false);
+                pixabay.setSelected(false);
                 enableSex();
                 moreLabelTitle.setText("更多标签：");
                 moreLabelNote.setVisibility(GONE);
@@ -241,6 +261,7 @@ public class PicFilterView extends LinearLayout {
                 footSetp.setSelected(false);
                 unsplash.setSelected(true);
                 pexels.setSelected(false);
+                pixabay.setSelected(false);
                 disableSex();
                 moreLabelTitle.setText("更多标签：");
                 moreLabelNote.setVisibility(GONE);
@@ -249,6 +270,15 @@ public class PicFilterView extends LinearLayout {
                 footSetp.setSelected(false);
                 unsplash.setSelected(false);
                 pexels.setSelected(true);
+                pixabay.setSelected(false);
+                disableSex();
+                moreLabelTitle.setText("更多标签");
+                moreLabelNote.setVisibility(VISIBLE);
+                break;
+            case R.id.pixabay:
+                footSetp.setSelected(false);
+                unsplash.setSelected(false);
+                pixabay.setSelected(true);
                 disableSex();
                 moreLabelTitle.setText("更多标签");
                 moreLabelNote.setVisibility(VISIBLE);
@@ -279,12 +309,15 @@ public class PicFilterView extends LinearLayout {
                     unsplash.setEnabled(false);
                     pexels.setSelected(false);
                     pexels.setEnabled(false);
+                    pixabay.setSelected(false);
+                    pixabay.setEnabled(false);
                     man.setEnabled(true);
                     woman.setEnabled(true);
                     sexNolimit.setEnabled(true);
                 } else {
                     unsplash.setEnabled(true);
                     pexels.setEnabled(true);
+                    pixabay.setEnabled(true);
                 }
                 checkOthers();
                 break;
@@ -299,12 +332,15 @@ public class PicFilterView extends LinearLayout {
                     unsplash.setEnabled(false);
                     pexels.setSelected(false);
                     pexels.setEnabled(false);
+                    pixabay.setSelected(false);
+                    pixabay.setEnabled(false);
                     man.setEnabled(true);
                     woman.setEnabled(true);
                     sexNolimit.setEnabled(true);
                 } else {
                     unsplash.setEnabled(true);
                     pexels.setEnabled(true);
+                    pixabay.setEnabled(true);
                 }
                 checkOthers();
                 break;
@@ -316,6 +352,7 @@ public class PicFilterView extends LinearLayout {
                     myCollect.setSelected(false);
                     unsplash.setEnabled(true);
                     pexels.setEnabled(true);
+                    pixabay.setEnabled(true);
                 }
                 checkOthers();
                 break;
@@ -327,6 +364,7 @@ public class PicFilterView extends LinearLayout {
                     myLike.setSelected(false);
                     unsplash.setEnabled(true);
                     pexels.setEnabled(true);
+                    pixabay.setEnabled(true);
                 }
                 checkOthers();
                 break;
@@ -344,8 +382,10 @@ public class PicFilterView extends LinearLayout {
             picFilter.setGallery("脚步");
         } else if (unsplash.isSelected()) {
             picFilter.setGallery("unsplash");
-        } else {
+        } else if(pexels.isSelected()){
             picFilter.setGallery("pexels");
+        }else {
+            picFilter.setGallery("pixabay");
         }
         if (man.isSelected()) {
             picFilter.setSex(1);
@@ -375,6 +415,7 @@ public class PicFilterView extends LinearLayout {
     public void disableThirdGally() {
         unsplash.setEnabled(false);
         pexels.setEnabled(false);
+        pixabay.setEnabled(false);
         footSetp.setEnabled(false);
     }
 

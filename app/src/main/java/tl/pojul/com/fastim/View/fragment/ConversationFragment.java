@@ -8,6 +8,7 @@ import android.support.v7.widget.LinearLayoutManager;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.LinearLayout;
 import android.widget.Toast;
 
 import com.pojul.fastIM.message.chat.CommunityMessage;
@@ -42,6 +43,8 @@ public class ConversationFragment extends BaseFragment {
     @BindView(R.id.smart_refresh)
     SmartRefreshLayout smartRefresh;
     Unbinder unbinder;
+    @BindView(R.id.empty_ll)
+    LinearLayout emptyLl;
 
     public ConversationAdapter conversationAdapter;
     private View view;
@@ -76,6 +79,15 @@ public class ConversationFragment extends BaseFragment {
                 new ConversationDao().getConversations(SPUtil.getInstance().getUser().getUserName()));
         conversationAdapter.setOnItemClickListener(new ItemClickListener());
         conversationList.setAdapter(conversationAdapter);
+
+        if(new ConversationDao().getConversations(SPUtil.getInstance().getUser().getUserName()) == null
+                || new ConversationDao().getConversations(SPUtil.getInstance().getUser().getUserName()).size() <= 0){
+            emptyLl.setVisibility(View.VISIBLE);
+            conversationList.setVisibility(View.GONE);
+        }else{
+            emptyLl.setVisibility(View.GONE);
+            conversationList.setVisibility(View.VISIBLE);
+        }
 
         smartRefresh.setOnRefreshListener(new OnRefreshListener() {
             @Override

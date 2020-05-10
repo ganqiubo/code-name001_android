@@ -13,6 +13,8 @@ import android.util.AttributeSet;
 import android.util.Log;
 import android.view.MotionEvent;
 
+import com.pojul.objectsocket.utils.LogUtil;
+
 import tl.pojul.com.fastim.transfer.lockscreenimg.Transfer;
 
 public class LockScreenImg extends android.support.v7.widget.AppCompatImageView{
@@ -29,7 +31,7 @@ public class LockScreenImg extends android.support.v7.widget.AppCompatImageView{
     private float prevTouchX;
     private float prevDsx;
     private float prevTouchY;
-    private int touchMode = -1; //1: 移动模式; 2: 缩放模式
+    private int touchMode = -1; //1: 移动模式; 2: 缩放模式; 3: 锁屏解锁模式
 
     public boolean isTouch;
     public boolean isAnimator;
@@ -44,6 +46,14 @@ public class LockScreenImg extends android.support.v7.widget.AppCompatImageView{
     private ScaleListener scaleListener;
     private Transfer transfer;
     private float progress;
+    private boolean canSlideToUnlock; //滑动解锁
+    private OnSlideToUnlock onSlideToUnlockListener;
+    private float unlockScale = 1;
+    private float rawTouchX;
+    private float rawTouchY;
+    private float maxUnlockRate = 0.7f;
+    private float unlockScaleRate = 1.7f;
+    private float maxUnlockScale = 1.55f;
 
     public LockScreenImg(Context context) {
         super(context);
@@ -189,6 +199,9 @@ public class LockScreenImg extends android.support.v7.widget.AppCompatImageView{
                 isTouch = true;
                 prevTouchX = event.getX();
                 prevTouchY = event.getY();
+                rawTouchX = event.getX();
+                rawTouchY = event.getY();
+                unlockScale = 1;
                 break;
             case MotionEvent.ACTION_MOVE:
                 onTouchMove(event);
@@ -220,18 +233,57 @@ public class LockScreenImg extends android.support.v7.widget.AppCompatImageView{
             }else{
                 startScaleAnimator(scaleImg);
             }
+        }else if(touchMode==3){
+            float currentScale = getScaleX();
+            LogUtil.e("onSlideToUnlockListener current scale: " + getScaleX());
+            if(currentScale<maxUnlockScale){
+                onUnlockCancel();
+            }else if(onSlideToUnlockListener!=null){
+                onSlideToUnlockListener.onUnlock();
+            }
         }
-        touchMode = -1;
+        if(touchMode!=3){
+            touchMode = -1;
+        }
         dsX = 0;
         dsY = 0;
+    }
+
+    private void onUnlockCancel() {
+        ValueAnimator scaleAnimator = ValueAnimator.ofFloat((getScaleY()-1), 0);
+        scaleAnimator.setDuration(350);
+        scaleAnimator.addUpdateListener(animation -> {
+            if(!isAnimator){
+                scaleAnimator.cancel();
+                return;
+            }
+            float value = (float) scaleAnimator.getAnimatedValue();
+            float scale = 1 + value;
+            LockScreenImg.this.setScaleY(scale);
+            LockScreenImg.this.setScaleX(scale);
+            if(value <= 0){
+                LockScreenImg.this.setScaleY(1);
+                LockScreenImg.this.setScaleX(1);
+                isAnimator = false;
+                touchMode = -1;
+            }
+        });
+        isAnimator = true;
+        scaleAnimator.start();
     }
 
     private void onTouchMove(MotionEvent event) {
         prevDsx = dsX;
         dsX = event.getX() - prevTouchX;
         dsY = event.getY() - prevTouchY;
+        float rate = (dsX/dsY);
+        LogUtil.e(TAG, ("MOVE RATE: " + dsX/dsY));
         if(touchMode == -1){
-            touchMode = 1;
+            if(Math.abs(rate)>maxUnlockRate){
+                touchMode = 1;
+            }else if(canSlideToUnlock){
+                touchMode = 3;
+            }
             /*if((Math.abs(dsY) > (Math.abs(dsX) * 1.6f)) || scaleImg > 1.01f){
                 touchMode = 2;
                 startDsy = dsY;
@@ -240,9 +292,20 @@ public class LockScreenImg extends android.support.v7.widget.AppCompatImageView{
             }*/
         }
         if(touchMode == 1){
-            panImage(dsX, dsY);
+            if(Math.abs(rate)>maxUnlockRate){
+                panImage(dsX, dsY);
+            }
         }else if(touchMode == 2){
             scaleImage(dsX, dsY);
+        }else if(touchMode == 3){
+            float distanceRawX = Math.abs(event.getX()-rawTouchX);
+            float distanceRawY = Math.abs(event.getY()-rawTouchY);
+            float scaleRateX = distanceRawX/getWidth()*unlockScaleRate;
+            float scaleRateY = distanceRawY/getHeight()*unlockScaleRate;
+            LogUtil.e("scaleRateX: " + scaleRateX + "; "+"scaleRateY: " + scaleRateY);
+            unlockScale = 1 + (scaleRateX+scaleRateY);
+            setScaleX(unlockScale);
+            setScaleY(unlockScale);
         }
         prevTouchX = event.getX();
         prevTouchY = event.getY();
@@ -356,5 +419,17 @@ public class LockScreenImg extends android.support.v7.widget.AppCompatImageView{
 
     public Bitmap getmBitmap() {
         return mBitmap;
+    }
+
+    public void setCanSlideToUnlock(boolean canSlideToUnlock) {
+        this.canSlideToUnlock = canSlideToUnlock;
+    }
+
+    public void setOnSlideToUnlockListener(OnSlideToUnlock onSlideToUnlockListener) {
+        this.onSlideToUnlockListener = onSlideToUnlockListener;
+    }
+
+    public interface OnSlideToUnlock{
+        void onUnlock();
     }
 }

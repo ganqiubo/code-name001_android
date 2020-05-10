@@ -28,6 +28,8 @@ public class SPUtil {
     public static String VIBRATE_TAGMESS_REPLY = "vibrate_tagmess_reply";
     public static String NOTIFY_ADDFRIEND_REQ = "notify_addfriedd_req";
     public static String SHOW_KEYGUARD_GALLERY = "show_keyguard_gallery";
+    public static String SHOW_SCREEN_GUIDE = "show_screen_guide";
+    public static String SHOW_PRIVACY_AGREEMENT = "show_privacy_agreement";
 
     public SPUtil(Context context) {
         mPreferences =  context.getSharedPreferences("SPUtil" ,Context.MODE_PRIVATE);

@@ -10,4 +10,14 @@
         android:layout_height="match_parent">
     </tl.pojul.com.fastim.View.widget.gallery.GalleryView>
 
+    <ImageView
+        android:id="@+id/more"
+        android:layout_width="50dp"
+        android:layout_height="32dp"
+        android:layout_marginTop="19dp"
+        android:layout_alignParentRight="true"
+        android:layout_marginRight="10dp"
+        android:clickable="true"
+        android:src="@drawable/selector_more_white"/>
+
 </RelativeLayout>

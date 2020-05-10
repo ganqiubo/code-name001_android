@@ -7,6 +7,7 @@ import android.os.Message;
 import android.view.View;
 import android.widget.CheckBox;
 import android.widget.CompoundButton;
+import android.widget.ImageView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
@@ -53,8 +54,8 @@ public class SettingActivity extends BaseActivity {
     CheckBox keyguardGallery;
     /*@BindView(R.id.member_price)
     TextView memberPrice;*/
-    @BindView(R.id.left_time)
-    TextView leftTime;
+    /*@BindView(R.id.left_time)
+    TextView leftTime;*/
     @BindView(R.id.suggestions)
     RelativeLayout suggestions;
     @BindView(R.id.version_number)
@@ -65,6 +66,10 @@ public class SettingActivity extends BaseActivity {
     RelativeLayout loginOut;
     @BindView(R.id.master)
     View master;
+    @BindView(R.id.back)
+    ImageView back;
+    @BindView(R.id.lockscreen_question)
+    ImageView lockscreenQuestion;
 
     private static final int INIT = 589;
     private static final int MASTER = 474;
@@ -93,7 +98,7 @@ public class SettingActivity extends BaseActivity {
 
     private void reqNUFilter() {
         GetNearbyUserFilterReq req = new GetNearbyUserFilterReq();
-        DialogUtil.getInstance().showLoadingSimple(this, getWindow().getDecorView());
+        DialogUtil.getInstance().showLoadingDialog(this, "加载中");
         new SocketRequest().request(MyApplication.ClientSocket, req, new SocketRequest.IRequest() {
             @Override
             public void onError(String msg) {
@@ -157,7 +162,8 @@ public class SettingActivity extends BaseActivity {
         KeyguardGalleryUtil keyguardGalleryUtil = new KeyguardGalleryUtil();
         long validStatus = keyguardGalleryUtil.validStatus();
         if(SPUtil.getInstance().getInt(SPUtil.SHOW_KEYGUARD_GALLERY, 1) == 1){
-            if(validStatus == 1){
+            keyguardGallery.setChecked(true);
+            /*if(validStatus == 1){
                 keyguardGallery.setChecked(false);
                 //memberPrice.setVisibility(View.VISIBLE);
                 leftTime.setVisibility(View.GONE);
@@ -174,10 +180,10 @@ public class SettingActivity extends BaseActivity {
                 //memberPrice.setVisibility(View.GONE);
                 leftTime.setVisibility(View.VISIBLE);
                 leftTime.setText("体验剩余时间: " + DateUtil.getLeftTime(validStatus));
-            }
+            }*/
         }else{
             //memberPrice.setVisibility(View.GONE);
-            leftTime.setVisibility(View.GONE);
+            //leftTime.setVisibility(View.GONE);
             keyguardGallery.setChecked(false);
         }
     }
@@ -225,7 +231,8 @@ public class SettingActivity extends BaseActivity {
                 break;
             case R.id.keyguard_gallery:
                 if(isChecked){
-                    keyguardGalleryChecked();
+                    //keyguardGalleryChecked();
+                    SPUtil.getInstance().putInt(SPUtil.SHOW_KEYGUARD_GALLERY, 1);
                 }else{
                     SPUtil.getInstance().putInt(SPUtil.SHOW_KEYGUARD_GALLERY, 0);
                 }
@@ -234,7 +241,7 @@ public class SettingActivity extends BaseActivity {
     };
 
     private void keyguardGalleryChecked() {
-        KeyguardGalleryUtil keyguardGalleryUtil = new KeyguardGalleryUtil();
+        /*KeyguardGalleryUtil keyguardGalleryUtil = new KeyguardGalleryUtil();
         //1：不可用; 2: 会员可用; 3: 可以体验; 其他: 体验过期时间
         long validStatus = keyguardGalleryUtil.validStatus();
         if(validStatus == 1 || validStatus == 3){
@@ -247,15 +254,15 @@ public class SettingActivity extends BaseActivity {
                     reqExperience();
                 }
             });
-        }else {
+        }else {*/
             SPUtil.getInstance().putInt(SPUtil.SHOW_KEYGUARD_GALLERY, 1);
             updateKeyguardGallery();
-        }
+        //}
     }
 
     private void reqExperience() {
         ExperienceReq req = new ExperienceReq();
-        DialogUtil.getInstance().showLoadingSimple(this, getWindow().getDecorView());
+        DialogUtil.getInstance().showLoadingDialog(this, "加载中");
         new SocketRequest().request(MyApplication.ClientSocket, req, new SocketRequest.IRequest() {
             @Override
             public void onError(String msg) {
@@ -286,7 +293,7 @@ public class SettingActivity extends BaseActivity {
     private void updateNearByfilter(NearbyUserFilter newFilter) {
         UpdateNUFilterReq req = new UpdateNUFilterReq();
         req.setFilter(newFilter);
-        DialogUtil.getInstance().showLoadingSimple(this, getWindow().getDecorView());
+        DialogUtil.getInstance().showLoadingDialog(this, "保存设置中");
         new SocketRequest().request(MyApplication.ClientSocket, req, new SocketRequest.IRequest() {
             @Override
             public void onError(String msg) {
@@ -343,9 +350,13 @@ public class SettingActivity extends BaseActivity {
         nearbyFilter.onActivityResult(requestCode, resultCode, data);
     }
 
-    @OnClick({R.id.suggestions, R.id.version_number, R.id.copyright, R.id.login_out, R.id.pay_member})
+    @OnClick({R.id.back, R.id.suggestions, R.id.version_number, R.id.copyright,R.id.login_out,
+            R.id.pay_member, R.id.lockscreen_question,R.id.privacy,R.id.user_agree})
     public void onViewClicked(View view) {
         switch (view.getId()) {
+            case R.id.back:
+                finish();
+                break;
             case R.id.suggestions:
                 DialogUtil.getInstance().showSuggestDialog(SettingActivity.this);
                 DialogUtil.getInstance().setDialogClick(str -> {
@@ -375,6 +386,19 @@ public class SettingActivity extends BaseActivity {
             case R.id.pay_member:
                 startActivity(PayMemberActivity.class, null);
                 break;
+            case R.id.lockscreen_question:
+                DialogUtil.getInstance().showGuideDialog(this);
+                break;
+            case R.id.privacy:
+                Intent intent = new Intent(SettingActivity.this, WebviewActivity.class);
+                intent.putExtra("url", "file:////android_asset/privacy.html");
+                startActivity(intent);
+                break;
+            case R.id.user_agree:
+                intent = new Intent(SettingActivity.this, WebviewActivity.class);
+                intent.putExtra("url", "file:////android_asset/user_agreement.html");
+                startActivity(intent);
+                break;
         }
     }
 
@@ -388,7 +412,7 @@ public class SettingActivity extends BaseActivity {
     private void suggestReq(String str) {
         SuggestReq req = new SuggestReq();
         req.setContent(str);
-        DialogUtil.getInstance().showLoadingSimple(this, getWindow().getDecorView());
+        DialogUtil.getInstance().showLoadingDialog(this, "加载中");
         new SocketRequest().request(MyApplication.ClientSocket, req, new SocketRequest.IRequest() {
             @Override
             public void onError(String msg) {

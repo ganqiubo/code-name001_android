@@ -2,44 +2,41 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:fitsSystemWindows="true"
     android:orientation="vertical">
 
 
     <RelativeLayout
         android:id="@+id/header"
         android:layout_width="match_parent"
-        android:layout_height="50dp"
-        android:background="#ffffff">
+        android:layout_height="68dp"
+        android:background="@color/status_bar">
 
         <ImageView
             android:id="@+id/back"
-            android:layout_width="62dp"
+            android:layout_width="52dp"
             android:layout_height="match_parent"
-            android:layout_centerVertical="true"
             android:layout_alignParentLeft="true"
-            android:padding="16dp"
-            android:paddingTop="12dp"
-            android:paddingBottom="12dp"
-            android:background="@drawable/ripple_normal"
+            android:paddingTop="11dp"
+            android:paddingBottom="11dp"
+            android:background="@drawable/ripple_normal_statusbar"
             android:rotation="180"
             android:src="@drawable/back_mormal"
-            android:tint="#787878"
+            android:tint="#ffffff"
             android:clickable="true"
+            android:layout_marginTop="28dp"
             />
 
         <ImageView
             android:id="@+id/filter"
-            android:layout_width="62dp"
+            android:layout_width="52dp"
             android:layout_height="match_parent"
-            android:layout_centerVertical="true"
             android:layout_alignParentRight="true"
-            android:paddingTop="14dp"
-            android:paddingBottom="14dp"
-            android:padding="15dp"
-            android:background="@drawable/ripple_normal"
-            android:tint="#787878"
-            android:src="@drawable/pressed_screen"
+            android:paddingTop="11dp"
+            android:paddingBottom="11dp"
+            android:background="@drawable/ripple_normal_statusbar"
+            android:tint="#ffffff"
+            android:src="@drawable/screen"
+            android:layout_marginTop="28dp"
             android:clickable="true"
             />
 
@@ -50,8 +47,9 @@
             android:layout_alignParentTop="true"
             android:layout_centerHorizontal="true"
             android:gravity="center"
-            android:text="美图欣赏"
-            android:textColor="#676767"
+            android:text="每日一图"
+            android:textColor="#ffffff"
+            android:paddingTop="28dp"
             android:textSize="16sp" />
     </RelativeLayout>
 

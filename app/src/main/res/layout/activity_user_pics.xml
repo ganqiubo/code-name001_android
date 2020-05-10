@@ -5,14 +5,13 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="#ffffff"
-    android:fitsSystemWindows="true"
     android:orientation="vertical">
 
     <RelativeLayout
         android:id="@+id/header"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="#ffffff"
+        android:background="@color/status_bar"
         android:paddingBottom="12dp"
         android:paddingTop="12dp">
 
@@ -23,6 +22,7 @@
             android:clickable="true"
             android:paddingRight="8dp"
             android:rotation="180"
+            android:layout_marginTop="25dp"
             android:src="@drawable/pressed_back" />
 
         <tl.pojul.com.fastim.View.widget.PolygonImage.view.PolygonImageView
@@ -34,6 +34,7 @@
             android:clickable="true"
             app:poly_corner_radius="12"
             app:poly_rotation_angle="12"
+            android:layout_marginTop="25dp"
             app:poly_vertices="0" />
 
         <LinearLayout
@@ -48,7 +49,8 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="韩信"
-                android:textColor="#666666"
+                android:textColor="#ffffff"
+                android:layout_marginTop="25dp"
                 android:textSize="14sp" />
 
             <LinearLayout
@@ -62,7 +64,7 @@
                     android:layout_height="wrap_content"
                     android:layout_gravity="center"
                     android:text="已实名"
-                    android:textColor="#777777"
+                    android:textColor="#ffffff"
                     android:textSize="9sp" />
 
                 <ImageView
@@ -81,7 +83,7 @@
             android:layout_height="wrap_content"
             android:layout_alignParentRight="true"
             android:layout_centerVertical="true"
-            android:layout_marginRight="28dp"
+            android:layout_marginRight="25dp"
             android:text=""
             android:textColor="#787878"
             android:textSize="11sp" />
@@ -102,6 +104,12 @@
         android:layout_below="@+id/header_line"
         android:background="#dddddd">
 
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="vertical"
+            android:background="#fff">
+
         <android.support.v7.widget.RecyclerView
             android:id="@+id/upload_pic_list"
             android:layout_width="match_parent"
@@ -115,6 +123,40 @@
             android:paddingBottom="10dp"
             android:background="#f3f3f3">
         </android.support.v7.widget.RecyclerView>
+
+        <LinearLayout
+            android:visibility="gone"
+            android:id="@+id/empty_ll"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="horizontal"
+            android:background="#f6f6f6">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:layout_gravity="center">
+
+                <ImageView
+                    android:layout_width="110dp"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+                    android:src="@drawable/empty_data" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+                    android:layout_marginTop="5dp"
+                    android:text="空空如也"
+                    android:textColor="#8a8a8a"
+                    android:textSize="13dp" />
+
+            </LinearLayout>
+        </LinearLayout>
+
+        </LinearLayout>
         
     </com.scwang.smartrefresh.layout.SmartRefreshLayout>
 

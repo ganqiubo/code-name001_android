@@ -2,14 +2,27 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:fitsSystemWindows="true"
-    android:background="#f2f2f2"
     android:orientation="vertical">
 
     <RelativeLayout
         android:layout_width="match_parent"
-        android:layout_height="50dp"
-        android:background="#ffffff">
+        android:layout_height="68dp"
+        android:paddingTop="30dp"
+        android:background="@color/status_bar">
+
+        <ImageView
+            android:id="@+id/back"
+            android:layout_width="62dp"
+            android:layout_height="match_parent"
+            android:layout_alignParentLeft="true"
+            android:paddingTop="11dp"
+            android:paddingBottom="11dp"
+            android:background="@drawable/ripple_normal_statusbar"
+            android:rotation="180"
+            android:src="@drawable/back_mormal"
+            android:tint="#ffffff"
+            android:clickable="true"
+            />
 
         <TextView
             android:id="@+id/title"
@@ -19,7 +32,7 @@
             android:layout_centerHorizontal="true"
             android:gravity="center"
             android:text="好友请求"
-            android:textColor="#676767"
+            android:textColor="#fff"
             android:textSize="17sp" />
     </RelativeLayout>
 
@@ -36,6 +49,12 @@
         android:layout_below="@+id/header_line"
         android:background="#f2f2f2">
 
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="vertical"
+            android:background="#fff">
+
         <android.support.v7.widget.RecyclerView
             android:id="@+id/prople_list"
             android:layout_width="match_parent"
@@ -46,5 +65,40 @@
             android:scrollbarSize="5dp"
             android:background="#ffffff">
         </android.support.v7.widget.RecyclerView>
+
+    <LinearLayout
+        android:visibility="gone"
+        android:id="@+id/empty_ll"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="horizontal"
+        android:background="#fff">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:layout_gravity="center">
+
+            <ImageView
+                android:layout_width="110dp"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:src="@drawable/empty_data" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:layout_marginTop="2dp"
+                android:text="暂无好友请求"
+                android:textColor="#8a8a8a"
+                android:textSize="13dp" />
+
+        </LinearLayout>
+    </LinearLayout>
+
+</LinearLayout>
+
     </com.scwang.smartrefresh.layout.SmartRefreshLayout>
 </LinearLayout>

@@ -6,6 +6,8 @@ import android.os.Handler;
 import android.os.Message;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.view.View;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.pojul.fastIM.entity.AddFriend;
@@ -24,10 +26,12 @@ import java.util.List;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
+import butterknife.OnClick;
 import tl.pojul.com.fastim.MyApplication;
 import tl.pojul.com.fastim.R;
 import tl.pojul.com.fastim.View.Adapter.AddFriendReqAdapter;
 import tl.pojul.com.fastim.View.Adapter.NearByUserAdapter;
+import tl.pojul.com.fastim.map.baidu.LocationManager;
 import tl.pojul.com.fastim.socket.Converter.NearByUserConverter;
 import tl.pojul.com.fastim.util.DialogUtil;
 import tl.pojul.com.fastim.util.SPUtil;
@@ -49,6 +53,8 @@ public class AddFriendActivity extends BaseActivity {
     private int page;
     private boolean showDialog = true;
     private int num = 10;
+    @BindView(R.id.empty_ll)
+    LinearLayout emptyLl;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -107,6 +113,7 @@ public class AddFriendActivity extends BaseActivity {
                     smartRefresh.finishRefresh();
                     DialogUtil.getInstance().dimissLoadingDialog();
                     showShortToas(msg);
+                    updateView();
                 });
             }
 
@@ -121,15 +128,35 @@ public class AddFriendActivity extends BaseActivity {
                         page = page + 1;
                         addFriendReqAdapter.addDatas(addFriends);
                     }else{
-                        showShortToas(mResponse.getMessage());
+                        //showShortToas(mResponse.getMessage());
                     }
                     smartRefresh.finishLoadmore();
                     smartRefresh.finishRefresh();
                     DialogUtil.getInstance().dimissLoadingDialog();
+                    updateView();
                 });
             }
         });
 
+    }
+
+    private void updateView() {
+        if(mList.size()<=0){
+            propleList.setVisibility(View.GONE);
+            emptyLl.setVisibility(View.VISIBLE);
+        }else{
+            propleList.setVisibility(View.VISIBLE);
+            emptyLl.setVisibility(View.GONE);
+        }
+    }
+
+    @OnClick({R.id.back})
+    public void onViewClicked(View view) {
+        switch (view.getId()) {
+            case R.id.back:
+                finish();
+                break;
+        }
     }
 
     private AddFriendActivity.MyHandler mHandler = new AddFriendActivity.MyHandler(this);

@@ -18,8 +18,7 @@
         android:layout_gravity="center"
         android:text="下载中"
         android:textSize="15sp"
-        android:layout_marginLeft="3dp"
-        android:textColor="#efefef"/>
+        android:layout_marginLeft="3dp"/>
 
     <ProgressBar
         android:id="@+id/progress"

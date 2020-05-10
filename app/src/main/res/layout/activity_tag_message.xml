@@ -9,8 +9,9 @@
     <RelativeLayout
         android:id="@+id/header"
         android:layout_width="match_parent"
-        android:layout_height="50dp"
-        android:background="#ffffff">
+        android:layout_height="68dp"
+        android:paddingTop="28dp"
+        android:background="@color/status_bar">
 
         <TextView
             android:layout_width="wrap_content"
@@ -19,7 +20,7 @@
             android:layout_centerHorizontal="true"
             android:gravity="center"
             android:text="标签消息"
-            android:textColor="#676767"
+            android:textColor="#ffffff"
             android:textSize="16sp" />
     </RelativeLayout>
 
@@ -155,6 +156,33 @@
                         android:textCursorDrawable="@null"
                         android:textSize="13sp" />
                 </LinearLayout>
+
+                <RelativeLayout
+                    android:id="@+id/level_rl"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginLeft="10dp"
+                    android:layout_marginRight="10dp"
+                    android:layout_marginTop="5dp">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="消息重要级别："
+                        android:textColor="#787878"
+                        android:padding="5dp"
+                        android:textSize="13sp"/>
+
+                    <TextView
+                        android:id="@+id/level"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_alignParentRight="true"
+                        android:textColor="#787878"
+                        android:padding="5dp"
+                        android:textSize="13sp"
+                        android:text="普通"/>
+                </RelativeLayout>
 
                 <LinearLayout
                     android:layout_width="match_parent"

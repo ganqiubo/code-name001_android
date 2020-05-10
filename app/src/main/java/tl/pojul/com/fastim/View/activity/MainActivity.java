@@ -37,6 +37,9 @@ import tl.pojul.com.fastim.MyApplication;
 import tl.pojul.com.fastim.R;
 import tl.pojul.com.fastim.View.fragment.ChatFragment;
 import tl.pojul.com.fastim.View.fragment.CommunityFragment;
+import tl.pojul.com.fastim.View.fragment.DailyPicFragment;
+import tl.pojul.com.fastim.View.fragment.HomeFragment;
+import tl.pojul.com.fastim.View.fragment.MeFragment;
 import tl.pojul.com.fastim.View.fragment.MoreFragment;
 import tl.pojul.com.fastim.View.fragment.NearByCommunityFragment;
 import tl.pojul.com.fastim.View.fragment.TakePicFragment;
@@ -44,6 +47,7 @@ import tl.pojul.com.fastim.View.widget.MyViewPager;
 import tl.pojul.com.fastim.util.ArrayUtil;
 import tl.pojul.com.fastim.util.DensityUtil;
 import tl.pojul.com.fastim.util.DialogUtil;
+import tl.pojul.com.fastim.util.SPUtil;
 import tl.pojul.com.fastim.util.VersionUtil;
 
 public class MainActivity extends BaseActivity {
@@ -58,7 +62,10 @@ public class MainActivity extends BaseActivity {
     public TakePicFragment takePicFragment;
     //public CommunityFragment communityFragment;
     public NearByCommunityFragment nearByCommunityFragment;
-    public MoreFragment moreFragment;
+    //public MoreFragment moreFragment;
+    public MeFragment meFragment;
+    //public HomeFragment homeFragment;
+    public DailyPicFragment dailyPicFragment;
     public TextView recomdsTv;
 
     public static NewVersion newVersion;
@@ -101,42 +108,43 @@ public class MainActivity extends BaseActivity {
         fragments.add(null);
         fragments.add(null);
         fragments.add(null);
+        fragments.add(null);
 
         mSectionsPagerAdapter = new SectionsPagerAdapter(getSupportFragmentManager());
 
         mViewPager = findViewById(R.id.container);
         tabLayout = findViewById(R.id.page_tabs);
         mViewPager.setAdapter(mSectionsPagerAdapter);
+        mViewPager.setCanSlide(false);
 
         tabLayout.setupWithViewPager(mViewPager);
-        /*View tab1 = LayoutInflater.from(this).inflate(R.layout.tab_main, null);
+        View tab1 = LayoutInflater.from(this).inflate(R.layout.tab_main, null);
         ImageView tab1Icon = tab1.findViewById(R.id.iv);
         TextView tab1Tv = tab1.findViewById(R.id.note);
         tab1Tv.setText("首页");
-        //unreadMessage =  tab1.findViewById(R.id.unread_message);
         tabLayout.getTabAt(0).setCustomView(tab1);
-        tab1Icon.setImageResource(R.drawable.selector_tab_home);*/
+        tab1Icon.setImageResource(R.drawable.selector_tab_home);
 
         View tab2 = LayoutInflater.from(this).inflate(R.layout.tab_main, null);
         ImageView tab2Icon = tab2.findViewById(R.id.iv);
         TextView tab2Tv = tab2.findViewById(R.id.note);
         unreadMessage =  tab2.findViewById(R.id.unread_message);
         tab2Tv.setText(R.string.chat);
-        tabLayout.getTabAt(0).setCustomView(tab2);
+        tabLayout.getTabAt(1).setCustomView(tab2);
         tab2Icon.setImageResource(R.drawable.selector_tab_chat);
 
         View tab3 = LayoutInflater.from(this).inflate(R.layout.tab_main, null);
         ImageView tab3Icon = tab3.findViewById(R.id.iv);
         TextView tab3Tv = tab3.findViewById(R.id.note);
         tab3Tv.setText(R.string.upload);
-        tabLayout.getTabAt(1).setCustomView(tab3);
+        tabLayout.getTabAt(2).setCustomView(tab3);
         tab3Icon.setImageResource(R.drawable.selector_tab_take_pic);
 
         View tab4 = LayoutInflater.from(this).inflate(R.layout.tab_main, null);
         ImageView tab4Icon = tab4.findViewById(R.id.iv);
         TextView tab4Tv = tab4.findViewById(R.id.note);
         tab4Tv.setText(R.string.community);
-        tabLayout.getTabAt(2).setCustomView(tab4);
+        tabLayout.getTabAt(3).setCustomView(tab4);
         tab4Icon.setImageResource(R.drawable.selector_tab_community);
 
         View tab5 = LayoutInflater.from(this).inflate(R.layout.tab_main, null);
@@ -150,8 +158,8 @@ public class MainActivity extends BaseActivity {
         params.topMargin = DensityUtil.dp2px(this, 5);
         params.leftMargin = -DensityUtil.dp2px(this, 9);
         recomdsTv.setLayoutParams(params);
-        tab5Tv.setText(R.string.more);
-        tabLayout.getTabAt(3).setCustomView(tab5);
+        tab5Tv.setText("我的");
+        tabLayout.getTabAt(4).setCustomView(tab5);
         tab5Icon.setImageResource(R.drawable.select_more_tab);
 
         mViewPager.setHorizontalScrollBarEnabled(false);
@@ -184,6 +192,10 @@ public class MainActivity extends BaseActivity {
         updatePicLabels();
 
         checkNewVersion();
+
+        if(SPUtil.getInstance().getInt(SPUtil.SHOW_SCREEN_GUIDE, 0)==0){
+            DialogUtil.getInstance().showGuideDialog(this);
+        }
     }
 
     private void checkNewVersion() {
@@ -198,8 +210,12 @@ public class MainActivity extends BaseActivity {
                     if(mResponse.getCode() == 200){
                         newVersion = ((GetNewVersionResp)mResponse).getNewVersion();
                         String currentVersion = "" + new VersionUtil().packageCode(MainActivity.this);
-                        if(!newVersion.getVersionCode().equals(currentVersion)){
-                            showUpdateDialog();
+                        try{
+                            if(Integer.parseInt(newVersion.getVersionCode()) > Integer.parseInt(currentVersion)){
+                                showUpdateDialog();
+                            }
+                        }catch(Exception e){
+
                         }
                     }
                 });
@@ -272,34 +288,34 @@ public class MainActivity extends BaseActivity {
         @Override
         public Fragment getItem(int position) {
             switch (position){
-                /*case 0:
-                    if(fragments.get(position) == null){
-                        homeFragment = new HomeFragment();
-                        fragments.set(0, homeFragment);
-                    }
-                    break;*/
                 case 0:
                     if(fragments.get(position) == null){
-                        chatFragment = new ChatFragment();
-                        fragments.set(0, chatFragment);
+                        dailyPicFragment = new DailyPicFragment();
+                        fragments.set(0, dailyPicFragment);
                     }
                     break;
                 case 1:
                     if(fragments.get(position) == null){
-                        takePicFragment = new TakePicFragment();
-                        fragments.set(1, takePicFragment);
+                        chatFragment = new ChatFragment();
+                        fragments.set(1, chatFragment);
                     }
                     break;
                 case 2:
                     if(fragments.get(position) == null){
-                        nearByCommunityFragment = new NearByCommunityFragment();
-                        fragments.set(2, nearByCommunityFragment);
+                        takePicFragment = new TakePicFragment();
+                        fragments.set(2, takePicFragment);
                     }
                     break;
                 case 3:
                     if(fragments.get(position) == null){
-                        moreFragment = new MoreFragment();
-                        fragments.set(3, moreFragment);
+                        nearByCommunityFragment = new NearByCommunityFragment();
+                        fragments.set(3, nearByCommunityFragment);
+                    }
+                    break;
+                case 4:
+                    if(fragments.get(position) == null){
+                        meFragment = new MeFragment();
+                        fragments.set(4, meFragment);
                     }
                     break;
             }
@@ -343,6 +359,12 @@ public class MainActivity extends BaseActivity {
         return super.onKeyUp(keyCode, event);
     }
 
+    @Override
+    protected void onResume() {
+        super.onResume();
+        hideNav(true);
+    }
+
     public void unreadUnmChanged(int total){
         int unReadNum;
         unReadNum = total;
@@ -351,6 +373,14 @@ public class MainActivity extends BaseActivity {
             unreadMessage.setVisibility(View.VISIBLE);
         }else{
             unreadMessage.setVisibility(View.GONE);
+        }
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if(meFragment != null){
+            meFragment.onActivityResult(requestCode, resultCode, data);
         }
     }
 

@@ -7,6 +7,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
 import android.net.Uri;
+import android.os.Bundle;
 import android.provider.MediaStore;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
@@ -40,6 +41,7 @@ import tl.pojul.com.fastim.Factory.ChatMessageFcctory;
 import tl.pojul.com.fastim.R;
 import tl.pojul.com.fastim.View.activity.BaseActivity;
 import tl.pojul.com.fastim.View.activity.ChatRoomActivity;
+import tl.pojul.com.fastim.View.activity.CommunityChatActivity;
 import tl.pojul.com.fastim.View.activity.TagMessageActivity;
 import tl.pojul.com.fastim.util.Constant;
 import tl.pojul.com.fastim.util.FileUtil;
@@ -209,7 +211,12 @@ public class MoreMessageAdapter extends RecyclerView.Adapter<MoreMessageAdapter.
                 break;
             case 5:
                 if(chatRoomType == 3){
-                    ((BaseActivity)mContext).startActivityForResult(TagMessageActivity.class, null, REQUEST_CODE_TAG);
+                    Bundle bundle = new Bundle();
+                    if(mContext instanceof CommunityChatActivity
+                            && ((CommunityChatActivity)mContext).communityRoom.getManager()!=null){
+                        bundle.putString("manager", ((CommunityChatActivity)mContext).communityRoom.getManager());
+                    }
+                    ((BaseActivity)mContext).startActivityForResult(TagMessageActivity.class, bundle, REQUEST_CODE_TAG);
                 }else{
                     intent = new Intent(Intent.ACTION_GET_CONTENT);
                     intent.setType("*/*");//设置类型，我这里是任意类型，任意后缀的可以这样写。

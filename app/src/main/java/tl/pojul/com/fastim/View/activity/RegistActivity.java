@@ -4,11 +4,13 @@ import android.Manifest;
 import android.annotation.SuppressLint;
 import android.app.DatePickerDialog;
 import android.app.Dialog;
+import android.content.Intent;
 import android.graphics.Color;
 import android.os.Build;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
+import android.widget.CheckBox;
 import android.widget.DatePicker;
 import android.widget.EditText;
 import android.widget.ImageView;
@@ -17,6 +19,7 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import com.lahm.library.EasyProtectorLib;
+import com.lahm.library.EmulatorCheckCallback;
 import com.pojul.fastIM.message.request.RegisterReq;
 import com.pojul.objectsocket.message.RequestMessage;
 import com.pojul.objectsocket.message.ResponseMessage;
@@ -68,6 +71,10 @@ public class RegistActivity extends BaseActivity {
     TextView effectiveNote;
     @BindView(R.id.register)
     Button register;
+    @BindView(R.id.agree)
+    CheckBox agree;
+    @BindView(R.id.privacy_detail)
+    TextView privacyDetail;
 
     private int birthdayType = 0;
 
@@ -80,7 +87,7 @@ public class RegistActivity extends BaseActivity {
         setContentView(R.layout.activity_regist);
         ButterKnife.bind(this);
 
-        if(EasyProtectorLib.checkIsRunningInEmulator()){
+        if(EasyProtectorLib.checkIsRunningInEmulator(this, emulatorInfo -> {})){
             showShortToas("不支持在模拟器上注册");
             finish();
             return;
@@ -95,7 +102,7 @@ public class RegistActivity extends BaseActivity {
 
     }
 
-    @OnClick({R.id.back, R.id.birthday_tv, R.id.sex_tv, R.id.register})
+    @OnClick({R.id.back, R.id.birthday_tv, R.id.sex_tv, R.id.register,R.id.privacy_detail,R.id.user_agree})
     public void onViewClicked(View view) {
         switch (view.getId()) {
             case R.id.back:
@@ -117,7 +124,21 @@ public class RegistActivity extends BaseActivity {
                 });
                 break;
             case R.id.register:
+                if(!agree.isChecked()){
+                    showShortToas("请勾选隐私协议");
+                    return;
+                }
                 conn();
+                break;
+            case R.id.privacy_detail:
+                Intent intent = new Intent(RegistActivity.this, WebviewActivity.class);
+                intent.putExtra("url", "file:////android_asset/privacy.html");
+                startActivity(intent);
+                break;
+            case R.id.user_agree:
+                intent = new Intent(RegistActivity.this, WebviewActivity.class);
+                intent.putExtra("url", "file:////android_asset/user_agreement.html");
+                startActivity(intent);
                 break;
         }
     }

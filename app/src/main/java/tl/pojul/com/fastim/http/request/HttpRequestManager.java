@@ -30,6 +30,7 @@ import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.Response;
 import tl.pojul.com.fastim.http.converter.BaiduTranslateConverter;
+import tl.pojul.com.fastim.http.utils.OKHttpUitls;
 import tl.pojul.com.fastim.socket.Converter.UploadPicConverter;
 import tl.pojul.com.fastim.util.ArrayUtil;
 import tl.pojul.com.fastim.util.CharToolsUtil;
@@ -43,6 +44,8 @@ public class HttpRequestManager {
     private static String baseSogouPicSearchUrl = "https://image.baidu.com/search/index?tn=baiduimage&ipn=r&ct=201326592&cl=2&lm=-1&st=-1&fm=result&fr=&sf=1&fmq=1530342306102_R&pv=&ic=0&nc=1&z=&se=1&showtab=0&fb=0&width=&height=&face=0&istype=2&ie=utf-8&pn=";
 
     private static String baseUnsplash = "https://unsplash.com/napi/";
+
+    private static String basePixabayUrl = "https://pixabay.com/api/?key=16404527-9d4627e9c234e3a730fa9c506";
 
     private HashMap<String, String> englishMap = new HashMap<String, String>(){{
         put("壁纸", "wallpaper");
@@ -153,14 +156,15 @@ public class HttpRequestManager {
                 conn.setRequestProperty("authority", "unsplash.com");
                 conn.setRequestProperty("path", finalUrl.replace("https://unsplash.com", ""));
                 conn.setRequestProperty("accept", "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8");
-                conn.setRequestProperty("accept-encoding", "gzip, deflate, br");
+                //conn.setRequestProperty("accept-encoding", "gzip, deflate, br");
                 conn.setRequestProperty("accept-language", "zh-CN,zh;q=0.9");
                 conn.setRequestProperty("user-agent", "Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/65.0.3325.181 Safari/537.36");
-                conn.setRequestProperty("Accept-Charset", "GB2312,utf-8;q=0.7,*;q=0.7");
+                //conn.setRequestProperty("Accept-Charset", "GB2312,utf-8;q=0.7,*;q=0.7");
                 int code = conn.getResponseCode();
                 if (code == 200) {
-                    InputStream urlStream = new GZIPInputStream(conn.getInputStream());
-                    BufferedReader reader = new BufferedReader(new InputStreamReader(urlStream,"gb2312"));
+                    /*InputStream urlStream = new GZIPInputStream(conn.getInputStream());
+                    BufferedReader reader = new BufferedReader(new InputStreamReader(urlStream,"gb2312"));*/
+                    BufferedReader reader = new BufferedReader(new InputStreamReader(conn.getInputStream(), "gbk"));
                     String line;
                     String result = "";
                     while((line = reader.readLine()) != null) {
@@ -168,7 +172,7 @@ public class HttpRequestManager {
                         result = result + line;
                     }
                     reader.close();
-                    urlStream.close();
+                    //urlStream.close();
                     Log.e("result", "result: " + result);
                     callBack.success(result);
                 }else{
@@ -180,6 +184,51 @@ public class HttpRequestManager {
                 callBack.fail(e.getMessage());
             }
         }).start();
+    }
+
+    public void pixabayPicsReq(PicFilter picFilter, int page, CallBack callBack) {
+        String url = "";
+        StringBuffer sb = new StringBuffer();
+        sb.append((basePixabayUrl));
+        if(picFilter.getLabels() != null && picFilter.getLabels().size() > 0){
+            sb.append(("&q="));
+            List<String> labels = picFilter.getLabels();
+            for (int i = 0; i < labels.size(); i++) {
+                String label = labels.get(i);
+                if(label == null || label.isEmpty()){
+                    continue;
+                }
+                if(i > 0){
+                    sb.append("+");
+                }
+                sb.append(CharToolsUtil.Utf8URLencode(label));
+            }
+        }
+        sb.append("&image_type=photo");
+        sb.append(("&page="+page));
+        sb.append("&per_page=15");
+        sb.append("&order=latest");
+
+        url = sb.toString();
+        OKHttpUitls okHttpUitl = new OKHttpUitls();
+        okHttpUitl.setOnOKHttpGetListener(new OKHttpUitls.OKHttpGetListener() {
+            @Override
+            public void error(String error) {
+                //ToastUtil.showLongToast(error);
+                if(callBack!=null){
+                    callBack.fail(error);
+                }
+            }
+
+            @Override
+            public void success(String json) {
+                //ToastUtil.showLongToast(json);
+                if(callBack!=null){
+                    callBack.success(json);
+                }
+            }
+        });
+        okHttpUitl.get(url);
     }
 
     public void pexelsPicsReq(PicFilter picFilter, int page, CallBack callBack) {

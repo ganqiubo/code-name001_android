@@ -10,6 +10,7 @@ import android.support.v7.widget.LinearLayoutManager;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.LinearLayout;
 import android.widget.Toast;
 
 import com.google.gson.Gson;
@@ -51,6 +52,8 @@ public class FriendsFragment extends BaseFragment {
     private Unbinder unbinder;
     public FriendsAdapter friendsAdapter;
     private View view;
+    @BindView(R.id.empty_ll)
+    LinearLayout emptyLl;
 
     public FriendsFragment() {
         // Required empty public constructor
@@ -104,6 +107,8 @@ public class FriendsFragment extends BaseFragment {
                     DialogUtil.getInstance().dimissLoadingDialog();
                     smartRefresh.finishRefresh(false);
                     showShortToas(msg);
+                    emptyLl.setVisibility(View.VISIBLE);
+                    friendsList.setVisibility(View.GONE);
                 });
             }
 
@@ -119,10 +124,21 @@ public class FriendsFragment extends BaseFragment {
                             friendsAdapter.setOnItemClickListener(new ItemClickListener());
                             friendsList.setAdapter(friendsAdapter);
                             refreshUnreadNum();
+                            if(getFriendsResponse.getFriends() == null || getFriendsResponse.getFriends().size() <= 0){
+                                emptyLl.setVisibility(View.VISIBLE);
+                                friendsList.setVisibility(View.GONE);
+                            }else{
+                                emptyLl.setVisibility(View.GONE);
+                                friendsList.setVisibility(View.VISIBLE);
+                            }
                         } else {
+                            emptyLl.setVisibility(View.VISIBLE);
+                            friendsList.setVisibility(View.GONE);
                         }
                     } else {
-                        showShortToas(mResponse.getMessage());
+                        //showShortToas(mResponse.getMessage());
+                        emptyLl.setVisibility(View.VISIBLE);
+                        friendsList.setVisibility(View.GONE);
                     }
                 });
             }

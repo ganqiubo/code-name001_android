@@ -1,6 +1,7 @@
 package tl.pojul.com.fastim.View.Adapter;
 
 import android.content.Context;
+import android.os.Bundle;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -15,6 +16,8 @@ import java.util.List;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import tl.pojul.com.fastim.R;
+import tl.pojul.com.fastim.View.activity.BaseActivity;
+import tl.pojul.com.fastim.View.activity.MyPageActivity;
 import tl.pojul.com.fastim.util.DateUtil;
 
 public class SubReplyAdapter extends RecyclerView.Adapter<SubReplyAdapter.MyViewHolder> {
@@ -37,6 +40,11 @@ public class SubReplyAdapter extends RecyclerView.Adapter<SubReplyAdapter.MyView
     public void onBindViewHolder(MyViewHolder holder, int position) {
         SubReplyMessage subReplyMessage = mList.get(position);
         holder.subNickName.setText((subReplyMessage.getNickName() + "："));
+        holder.subNickName.setOnClickListener(v->{
+            Bundle bundle = new Bundle();
+            bundle.putString("userName", subReplyMessage.getUserName());
+            ((BaseActivity)mContext).startActivity(MyPageActivity.class, bundle);
+        });
         holder.subContent.setText(subReplyMessage.getText());
         holder.subReplyTime.setText(DateUtil.getHeadway(subReplyMessage.getTimeMilli()));
         if (subReplyMessage.getIsSend() == 0) {

@@ -20,9 +20,12 @@
     <uses-permission android:name="android.permission.PROCESS_OUTGOING_CALLS" />
     <uses-permission android:name="android.permission.FLASHLIGHT" />
     <uses-permission android:name="android.permission.CAMERA" />
+    <uses-permission android:name="android.permission.REQUEST_INSTALL_PACKAGES" />
 
     <uses-feature android:name="android.hardware.camera" />
     <uses-feature android:name="android.hardware.autofocus" />
+
+    <uses-permission android:name="android.permission.SET_WALLPAPER" />
 
     <!-- <uses-permission android:name="android.permission.WAKE_LOCK" /> -->
     <application
@@ -41,24 +44,22 @@
             android:enabled="true"
             android:process=":remote" />
 
+        <!--android:excludeFromRecents="true"-->
         <activity
             android:name=".View.activity.MainActivity"
             android:launchMode="singleTask"
             android:process=":process1"
             android:screenOrientation="portrait"
             android:theme="@style/AppTheme.NoActionBar"
-            android:excludeFromRecents="true"/>
+            android:windowSoftInputMode="adjustPan" />
         <activity
             android:name=".View.activity.LoginActivity"
             android:launchMode="singleInstance"
             android:process=":process1"
             android:screenOrientation="portrait"
-            android:theme="@style/AppTheme.NoActionBar"
-            android:excludeFromRecents="true"/>
-
+            android:theme="@style/AppTheme.NoActionBar" />
         <activity
             android:name=".View.activity.StartActivity"
-            android:excludeFromRecents="true"
             android:process=":process1"
             android:screenOrientation="portrait"
             android:theme="@style/AppTheme.NoActionBar">
@@ -73,82 +74,68 @@
             android:label="@string/title_activity_base"
             android:process=":process1"
             android:theme="@style/AppTheme.NoActionBar"
-            android:excludeFromRecents="true"/>
+            android:windowSoftInputMode="adjustPan" />
         <activity
             android:name=".View.activity.SingleChatRoomActivity"
             android:process=":process1"
             android:theme="@style/AppTheme.NoActionBar"
-            android:excludeFromRecents="true"/>
+            android:windowSoftInputMode="adjustPan" />
         <activity
             android:name=".View.activity.MultipleChatRoomActivity"
-            android:process=":process1"
-            android:excludeFromRecents="true"/>
-        <activity
-            android:name=".View.activity.ChatRoomActivity"
-            android:process=":process1"
-            android:excludeFromRecents="true"/>
+            android:process=":process1" />
+        <!-- <activity -->
+        <!-- android:name=".View.activity.ChatRoomActivity" -->
+        <!-- android:excludeFromRecents="true" -->
+        <!-- android:process=":process1" /> -->
         <activity
             android:name=".View.activity.ChatFileDownloadActivity"
             android:process=":process1"
-            android:theme="@style/AppTheme.NoActionBar"
-            android:excludeFromRecents="true"/>
+            android:theme="@style/AppTheme.NoActionBar" />
         <activity
             android:name=".View.activity.VideoActivity"
             android:process=":process1"
-            android:theme="@style/AppTheme.NoActionBar"
-            android:excludeFromRecents="true"/>
+            android:theme="@style/AppTheme.NoActionBar" />
         <activity
             android:name=".View.activity.UploadPicActivity"
-            android:process=":process1"
-            android:excludeFromRecents="true"/>
+            android:process=":process1" />
         <activity
             android:name=".View.activity.SavedPicActivity"
-            android:process=":process1"
-            android:excludeFromRecents="true"/>
+            android:process=":process1" />
         <activity
             android:name=".View.activity.UploadingPicActivity"
-            android:process=":process1"
-            android:excludeFromRecents="true"/>
+            android:process=":process1" />
         <activity
             android:name=".View.activity.CommunitySetActivity"
-            android:process=":process1"
-            android:excludeFromRecents="true"/>
+            android:process=":process1" />
         <activity
             android:name=".View.activity.CommunityChatActivity"
             android:process=":process1"
-            android:excludeFromRecents="true"/>
+            android:windowSoftInputMode="adjustPan" />
         <activity
             android:name=".View.activity.CommunityMapActivity"
-            android:process=":process1"
-            android:excludeFromRecents="true"/>
+            android:process=":process1" />
         <activity
             android:name=".View.activity.TagMessageActivity"
-            android:process=":process1"
-            android:excludeFromRecents="true"/>
+            android:process=":process1" />
         <activity
             android:name=".View.activity.WhiteBlackActivity"
-            android:process=":process1"
-            android:excludeFromRecents="true"/>
+            android:process=":process1" />
         <activity
             android:name=".View.activity.UserSelectActivity"
-            android:process=":process1"
-            android:excludeFromRecents="true"/>
+            android:process=":process1" />
         <activity
             android:name=".View.activity.WhiteBlackListActivity"
-            android:process=":process1"
-            android:excludeFromRecents="true"/>
+            
+            android:process=":process1" />
         <activity
             android:name=".View.activity.UserSearchActivity"
-            android:process=":process1"
-            android:excludeFromRecents="true"/>
+            android:process=":process1" />
         <activity
             android:name=".View.activity.TagReplyActivity"
-            android:process=":process1"
-            android:excludeFromRecents="true"/>
+            android:process=":process1" />
         <activity
             android:name=".View.activity.MoreSubReplyActivity"
-            android:process=":process1"
-            android:excludeFromRecents="true"/>
+            android:process=":process1" />
 
         <service
             android:name=".View.service.SocketConnService"
@@ -174,119 +161,127 @@
         <receiver
             android:name=".View.broadcast.NetWorkStateReceiver"
             android:enabled="true"
-            android:exported="true" />
+            android:exported="true"
+            android:process=":process1" />
 
         <activity
             android:name=".View.activity.MyPageActivity"
             android:process=":process1"
-            android:theme="@style/AppTheme.NoActionBar"
-            android:excludeFromRecents="true"/>
+            android:theme="@style/AppTheme.NoActionBar" />
         <activity
             android:name=".View.activity.UserInfoEditActivity"
             android:process=":process1"
-            android:theme="@style/AppTheme.NoActionBar"
-            android:excludeFromRecents="true"/>
+            android:theme="@style/AppTheme.NoActionBar" />
         <activity
             android:name=".View.activity.UserPicsActivity"
             android:process=":process1"
-            android:theme="@style/AppTheme.NoActionBar"
-            android:excludeFromRecents="true"/>
+            android:theme="@style/AppTheme.NoActionBar" />
         <activity
             android:name=".View.activity.GalleryActivity"
             android:process=":process1"
-            android:theme="@style/AppTheme.NoActionBar"
-            android:excludeFromRecents="true"/>
+            android:theme="@style/AppTheme.NoActionBar" />
         <activity
             android:name=".View.activity.PicReplyActivity"
             android:process=":process1"
-            android:theme="@style/AppTheme.NoActionBar"
-            android:excludeFromRecents="true"/>
+            android:theme="@style/AppTheme.NoActionBar" />
         <activity
             android:name=".View.activity.UserTagMessActivity"
             android:process=":process1"
-            android:theme="@style/AppTheme.NoActionBar"
-            android:excludeFromRecents="true"/>
+            android:theme="@style/AppTheme.NoActionBar" />
         <activity
             android:name=".View.activity.LikeUserActivity"
             android:process=":process1"
-            android:theme="@style/AppTheme.NoActionBar"
-            android:excludeFromRecents="true"/>
+            android:theme="@style/AppTheme.NoActionBar" />
         <activity
             android:name=".View.activity.BeLikedActivity"
             android:process=":process1"
-            android:theme="@style/AppTheme.NoActionBar"
-            android:excludeFromRecents="true"/>
+            android:theme="@style/AppTheme.NoActionBar" />
         <activity
             android:name=".View.activity.FollowedUsersActivity"
             android:process=":process1"
-            android:theme="@style/AppTheme.NoActionBar"
-            android:excludeFromRecents="true"/>
+            android:theme="@style/AppTheme.NoActionBar" />
         <activity
             android:name=".View.activity.BeFollowedUsersActivity"
             android:process=":process1"
-            android:theme="@style/AppTheme.NoActionBar"
-            android:excludeFromRecents="true"/>
+            android:theme="@style/AppTheme.NoActionBar" />
         <activity
             android:name=".View.activity.PicBroseActivity"
             android:process=":process1"
-            android:theme="@style/AppTheme.NoActionBar"
-            android:excludeFromRecents="true"/>
+            android:theme="@style/AppTheme.NoActionBar" />
         <activity
             android:name=".View.activity.PrivateReplyActivity"
             android:process=":process1"
-            android:theme="@style/AppTheme.NoActionBar"
-            android:excludeFromRecents="true"/>
+            android:theme="@style/AppTheme.NoActionBar" />
         <activity
             android:name=".View.activity.NearByMessActivity"
             android:process=":process1"
-            android:theme="@style/AppTheme.NoActionBar"
-            android:excludeFromRecents="true"/>
+            android:theme="@style/AppTheme.NoActionBar" />
         <activity
             android:name=".View.activity.NearByPeopleActivity"
             android:process=":process1"
-            android:theme="@style/AppTheme.NoActionBar"
-            android:excludeFromRecents="true"/>
+            android:theme="@style/AppTheme.NoActionBar" />
         <activity
             android:name=".View.activity.LockScreenActivity"
             android:configChanges="navigation|orientation|screenLayout|screenSize|touchscreen|keyboard|keyboardHidden|uiMode|layoutDirection|smallestScreenSize"
-            android:excludeFromRecents="true"
             android:launchMode="singleInstance"
             android:noHistory="false"
             android:process=":process1"
             android:screenOrientation="portrait"
             android:taskAffinity="tl.pojul.com.fastim.lockscreen"
             android:theme="@style/Activity.Translucent" />
+        <!-- android:theme="@style/Activity.Translucent" -->
         <activity
             android:name=".View.activity.AddFriendActivity"
             android:launchMode="singleInstance"
             android:process=":process1"
             android:taskAffinity="tl.pojul.com.fastim.lockscreen"
-            android:theme="@style/AppTheme.NoActionBar"
-            android:excludeFromRecents="true"/>
+            android:theme="@style/AppTheme.NoActionBar" />
         <activity
             android:name=".View.activity.SettingActivity"
             android:process=":process1"
-            android:theme="@style/AppTheme.NoActionBar"
-            android:excludeFromRecents="true"/>
+            android:theme="@style/AppTheme.NoActionBar" />
         <activity
             android:name=".View.activity.RegistActivity"
             android:process=":process1"
-            android:theme="@style/AppTheme.NoActionBar"
-            android:excludeFromRecents="true"/>
+            android:theme="@style/AppTheme.NoActionBar" />
         <activity
             android:name=".View.activity.PayMemberActivity"
             android:process=":process1"
-            android:theme="@style/AppTheme.NoActionBar"
-            android:excludeFromRecents="true"/>
+            android:theme="@style/AppTheme.NoActionBar" />
         <activity
             android:name=".View.activity.CommuDeatilActivity"
             android:process=":process1"
-            android:theme="@style/AppTheme.NoActionBar"
-            android:excludeFromRecents="true"/>
-        <activity android:name=".View.activity.CustomScanActivity"
+            android:theme="@style/AppTheme.NoActionBar" />
+        <activity
+            android:name=".View.activity.CustomScanActivity"
             android:process=":process1"
-            android:theme="@style/AppTheme.NoActionBar"
-            android:excludeFromRecents="true"/>
+            android:theme="@style/AppTheme.NoActionBar" />
+        <activity
+            android:name=".View.activity.PicCommentActivity"
+            android:process=":process1"
+            android:theme="@style/AppTheme.NoActionBar" />
+        <activity
+            android:name=".wxapi.WXEntryActivity"
+            android:configChanges="keyboardHidden|orientation|screenSize"
+            android:exported="true"
+            android:process=":process1"
+            android:theme="@android:style/Theme.Translucent.NoTitleBar" />
+
+        <provider
+            android:name="android.support.v4.content.FileProvider"
+            android:authorities="tl.pojul.com.fastim.fileProvider"
+            android:exported="false"
+            android:grantUriPermissions="true"
+            android:process=":process1">
+            <meta-data
+                android:name="android.support.FILE_PROVIDER_PATHS"
+                android:resource="@xml/file_paths" />
+        </provider>
+
+        <activity
+            android:name=".View.activity.WebviewActivity"
+            android:process=":process1"
+            android:theme="@style/AppTheme.NoActionBar"/>
     </application>
 
 </manifest>

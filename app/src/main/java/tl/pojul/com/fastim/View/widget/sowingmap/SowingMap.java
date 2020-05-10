@@ -1,9 +1,7 @@
 package tl.pojul.com.fastim.View.widget.sowingmap;
 
-import android.app.Activity;
+import android.app.Application;
 import android.content.Context;
-import android.graphics.drawable.GradientDrawable;
-import android.support.v7.widget.LinearLayoutCompat;
 import android.util.AttributeSet;
 import android.util.Log;
 import android.view.MotionEvent;
@@ -11,12 +9,9 @@ import android.view.View;
 import android.view.ViewTreeObserver;
 import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
-
-import com.bumptech.glide.Glide;
-
-import java.io.LineNumberReader;
 import java.util.List;
 
+import tl.pojul.com.fastim.MyApplication;
 import tl.pojul.com.fastim.R;
 import tl.pojul.com.fastim.View.widget.TransitImage.Transit.LeftSlowOutTransit;
 import tl.pojul.com.fastim.View.widget.TransitImage.Transit.RightAlphaInTransit;
@@ -51,6 +46,10 @@ public class SowingMap extends RelativeLayout implements CustomTimeDown.OnTimeDo
     private float selectedDsX = -1;
     private boolean isPaused;
     private SowingProgressListener sowingProgressLis;
+    private boolean isLoop;
+    private long touchDownMilli;
+    private float rawTouchDownX;
+    public OnItemClickListener onItemClickListener;
 
     /*private boolean isSwitch;
     *//**
@@ -98,13 +97,23 @@ public class SowingMap extends RelativeLayout implements CustomTimeDown.OnTimeDo
             containers[0].setTransitListener(transitListener);
             containers[1].setTransitListener(transitListener);
             containers[2].setTransitListener(transitListener);
+            addPointView();
+            /*containers[0].setOnClickListener(v->{
+                Log.e("containers click: " , "0");
+            });
+            containers[1].setOnClickListener(v->{
+                Log.e("containers click: " , "1");
+            });
+            containers[2].setOnClickListener(v->{
+                Log.e("containers click: " , "2");
+            });*/
             //this.addView();
         }
         currentPosition = 0;
-        addPointView();
         containers[0].setTranslationX(0);
         containers[1].setTranslationX(0);
         containers[2].setTranslationX(0);
+        selectedViewPoint.setTranslationX(selectedViewPointX);
         GlideUtil.setImageBitmapNoOptions(imgs.get(currentPosition), containers[1]);
         //Glide.with(this).load(imgs.get(currentPosition)).into(containers[1]);
         if(imgs.size() >= 2){
@@ -172,7 +181,7 @@ public class SowingMap extends RelativeLayout implements CustomTimeDown.OnTimeDo
     }
 
     public void startLoop(){
-        if(imgs == null || imgs.size() <= 0){
+        if(imgs == null || imgs.size() <= 0 || isLoop){
             return;
         }
         if(customTimeDown == null){
@@ -181,9 +190,11 @@ public class SowingMap extends RelativeLayout implements CustomTimeDown.OnTimeDo
         }
         customTimeDown.start();
         customDownInit = -1;
+        isLoop = true;
     }
 
     public void stopLoop(){
+        isLoop = false;
         if(customTimeDown == null){
             return;
         }
@@ -214,6 +225,9 @@ public class SowingMap extends RelativeLayout implements CustomTimeDown.OnTimeDo
                 case "prev":
                     break;
                 case "current":
+                    containers[0].stopAni();
+                    containers[1].stopAni();
+                    containers[2].stopAni();
                     if(positionAdd != 0){
                         currentPosition = ((currentPosition + positionAdd) < 0? (imgs.size() -1) : (currentPosition + positionAdd))%imgs.size();
                         GlideUtil.setImageBitmapNoOptions(imgs.get(currentPosition), containers[1]);
@@ -294,20 +308,23 @@ public class SowingMap extends RelativeLayout implements CustomTimeDown.OnTimeDo
     @Override
     public boolean onTouchEvent(MotionEvent event) {
         //Log.e(TAG, "onTouchEvent");
-        SowingMap.this.getParent().requestDisallowInterceptTouchEvent(true);
         switch (event.getAction()){
             case MotionEvent.ACTION_DOWN:
+                SowingMap.this.getParent().requestDisallowInterceptTouchEvent(true);
                 onTouchDown(event);
                 break;
             case MotionEvent.ACTION_MOVE:
+                SowingMap.this.getParent().requestDisallowInterceptTouchEvent(true);
                 onTouchMove(event);
                 break;
             case MotionEvent.ACTION_CANCEL:
-                onTouchUp();
+                SowingMap.this.getParent().requestDisallowInterceptTouchEvent(false);
+                onTouchUp(event);
                 prevDx = 0;
                 break;
             case MotionEvent.ACTION_UP:
-                onTouchUp();
+                SowingMap.this.getParent().requestDisallowInterceptTouchEvent(false);
+                onTouchUp(event);
                 prevDx = 0;
                 break;
         }
@@ -373,8 +390,19 @@ public class SowingMap extends RelativeLayout implements CustomTimeDown.OnTimeDo
         }
     }
 
-    private void onTouchUp() {
-        if(containers == null || imgs == null || imgs.size() <= 1){
+    private void onTouchUp(MotionEvent event) {
+        if(containers == null || imgs == null){
+            return;
+        }
+        if(imgs.size() > 0 && Math.abs((event.getX() - rawTouchDownX)*1.0/ MyApplication.SCREEN_WIDTH) < 0.01f && (System.currentTimeMillis() - touchDownMilli) < 100){
+            if(onItemClickListener != null){
+                onItemClickListener.onClick(currentPosition);
+            }//Log.e("currentPosition click: " , "" + currentPosition);
+            containers[2].isTouched = false;
+            containers[1].isTouched = false;
+            containers[0].isTouched = false;
+        }
+        if(imgs.size() <= 1){
             return;
         }
         if (!reversed) {
@@ -417,6 +445,8 @@ public class SowingMap extends RelativeLayout implements CustomTimeDown.OnTimeDo
 
     private void onTouchDown(MotionEvent event) {
         prevDownX = event.getX();
+        touchDownMilli = System.currentTimeMillis();
+        rawTouchDownX = event.getX();
         if(containers == null || imgs == null || imgs.size() <= 1){
             return;
         }
@@ -438,6 +468,10 @@ public class SowingMap extends RelativeLayout implements CustomTimeDown.OnTimeDo
 
     public void setSowingProgressLis(SowingProgressListener sowingProgressLis) {
         this.sowingProgressLis = sowingProgressLis;
+    }
+
+    public void setOnItemClickListener(OnItemClickListener onItemClickListener) {
+        this.onItemClickListener = onItemClickListener;
     }
 
     @Override
@@ -473,6 +507,10 @@ public class SowingMap extends RelativeLayout implements CustomTimeDown.OnTimeDo
     public interface SowingProgressListener{
         void onFinish(int currentPosition);
         void onProgress(int currentPosition, int nextPosition, float progress, boolean reversed);
+    }
+
+    public interface OnItemClickListener{
+        void onClick(int position);
     }
 
 }

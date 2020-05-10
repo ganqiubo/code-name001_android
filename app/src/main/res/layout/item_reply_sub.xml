@@ -20,6 +20,7 @@
             android:paddingBottom="2dp"
             android:text="萧何："
             android:textSize="12sp"
+            android:clickable="true"
             android:textColor="#1296db"/>
 
         <TextView

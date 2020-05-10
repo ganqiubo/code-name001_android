@@ -105,9 +105,8 @@ public interface IDaemonStrategy {
 					mDaemonStrategy = new DaemonStrategy22();
 					break;
 				default:
-					mDaemonStrategy = new DaemonStrategy23();
+					mDaemonStrategy = new DaemonStrategy21();
 					break;
-
 			}
 			return mDaemonStrategy;
 		}

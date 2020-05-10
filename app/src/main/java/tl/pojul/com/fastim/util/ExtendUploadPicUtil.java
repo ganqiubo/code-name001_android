@@ -60,7 +60,7 @@ public class ExtendUploadPicUtil {
         }
         for (int i = 0; i < thirdPicLikes.size(); i++) {
             ThirdPicLikes thirdPicLike = thirdPicLikes.get(i);
-            if("unsplash".equals(gallery)){
+            if("unsplash".equals(gallery) || "pixabay".equals(gallery)){
                 if(extendUploadPic.getThirdUid() == null){
                     break;
                 }
@@ -69,6 +69,8 @@ public class ExtendUploadPicUtil {
                     extendUploadPic.setHasCollected(thirdPicLike.getHasCollected());
                     extendUploadPic.setHasThubmUp(thirdPicLike.getHasThumbuped());
                     extendUploadPic.setThumbUpNum(thirdPicLike.getThumbupNum());
+                    extendUploadPic.setPicComments(thirdPicLike.getPicComments());
+                    extendUploadPic.setComments(thirdPicLike.getComments());
                     break;
                 }
             }else if("pexels".equals(gallery)){

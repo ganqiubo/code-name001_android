@@ -8,6 +8,7 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:background="#f5f5f5"
+        android:paddingBottom="20dp"
         android:orientation="vertical">
 
         <RelativeLayout
@@ -60,6 +61,65 @@
             android:textColor="@color/press_text_green_yellow"
             android:textSize="15sp" />
 
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="#ffffff"
+            android:paddingBottom="10dp">
+
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_centerHorizontal="true">
+
+                <LinearLayout
+                    android:id="@+id/follows_ll"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:paddingBottom="4dp"
+                    android:paddingLeft="12dp"
+                    android:paddingRight="12dp"
+                    android:paddingTop="4dp"
+                    android:clickable="true"
+                    android:background="@drawable/press_corners_red">
+
+                   <ImageView
+                       android:id="@+id/hot"
+                       android:layout_width="14dp"
+                       android:layout_height="14dp"
+                       android:src="@drawable/selector_hot"
+                       android:layout_gravity="center"/>
+
+                    <TextView
+                        android:id="@+id/follows"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="center"
+                        android:text="0"
+                        android:textColor="@color/press_text_red_white"
+                        android:textSize="12sp" />
+                </LinearLayout>
+
+                <TextView
+                    android:id="@+id/follow"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="关注"
+                    android:layout_marginLeft="11dp"
+                    android:paddingBottom="4dp"
+                    android:paddingLeft="12dp"
+                    android:paddingRight="12dp"
+                    android:paddingTop="4dp"
+                    android:textColor="@color/press_text_red_white"
+                    android:textSize="11sp"
+                    android:clickable="true"
+                    android:background="@drawable/press_corners_red"
+                    />
+
+            </LinearLayout>
+
+        </RelativeLayout>
+
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -90,10 +150,11 @@
                     android:layout_height="22dp"
                     android:src="@drawable/selector_saved_data_edit"
                     android:layout_alignParentRight="true"
-                    android:paddingBottom="7dp"
                     android:clickable="true"
                     android:layout_centerVertical="true"
                     android:layout_marginRight="30dp"
+                    android:padding="2dp"
+                    android:visibility="gone"
                     />
 
             </RelativeLayout>
@@ -102,24 +163,28 @@
                 android:id="@+id/detail"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:textSize="12sp"
+                android:textSize="13sp"
                 android:textColor="#787878"
                 android:padding="5dp"
+                android:layout_marginLeft="10dp"
+                android:layout_marginRight="10dp"
                 android:background="#ffffff"
                 android:text="\u3000\u3000暂无信息"/>
 
-            <LinearLayout
+            <RelativeLayout
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:orientation="horizontal">
 
                 <TextView
+                    android:id="@+id/manager_note"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:textSize="13sp"
                     android:textColor="#676767"
                     android:padding="5dp"
                     android:background="#ffffff"
+                    android:layout_centerVertical="true"
                     android:text="社区管理员:"/>
 
                 <TextView
@@ -127,11 +192,25 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:textSize="12sp"
-                    android:textColor="#787878"
+                    android:textColor="@color/blue"
+                    android:layout_toRightOf="@id/manager_note"
                     android:padding="5dp"
                     android:clickable="true"
+                    android:layout_centerVertical="true"
                     android:text="该社区还未被认领"/>
-            </LinearLayout>
+
+                <ImageView
+                    android:id="@+id/message"
+                    android:layout_width="22dp"
+                    android:layout_height="22dp"
+                    android:padding="3dp"
+                    android:layout_alignParentRight="true"
+                    android:layout_centerVertical="true"
+                    android:layout_marginRight="30dp"
+                    android:clickable="true"
+                    android:visibility="gone"
+                    android:src="@drawable/selector_message"/>
+            </RelativeLayout>
 
             <RelativeLayout
                 android:layout_width="wrap_content"
@@ -153,29 +232,97 @@
                     android:id="@+id/phone"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:textSize="12sp"
-                    android:textColor="@color/blue"
-                    android:padding="5dp"
-                    android:background="@null"
                     android:layout_centerVertical="true"
-                    android:clickable="true"
                     android:layout_toRightOf="@+id/phone_note"
-                    android:text="12345678901"/>
+                    android:background="@null"
+                    android:clickable="true"
+                    android:padding="5dp"
+                    android:textColor="@color/blue"
+                    android:textSize="12sp" />
 
-                <ImageView
-                android:id="@+id/edit_phone"
-                android:layout_width="22dp"
-                android:layout_height="22dp"
-                android:src="@drawable/selector_saved_data_edit"
-                android:layout_alignParentRight="true"
-                android:paddingBottom="7dp"
-                android:clickable="true"
-                android:layout_centerVertical="true"
-                android:layout_marginRight="30dp"
-                />
+                <LinearLayout
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:layout_alignParentRight="true"
+                    android:layout_marginRight="30dp">
+
+                    <ImageView
+                        android:id="@+id/call"
+                        android:layout_width="22dp"
+                        android:layout_height="22dp"
+                        android:src="@drawable/selector_call"
+                        android:padding="2dp"
+                        android:visibility="gone"
+                        android:clickable="true"/>
+
+                    <ImageView
+                        android:id="@+id/edit_phone"
+                        android:layout_width="22dp"
+                        android:layout_height="22dp"
+                        android:longClickable="true"
+                        android:src="@drawable/selector_saved_data_edit"
+                        android:clickable="true"
+                        android:padding="2dp"
+                        android:visibility="gone"
+                        android:layout_centerVertical="true"
+                        />
+
+                </LinearLayout>
             </RelativeLayout>
         </LinearLayout>
 
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="#ffffff">
+
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:gravity="center">
+
+                <TextView
+                    android:id="@+id/notify_set_note"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="社区通知、公告"
+                    android:textSize="13sp"
+                    android:textColor="@color/enable_text"
+                    android:layout_marginLeft="8dp"
+                    android:enabled="false"
+                    />
+
+                <ImageView
+                    android:id="@+id/question"
+                    android:src="@drawable/question"
+                    android:layout_width="24dp"
+                    android:layout_height="24dp"
+                    android:padding="5dp"
+                    android:clickable="true"
+                    android:tint="#aaaaaa"
+                    />
+            </LinearLayout>
+
+            <TextView
+                android:id="@+id/level"
+                android:layout_width="60dp"
+                android:layout_height="wrap_content"
+                android:layout_alignParentRight="true"
+                android:layout_marginRight="15dp"
+                android:text="普通消息"
+                android:textSize="11sp"
+                android:gravity="center"
+                android:paddingTop="5dp"
+                android:paddingBottom="5dp"
+                android:textColor="@color/enable_text"
+                android:layout_centerVertical="true"
+                android:enabled="false"
+                android:clickable="true"
+                >
+            </TextView>
+        </RelativeLayout>
 
         <TextView
             android:layout_width="match_parent"
@@ -212,7 +359,6 @@
             android:scaleType="center"
             android:layout_height="150dp"
             android:layout_gravity="center"/>
-
 
     </LinearLayout>
 

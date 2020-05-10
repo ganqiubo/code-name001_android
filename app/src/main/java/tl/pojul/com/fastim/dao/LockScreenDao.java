@@ -6,6 +6,8 @@ import com.google.gson.reflect.TypeToken;
 import com.pojul.fastIM.entity.ExtendUploadPic;
 import com.pojul.fastIM.entity.Pic;
 import com.pojul.fastIM.entity.PicFilter;
+import com.pojul.fastIM.entity.PixabayEntity;
+import com.pojul.fastIM.entity.PixabayEntityResults;
 import com.pojul.fastIM.entity.SimpleUploadPic;
 import com.pojul.fastIM.entity.ThirdPicLikes;
 import com.pojul.fastIM.entity.UnsplashEntity;
@@ -64,13 +66,38 @@ public class LockScreenDao {
             reqPicsFootStep(picFilter, callBack, bdLocation);
         } else if ("unsplash".equals(picFilter.getGallery())) {
             reqPicsUnsplash(picFilter, callBack);
-        }else if("pexels".equals(picFilter.getGallery())){
+        }/*else if("pexels".equals(picFilter.getGallery())){
             reqPicsPexels(picFilter, callBack);
+        }*/else if("pixabay".equals(picFilter.getGallery())){
+            reqPicsPixabay(picFilter, callBack);
         }else{
             if(callBack != null){
                 callBack.onFail("fail");
             }
         }
+    }
+
+    private void reqPicsPixabay(PicFilter picFilter, CallBack callBack) {
+        HttpRequestManager.getInstance().pixabayPicsReq(picFilter, (int) (page + 1), new HttpRequestManager.CallBack() {
+            @Override
+            public void fail(String message) {
+                if (callBack != null) {
+                    callBack.onFail("fail");
+                }
+            }
+
+            @Override
+            public void success(String response) {
+                PixabayEntityResults results = new Gson().fromJson(response,
+                        PixabayEntityResults.class);
+                List<PixabayEntity> pixabayEntities = results.getHits();
+                List<ExtendUploadPic> uploadPics = new UploadPicConverter().converterPixabayPics(pixabayEntities);
+                reqLikes(uploadPics, picFilter, callBack);
+                /*if (callBack != null) {
+                    callBack.onSuccess(uploadPics);
+                }*/
+            }
+        });
     }
 
     private void reqPicsPexels(PicFilter picFilter, CallBack callBack) {
@@ -131,7 +158,7 @@ public class LockScreenDao {
     private void reqLikes(List<ExtendUploadPic> uploadPics, PicFilter picFilter, CallBack callBack){
         ThirdPicLikesCountReq req = new ThirdPicLikesCountReq();
         req.setGallery(picFilter.getGallery());
-        if("unsplash".equals(picFilter.getGallery())){
+        if("unsplash".equals(picFilter.getGallery()) || "pixabay".equals(picFilter.getGallery())){
             List<String> uids = ExtendUploadPicUtil.getUids(uploadPics);
             if(uids.size() <= 0){
                 if(callBack != null){
@@ -355,7 +382,7 @@ public class LockScreenDao {
         if("脚步".equals(uploadPic.getGalleryType())){
             req.setLikeUserId(SPUtil.getInstance().getUser().getId());
             req.setUploadPicId(uploadPic.getId());
-        }else if("unsplash".equals(uploadPic.getGalleryType())){
+        }else if("unsplash".equals(uploadPic.getGalleryType()) || "pixabay".equals(uploadPic.getGalleryType())){
             req.setUid(uploadPic.getThirdUid());
             req.setUrl(uploadPic.getPics().get(0).getUploadPicUrl().getFilePath());
         }else if("pexels".equals(uploadPic.getGalleryType())){
@@ -389,7 +416,7 @@ public class LockScreenDao {
         if("脚步".equals(uploadPic.getGalleryType())){
             req.setCollectUserId(SPUtil.getInstance().getUser().getId());
             req.setUploadPicId(uploadPic.getId());
-        }else if("unsplash".equals(uploadPic.getGalleryType())){
+        }else if("unsplash".equals(uploadPic.getGalleryType()) || "pixabay".equals(uploadPic.getGalleryType())){
             req.setUid(uploadPic.getThirdUid());
             req.setUrl(uploadPic.getPics().get(0).getUploadPicUrl().getFilePath());
         }else if("pexels".equals(uploadPic.getGalleryType())){
@@ -422,7 +449,7 @@ public class LockScreenDao {
         if("脚步".equals(uploadPic.getGalleryType())){
             req.setThumbupUpUserId(SPUtil.getInstance().getUser().getId());
             req.setUploadPicId(uploadPic.getId());
-        }else if("unsplash".equals(uploadPic.getGalleryType())){
+        }else if("unsplash".equals(uploadPic.getGalleryType()) || "pixabay".equals(uploadPic.getGalleryType())){
             req.setUid(uploadPic.getThirdUid());
             req.setUrl(uploadPic.getPics().get(0).getUploadPicUrl().getFilePath());
         }else if("pexels".equals(uploadPic.getGalleryType())){

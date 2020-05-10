@@ -7,9 +7,11 @@ import com.baidu.mapapi.model.LatLng;
 import com.baidu.mapapi.utils.DistanceUtil;
 import com.pojul.fastIM.entity.ExtendUploadPic;
 import com.pojul.fastIM.entity.Pic;
+import com.pojul.fastIM.entity.PixabayEntity;
 import com.pojul.fastIM.entity.SimpleUploadPic;
 import com.pojul.fastIM.entity.UnsplashEntity;
 import com.pojul.fastIM.entity.UploadPic;
+import com.pojul.objectsocket.utils.Constant;
 import com.pojul.objectsocket.utils.FileClassUtil;
 
 import java.util.ArrayList;
@@ -82,7 +84,13 @@ public class UploadPicConverter {
                 try{
                     pic.setUploadPicId(Long.parseLong(itemPic[1]));
                 }catch (Exception e){}
-                pic.setUploadPicUrl(FileClassUtil.createStringFile(itemPic[2]));
+                Pattern pattern = Pattern.compile("http.*?resources/");
+                Matcher matcher = pattern.matcher(itemPic[2]);
+                if(matcher.find()){
+                    String str = itemPic[2].substring(matcher.end(), itemPic[2].length());
+                    //pic.getUploadPicUrl().setFilePath(Constant.BASE_URL + str);
+                    pic.setUploadPicUrl(FileClassUtil.createStringFile(Constant.BASE_URL + str));
+                }
                 try{
                     pic.setWidth(Integer.parseInt(itemPic[3]));
                 }catch (Exception e){}
@@ -118,6 +126,31 @@ public class UploadPicConverter {
             extendUploadPic.setPhoto(unsplashEntity.getUser().getProfile_image().getLarge());
             extendUploadPic.setThirdUid(unsplashEntity.getId());
             extendUploadPic.setUploadPicTime(unsplashEntity.getCreated_at());
+            extendUploadPics.add(extendUploadPic);
+        }
+        return extendUploadPics;
+    }
+
+    public List<ExtendUploadPic> converterPixabayPics(List<PixabayEntity> raws) {
+        if(raws == null){
+            return new ArrayList<>();
+        }
+        List<ExtendUploadPic> extendUploadPics = new ArrayList<>();
+        for (int i = 0; i < raws.size(); i++) {
+            PixabayEntity pixabayEntity = raws.get(i);
+            ExtendUploadPic extendUploadPic = new ExtendUploadPic();
+            List<Pic> pics = new ArrayList<>();
+            Pic pic = new Pic();
+            pic.setWidth(pixabayEntity.getWebformatWidth());
+            pic.setHeight(pixabayEntity.getWebformatHeight());
+            pic.setUploadPicUrl(FileClassUtil.createStringFile(pixabayEntity.getLargeImageURL()));
+            pics.add(pic);
+            extendUploadPic.setPics(pics);
+            extendUploadPic.setBrosePic(pixabayEntity.getWebformatURL());
+            extendUploadPic.setGalleryType("pixabay");
+            extendUploadPic.setNickName(pixabayEntity.getUser());
+            extendUploadPic.setPhoto(pixabayEntity.getUserImageURL());
+            extendUploadPic.setThirdUid((pixabayEntity.getId()+""));
             extendUploadPics.add(extendUploadPic);
         }
         return extendUploadPics;

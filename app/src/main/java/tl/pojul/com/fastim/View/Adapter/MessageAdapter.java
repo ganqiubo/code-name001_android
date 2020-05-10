@@ -63,6 +63,7 @@ import tl.pojul.com.fastim.MyApplication;
 import tl.pojul.com.fastim.R;
 import tl.pojul.com.fastim.View.activity.BaseActivity;
 import tl.pojul.com.fastim.View.activity.ChatFileDownloadActivity;
+import tl.pojul.com.fastim.View.activity.CommunityChatActivity;
 import tl.pojul.com.fastim.View.activity.MyPageActivity;
 import tl.pojul.com.fastim.View.activity.PrivateReplyActivity;
 import tl.pojul.com.fastim.View.activity.TagMessageActivity;
@@ -264,6 +265,11 @@ public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.BaseMess
             }
             holder.nickName.setTextSize(TypedValue.COMPLEX_UNIT_SP, 12);
             holder.nickName.setTextColor(Color.parseColor("#1296db"));
+            if(mContext instanceof CommunityChatActivity
+                    && ((CommunityChatActivity)mContext).isManager(chatMessage.getFrom())){
+                holder.nickName.setTextColor(Color.parseColor("#df4356"));
+                holder.nickName.setText("管理员");
+            }
         } else {
             if (user.getUserName().equals(chatMessage.getFrom())) {
                 ((LinearLayout.LayoutParams) holder.rlMessage.getLayoutParams()).gravity = Gravity.RIGHT;

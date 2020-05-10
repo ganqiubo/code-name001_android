@@ -25,6 +25,7 @@ import com.pojul.fastIM.message.request.ThumbupUploadPicReq;
 import com.pojul.objectsocket.message.ResponseMessage;
 import com.pojul.objectsocket.socket.SocketRequest;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
@@ -34,6 +35,8 @@ import tl.pojul.com.fastim.MyApplication;
 import tl.pojul.com.fastim.R;
 import tl.pojul.com.fastim.View.activity.BaseActivity;
 import tl.pojul.com.fastim.View.activity.GalleryActivity;
+import tl.pojul.com.fastim.View.activity.MyPageActivity;
+import tl.pojul.com.fastim.View.activity.PicCommentActivity;
 import tl.pojul.com.fastim.View.widget.PolygonImage.view.PolygonImageView;
 import tl.pojul.com.fastim.util.ArrayUtil;
 import tl.pojul.com.fastim.util.DateUtil;
@@ -47,11 +50,17 @@ public class PicsAdapter extends RecyclerView.Adapter<PicsAdapter.MyViewHolder> 
     private List<ExtendUploadPic> mList;
     private int itemWidth;
     private HashMap<Integer, Integer> itemHeight = new HashMap<>();
+    private int gridCount;
 
-    public PicsAdapter(Context mContext, List<ExtendUploadPic> mList) {
+    public PicsAdapter(Context mContext, List<ExtendUploadPic> mList, int gridCount) {
         this.mContext = mContext;
         this.mList = mList;
-        itemWidth = (int) ((MyApplication.SCREEN_WIDTH - DensityUtil.dp2px(mContext, 18)) * 1.0f / 2);
+        this.gridCount = gridCount;
+        if(gridCount == 1){
+            itemWidth = MyApplication.SCREEN_WIDTH;
+        }else{
+            itemWidth = (int) ((MyApplication.SCREEN_WIDTH - DensityUtil.dp2px(mContext, 0)) * 1.0f / 2);
+        }
     }
 
     @Override
@@ -72,6 +81,9 @@ public class PicsAdapter extends RecyclerView.Adapter<PicsAdapter.MyViewHolder> 
                 break;
             case "pexels":
                 bindPexels(holder, uploadPic, position);
+                break;
+            case "pixabay":
+                bindPixabay(holder, uploadPic, position);
                 break;
         }
         if (uploadPic.getPics() == null || uploadPic.getPics().size() <= 0) {
@@ -102,6 +114,11 @@ public class PicsAdapter extends RecyclerView.Adapter<PicsAdapter.MyViewHolder> 
             holder.gallery.performClick();
             holder.num.performClick();
             //Intent intent = new Intent(mContext, GalleryActivity.class);
+            Bundle bundle = new Bundle();
+            bundle.putStringArrayList("urls", ArrayUtil.getUrls(uploadPic.getPics()));
+            ((BaseActivity) mContext).startActivity(GalleryActivity.class, bundle);
+        });
+        holder.pic.setOnClickListener(v->{
             Bundle bundle = new Bundle();
             bundle.putStringArrayList("urls", ArrayUtil.getUrls(uploadPic.getPics()));
             ((BaseActivity) mContext).startActivity(GalleryActivity.class, bundle);
@@ -174,15 +191,90 @@ public class PicsAdapter extends RecyclerView.Adapter<PicsAdapter.MyViewHolder> 
         } else {
             holder.thumbProgress.setVisibility(View.GONE);
         }
+        holder.commentNumLl.setOnClickListener(v->{
+            toComment(uploadPic, holder);
+        });
+
+        if(uploadPic.getPicComments() == null || uploadPic.getPicComments().size() <= 0){
+            holder.commentTopLl.setVisibility(View.GONE);
+        }else{
+            holder.commentTopLl.setVisibility(View.VISIBLE);
+            holder.commentTop1Ll.setVisibility(View.GONE);
+            holder.commentTop2Ll.setVisibility(View.GONE);
+            holder.commentTop3Ll.setVisibility(View.GONE);
+            if(uploadPic.getPicComments().size() >= 1){
+                holder.commentTop1Ll.setVisibility(View.VISIBLE);
+                Glide.with(mContext).load(uploadPic.getPicComments().get(0).getPhoto()).into(holder.commentTop1Photo);
+                holder.commentTop1Name.setText(uploadPic.getPicComments().get(0).getNickName()+": ");
+                holder.commentTop1Text.setText(uploadPic.getPicComments().get(0).getCommentText());
+            }
+            if(uploadPic.getPicComments().size() >= 2){
+                holder.commentTop2Ll.setVisibility(View.VISIBLE);
+                Glide.with(mContext).load(uploadPic.getPicComments().get(1).getPhoto()).into(holder.commentTop2Photo);
+                holder.commentTop2Name.setText(uploadPic.getPicComments().get(1).getNickName()+": ");
+                holder.commentTop2Text.setText(uploadPic.getPicComments().get(1).getCommentText());
+            }
+            if(uploadPic.getPicComments().size() >= 3){
+                holder.commentTop3Ll.setVisibility(View.VISIBLE);
+                Glide.with(mContext).load(uploadPic.getPicComments().get(2).getPhoto()).into(holder.commentTop3Photo);
+                holder.commentTop3Name.setText(uploadPic.getPicComments().get(2).getNickName()+": ");
+                holder.commentTop3Text.setText(uploadPic.getPicComments().get(2).getCommentText());
+            }
+        }
+        if(uploadPic.getComments() <= 0){
+            holder.commentNum.setText("评论>");
+        }else{
+            holder.commentNum.setText("评论·" + uploadPic.getComments() + ">");
+        }
+    }
+
+    private void toComment(ExtendUploadPic uploadPic, MyViewHolder holder) {
+        Bundle bundle = new Bundle();
+        if("脚步".equals(uploadPic.getGalleryType())){
+            bundle.putString("picId", "" + uploadPic.getId());
+            bundle.putString("themeStr", uploadPic.getUplodPicTheme());
+            bundle.putString("locStr", (uploadPic.getUploadPicProvince() + uploadPic.getUploadPicCity()));
+        }else{
+            bundle.putString("picId", uploadPic.getThirdUid());
+            bundle.putString("locStr", uploadPic.getUploadPicCity());
+        }
+        bundle.putString("picNickName", uploadPic.getNickName());
+        bundle.putString("timeStr", holder.time.getText().toString());
+        bundle.putString("photoStr", uploadPic.getPhoto());
+        bundle.putString("gallery", uploadPic.getGalleryType());
+        bundle.putStringArrayList("picUrls", ArrayUtil.getUrls(uploadPic.getPics()));
+        ((BaseActivity)mContext).startActivity(PicCommentActivity.class, bundle);
     }
 
     private void bindPexels(MyViewHolder holder, ExtendUploadPic uploadPic, int position) {
         Glide.with(mContext).load(R.drawable.empty_photo).into(holder.photo);
+        holder.photo.setOnClickListener(null);
         holder.nickName.setVisibility(View.GONE);
         holder.sex.setVisibility(View.GONE);
         holder.theme.setVisibility(View.GONE);
         holder.time.setVisibility(View.GONE);
         holder.location.setVisibility(View.GONE);
+        if (uploadPic.getPics() != null && uploadPic.getPics().size() > 0) {
+            if(gridCount == 1){
+                GlideUtil.setImageBitmapNoOptions(uploadPic.getPics().get(0).getUploadPicUrl().getFilePath(), holder.pic);
+            }else{
+                GlideUtil.setImageBitmapNoOptions(uploadPic.getBrosePic(), holder.pic);
+            }
+        }
+    }
+
+    private void bindPixabay(MyViewHolder holder, ExtendUploadPic uploadPic, int position) {
+        GlideUtil.setImageBitmapNoOptions(uploadPic.getPhoto(), holder.photo);
+        holder.nickName.setText(uploadPic.getNickName());
+        holder.sex.setVisibility(View.GONE);
+        holder.theme.setVisibility(View.GONE);
+        holder.theme.setText("图片来源：pixabay");
+        holder.time.setText("");
+        if (uploadPic.getUploadPicCity() != null && !uploadPic.getUploadPicCity().equals("null")) {
+            holder.location.setText("" + uploadPic.getUploadPicCity());
+        } else {
+            holder.location.setText("");
+        }
         if (uploadPic.getPics() != null && uploadPic.getPics().size() > 0) {
             GlideUtil.setImageBitmapNoOptions(uploadPic.getBrosePic(), holder.pic);
         }
@@ -190,6 +282,7 @@ public class PicsAdapter extends RecyclerView.Adapter<PicsAdapter.MyViewHolder> 
 
     private void bindUnsplash(MyViewHolder holder, ExtendUploadPic uploadPic, int position) {
         GlideUtil.setImageBitmapNoOptions(uploadPic.getPhoto(), holder.photo);
+        holder.photo.setOnClickListener(null);
         holder.nickName.setText(uploadPic.getNickName());
         holder.sex.setVisibility(View.GONE);
         holder.theme.setVisibility(View.GONE);
@@ -202,12 +295,21 @@ public class PicsAdapter extends RecyclerView.Adapter<PicsAdapter.MyViewHolder> 
             holder.location.setText("");
         }
         if (uploadPic.getPics() != null && uploadPic.getPics().size() > 0) {
-            GlideUtil.setImageBitmapNoOptions(uploadPic.getBrosePic(), holder.pic);
+            if(gridCount == 1){
+                GlideUtil.setImageBitmapNoOptions(uploadPic.getPics().get(0).getUploadPicUrl().getFilePath(), holder.pic);
+            }else{
+                GlideUtil.setImageBitmapNoOptions(uploadPic.getBrosePic(), holder.pic);
+            }
         }
     }
 
     private void bindFootStep(MyViewHolder holder, ExtendUploadPic uploadPic, int position) {
         GlideUtil.setImageBitmapNoOptions(uploadPic.getPhoto(), holder.photo);
+        holder.photo.setOnClickListener(v->{
+            Bundle bundle = new Bundle();
+            bundle.putString("userName", uploadPic.getUserName());
+            ((BaseActivity)mContext).startActivity(MyPageActivity.class, bundle);
+        });
         holder.nickName.setText(uploadPic.getNickName());
         if ("脚步".equals(uploadPic.getSex())) {
             holder.sex.setVisibility(View.VISIBLE);
@@ -223,8 +325,9 @@ public class PicsAdapter extends RecyclerView.Adapter<PicsAdapter.MyViewHolder> 
             holder.theme.setText("");
         }
         holder.time.setText(DateUtil.getHeadway(DateUtil.convertTimeToLong(uploadPic.getUploadPicTime())));
-        holder.location.setText(("" + (uploadPic.getUploadPicCity() == null ? "" : uploadPic.getUploadPicCity())
-                + " " + uploadPic.getUploadPicLocnote() == null ? "" : uploadPic.getUploadPicLocnote()));
+        holder.location.setText(( "" +
+                ((uploadPic.getUploadPicProvince() == null || "null".equals(uploadPic.getUploadPicProvince())) ? "" : uploadPic.getUploadPicProvince())
+                 + ((uploadPic.getUploadPicCity() == null || "null".equals(uploadPic.getUploadPicCity())) ? "" : uploadPic.getUploadPicCity()) ));
         if (uploadPic.getPics() != null && uploadPic.getPics().size() > 0) {
             GlideUtil.setImageBitmapNoOptions(uploadPic.getPics().get(0).getUploadPicUrl().getFilePath(), holder.pic);
         }
@@ -236,7 +339,7 @@ public class PicsAdapter extends RecyclerView.Adapter<PicsAdapter.MyViewHolder> 
         if("脚步".equals(uploadPic.getGalleryType())){
             req.setThumbupUpUserId(SPUtil.getInstance().getUser().getId());
             req.setUploadPicId(uploadPic.getId());
-        }else if("unsplash".equals(uploadPic.getGalleryType())){
+        }else if("unsplash".equals(uploadPic.getGalleryType()) || "pixabay".equals(uploadPic.getGalleryType())){
             req.setUid(uploadPic.getThirdUid());
             req.setUrl(uploadPic.getPics().get(0).getUploadPicUrl().getFilePath());
         }else if("pexels".equals(uploadPic.getGalleryType())){
@@ -275,7 +378,7 @@ public class PicsAdapter extends RecyclerView.Adapter<PicsAdapter.MyViewHolder> 
         if("脚步".equals(uploadPic.getGalleryType())){
             req.setCollectUserId(SPUtil.getInstance().getUser().getId());
             req.setUploadPicId(uploadPic.getId());
-        }else if("unsplash".equals(uploadPic.getGalleryType())){
+        }else if("unsplash".equals(uploadPic.getGalleryType()) || "pixabay".equals(uploadPic.getGalleryType())){
             req.setUid(uploadPic.getThirdUid());
             req.setUrl(uploadPic.getPics().get(0).getUploadPicUrl().getFilePath());
         }else if("pexels".equals(uploadPic.getGalleryType())){
@@ -317,7 +420,7 @@ public class PicsAdapter extends RecyclerView.Adapter<PicsAdapter.MyViewHolder> 
         if("脚步".equals(uploadPic.getGalleryType())){
             req.setLikeUserId(SPUtil.getInstance().getUser().getId());
             req.setUploadPicId(uploadPic.getId());
-        }else if("unsplash".equals(uploadPic.getGalleryType())){
+        }else if("unsplash".equals(uploadPic.getGalleryType()) || "pixabay".equals(uploadPic.getGalleryType())){
             req.setUid(uploadPic.getThirdUid());
             req.setUrl(uploadPic.getPics().get(0).getUploadPicUrl().getFilePath());
         }else if("pexels".equals(uploadPic.getGalleryType())){
@@ -399,6 +502,37 @@ public class PicsAdapter extends RecyclerView.Adapter<PicsAdapter.MyViewHolder> 
         ProgressBar thumbProgress;
         @BindView(R.id.location)
         TextView location;
+
+        @BindView(R.id.comment_num)
+        TextView commentNum;
+        @BindView(R.id.comment_num_ll)
+        LinearLayout commentNumLl;
+        @BindView(R.id.comment_top_ll)
+        LinearLayout commentTopLl;
+        @BindView(R.id.comment_top1_ll)
+        LinearLayout commentTop1Ll;
+        @BindView(R.id.comment_top2_ll)
+        LinearLayout commentTop2Ll;
+        @BindView(R.id.comment_top3_ll)
+        LinearLayout commentTop3Ll;
+        @BindView(R.id.comment_top1_photo)
+        PolygonImageView commentTop1Photo;
+        @BindView(R.id.comment_top2_photo)
+        PolygonImageView commentTop2Photo;
+        @BindView(R.id.comment_top3_photo)
+        PolygonImageView commentTop3Photo;
+        @BindView(R.id.comment_top1_name)
+        TextView commentTop1Name;
+        @BindView(R.id.comment_top2_name)
+        TextView commentTop2Name;
+        @BindView(R.id.comment_top3_name)
+        TextView commentTop3Name;
+        @BindView(R.id.comment_top1_text)
+        TextView commentTop1Text;
+        @BindView(R.id.comment_top2_text)
+        TextView commentTop2Text;
+        @BindView(R.id.comment_top3_text)
+        TextView commentTop3Text;
 
         public MyViewHolder(View itemView) {
             super(itemView);

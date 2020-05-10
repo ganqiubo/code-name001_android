@@ -38,8 +38,8 @@ import tl.pojul.com.fastim.util.SPUtil;
 public class LoginActivity extends BaseActivity {
 
 
-   /* @BindView(R.id.login_account)
-    EditText loginAccount;*/
+    @BindView(R.id.login_account)
+    EditText loginAccount;
     @BindView(R.id.login_passwd)
     EditText loginPasswd;
     @BindView(R.id.login_passwd_visiable)
@@ -48,6 +48,8 @@ public class LoginActivity extends BaseActivity {
     Button loginSubmit;
     @BindView(R.id.login_register)
     TextView loginRegister;
+    @BindView(R.id.other_login)
+    TextView otherLogin;
     @BindView(R.id.activity_login)
     RelativeLayout activityLogin;
     @BindView(R.id.login_bg)
@@ -104,9 +106,18 @@ public class LoginActivity extends BaseActivity {
     }
 
     private void login() {
+        String userName = "";
+        if("其他账号登陆".equals(otherLogin.getText().toString())){
+            userName = new PhoneUtil().getIMSI(this);
+        }else{
+            if(loginAccount.getText().toString().isEmpty()){
+                showShortToas("请输入账号");
+                return;
+            }
+            userName = loginAccount.getText().toString();
+        }
         DialogUtil.getInstance().showLoadingDialog(this, "登陆中...");
         LoginMessage mLoginMessage = new LoginMessage();
-        String userName = new PhoneUtil().getIMSI(this);
         mLoginMessage.setUserName(userName);
         mLoginMessage.setPassWd(EncryptionUtil.md5Encryption(loginPasswd.getText().toString()));
         mLoginMessage.setDeviceType("Android");
@@ -141,6 +152,8 @@ public class LoginActivity extends BaseActivity {
                             startActivity(new Intent(LoginActivity.this, MainActivity.class));
                         }
                         finish();
+                    }else{
+                        showLongToas(mResponse.getMessage());
                     }
                     MyApplication.isConnecting = false;
                 });
@@ -148,13 +161,13 @@ public class LoginActivity extends BaseActivity {
         });
     }
 
-    @OnClick({R.id.login_submit, R.id.login_passwd_visiable, R.id.login_register})
+    @OnClick({R.id.login_submit, R.id.login_passwd_visiable, R.id.login_register, R.id.other_login})
     public void onClick(View view) {
         switch (view.getId()) {
             case R.id.login_submit:
                 PhoneUtil phoneUtil = new PhoneUtil();
-                if(phoneUtil.getIMSI(LoginActivity.this) == null || phoneUtil.getIMSI(LoginActivity.this).isEmpty()
-                        || !phoneUtil.hasSimCard(LoginActivity.this)){
+                if("其他账号登陆".equals(otherLogin.getText().toString()) && (phoneUtil.getIMSI(LoginActivity.this) == null || phoneUtil.getIMSI(LoginActivity.this).isEmpty()
+                        || !phoneUtil.hasSimCard(LoginActivity.this)) ){
                     showShortToas("未检测到手机卡");
                     return;
                 }
@@ -179,6 +192,15 @@ public class LoginActivity extends BaseActivity {
                 break;
             case R.id.login_register:
                 startActivity(RegistActivity.class, null);
+                break;
+            case R.id.other_login:
+                if("其他账号登陆".equals(otherLogin.getText().toString())){
+                    otherLogin.setText("普通登陆");
+                    loginAccount.setVisibility(View.VISIBLE);
+                }else{
+                    otherLogin.setText("其他账号登陆");
+                    loginAccount.setVisibility(View.GONE);
+                }
                 break;
         }
     }

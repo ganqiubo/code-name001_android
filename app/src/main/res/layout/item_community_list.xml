@@ -20,7 +20,6 @@
             android:layout_height="65dp"
             android:layout_marginLeft="5dp"
             android:padding="12dp"
-            android:src="@drawable/photo_default"
             app:poly_corner_radius="10"
             app:poly_rotation_angle="10"
             android:clickable="true"
@@ -33,26 +32,56 @@
             android:clickable="false"
             >
 
-            <TextView
-                android:id="@+id/community_name"
+            <LinearLayout
+                android:id="@+id/community_name_ll"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:orientation="horizontal"
                 android:layout_alignParentTop="true"
                 android:layout_marginTop="15dp"
-                android:text="社区名称"
-                android:textColor="#222222"
                 android:layout_toLeftOf="@+id/community_ll"
                 android:layout_marginRight="10dp"
-                android:ellipsize="middle"
-                android:singleLine="true"
-                android:clickable="false"
-                android:textSize="15sp" />
+                >
+
+                <TextView
+                    android:id="@+id/community_name"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="社区名称"
+                    android:textColor="#222222"
+                    android:ellipsize="middle"
+                    android:singleLine="true"
+                    android:clickable="false"
+                    android:textSize="15sp"
+                    android:maxLength="20"/>
+
+                <ImageView
+                    android:id="@+id/follows_iv"
+                    android:layout_width="14dp"
+                    android:layout_height="14dp"
+                    android:layout_gravity="center"
+                    android:layout_marginLeft="5dp"
+                    android:src="@drawable/hot"
+                    />
+
+                <TextView
+                    android:id="@+id/follows"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="15"
+                    android:textSize="11sp"
+                    android:textColor="@color/red1"
+                    android:layout_marginLeft="-2dp"
+                    android:layout_gravity="center"
+                    />
+
+            </LinearLayout>
 
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="2dp"
-                android:layout_below="@id/community_name"
+                android:layout_below="@id/community_name_ll"
                 android:layout_toLeftOf="@id/community_ll"
                 android:clickable="false"
                 android:focusableInTouchMode="false"

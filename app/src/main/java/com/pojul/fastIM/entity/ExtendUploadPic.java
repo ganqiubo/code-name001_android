@@ -1,5 +1,7 @@
 package com.pojul.fastIM.entity;
 
+import java.util.List;
+
 public class ExtendUploadPic extends UploadPic{
 
     private String galleryType;
@@ -11,6 +13,8 @@ public class ExtendUploadPic extends UploadPic{
     private double distance;
     private String brosePic;
     private String thirdUid;
+    private List<PicComment> picComments;
+    private int comments;
 
     public String getGalleryType() {
         return galleryType;
@@ -82,5 +86,21 @@ public class ExtendUploadPic extends UploadPic{
 
     public void setThirdUid(String thirdUid) {
         this.thirdUid = thirdUid;
+    }
+
+    public List<PicComment> getPicComments() {
+        return picComments;
+    }
+
+    public void setPicComments(List<PicComment> picComments) {
+        this.picComments = picComments;
+    }
+
+    public int getComments() {
+        return comments;
+    }
+
+    public void setComments(int comments) {
+        this.comments = comments;
     }
 }

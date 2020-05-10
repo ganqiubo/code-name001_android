@@ -1,7 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_name">脚步圈</string>
-    <string name="chat">聊天</string>
+    <!--<string name="app_name">瓜皮壁纸</string>-->
+	<string name="app_name">脚步圈</string>
+    <string name="chat">消息</string>
 	<string name="upload">上传</string>
 	<string name="community">社区</string>
 	<string name="more">更多</string>
@@ -21,5 +22,5 @@
 	<string name="upload_empty">上传记录为空哦，赶快上传一张美美哒图片与别人一起分享吧</string>
 	<string name="disconnected">与服务器已断开连接</string>
 	<string name="send_data_format_error">发送数据格式错误</string>
-	<string name="get_location_fail">獲取位置失敗</string>
+    <string name="get_location_fail">获取位置失败</string>
 </resources>

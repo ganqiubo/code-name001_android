@@ -2,6 +2,7 @@ package tl.pojul.com.fastim.View.activity;
 
 import android.animation.ObjectAnimator;
 import android.animation.ValueAnimator;
+import android.app.KeyguardManager;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
@@ -15,6 +16,7 @@ import android.os.Handler;
 import android.os.Looper;
 import android.os.Message;
 import android.os.PowerManager;
+import android.provider.MediaStore;
 import android.support.annotation.Nullable;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -27,7 +29,6 @@ import android.view.animation.LinearInterpolator;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
-import android.widget.Spinner;
 import android.widget.TextView;
 
 import com.baidu.location.BDLocation;
@@ -39,6 +40,7 @@ import com.bumptech.glide.request.target.Target;
 import com.pojul.fastIM.entity.ExtendUploadPic;
 import com.pojul.fastIM.entity.PicFilter;
 import com.pojul.fastIM.entity.ScreenPosition;
+import com.pojul.objectsocket.utils.LogUtil;
 import com.romainpiel.shimmer.Shimmer;
 import com.romainpiel.shimmer.ShimmerTextView;
 
@@ -140,14 +142,24 @@ public class LockScreenActivity extends BaseActivity implements CustomTimeDown.O
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,
+        /*getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,
                 WindowManager.LayoutParams.FLAG_FULLSCREEN);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+            getWindow().setStatusBarColor(Color.TRANSPARENT);
+        }
+        this.getWindow().addFlags(WindowManager.LayoutParams.FLAG_DISMISS_KEYGUARD | WindowManager.LayoutParams.FLAG_SHOW_WHEN_LOCKED);*/
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
             getWindow().setStatusBarColor(Color.TRANSPARENT);
         }
         this.getWindow().addFlags(WindowManager.LayoutParams.FLAG_DISMISS_KEYGUARD | WindowManager.LayoutParams.FLAG_SHOW_WHEN_LOCKED);
         setContentView(R.layout.activity_lock_screen);
         ButterKnife.bind(this);
+
+        /*getWindow().getDecorView().setSystemUiVisibility(View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
+                | View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
+                | View.SYSTEM_UI_FLAG_LAYOUT_STABLE);*/
+        getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,
+                WindowManager.LayoutParams.FLAG_FULLSCREEN);
 
         mHandler.sendEmptyMessageDelayed(INIT, 50);
     }
@@ -159,7 +171,7 @@ public class LockScreenActivity extends BaseActivity implements CustomTimeDown.O
         lockScreenDao = new LockScreenDao();
         if(picFilter == null){
             picFilter = new PicFilter();
-            picFilter.setGallery("unsplash");
+            picFilter.setGallery("pixabay");
         }
         pics = SPUtil.getInstance().getLastLockPics();
         if(pics == null || pics.size() <= 0 || picFilter.getIndex() >= pics.size() || pics.get(picFilter.getIndex()) == null
@@ -188,9 +200,56 @@ public class LockScreenActivity extends BaseActivity implements CustomTimeDown.O
             }
             return false;
         });
+
+        wallaper.setCanSlideToUnlock(true);
+        wallaper.setOnSlideToUnlockListener(() -> {
+            LogUtil.e("setOnSlideToUnlockListener onUnlock");
+            unlockScreen();
+            finish();
+        });
+    }
+
+    private void unlockScreen(){
+        if(Build.VERSION.SDK_INT>=26){
+            try{
+                KeyguardManager keyguardManager = (KeyguardManager) LockScreenActivity.this.getSystemService(KEYGUARD_SERVICE);
+                keyguardManager.requestDismissKeyguard(LockScreenActivity.this, new KeyguardManager.KeyguardDismissCallback() {
+                    @Override
+                    public void onDismissError() {
+                        super.onDismissError();
+                        LogUtil.e("onDismissError");
+                    }
+
+                    @Override
+                    public void onDismissSucceeded() {
+                        super.onDismissSucceeded();
+                        LogUtil.e("onDismissSucceeded");
+                    }
+
+                    @Override
+                    public void onDismissCancelled() {
+                        super.onDismissCancelled();
+                        LogUtil.e("onDismissCancelled");
+                    }
+                });
+            }catch (Exception e){
+                LogUtil.e(e.getMessage());
+            }
+
+        }else{
+            KeyguardManager km = (KeyguardManager) getSystemService(Context.KEYGUARD_SERVICE);
+            KeyguardManager.KeyguardLock kl = km.newKeyguardLock("unLock");
+            //解锁
+            kl.disableKeyguard();
+        }
     }
 
     private void setWallper() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR1) {
+            if(isDestroyed()){
+                return;
+            }
+        }
         if(currentPics == null){
             nextPic.setEnabled(false);
             nextPics.setEnabled(false);
@@ -322,9 +381,9 @@ public class LockScreenActivity extends BaseActivity implements CustomTimeDown.O
                         SPUtil.getInstance().saveLockSctreenFiler(picFilter);
                         SPUtil.getInstance().saveLastLockPics(pics);
                         setWallper();
-                        showShortToas("未查询到数据");
+                        /*showShortToas("未查询到数据");*/
                     }else{
-                        showShortToas("没有更多了");
+                        /*showShortToas("没有更多了");*/
                     }
                 }
             });
@@ -508,6 +567,7 @@ public class LockScreenActivity extends BaseActivity implements CustomTimeDown.O
                 rootView.setTranslationX(transX + (rootView.getWidth() - transX) * value);
                 if (value >= 1) {
                     isUnlockAni = false;
+                    unlockScreen();
                     finishNoAni();
                 }
             } else {
@@ -527,7 +587,7 @@ public class LockScreenActivity extends BaseActivity implements CustomTimeDown.O
         }
         rorateAni = ObjectAnimator.ofFloat(refresh, "rotation", refresh.getRotation(), (refresh.getRotation() - 720));
         rorateAni.setInterpolator(new LinearInterpolator());
-        rorateAni.setRepeatCount(Integer.MAX_VALUE);
+        rorateAni.setRepeatCount(100);
         rorateAni.setDuration(2300);
         rorateAni.start();
     }
@@ -617,11 +677,12 @@ public class LockScreenActivity extends BaseActivity implements CustomTimeDown.O
                 nextPics();
                 break;
             case R.id.camera:
-                /*Intent intent=new Intent();
-                intent.setAction("android.media.action.STILL_IMAGE_CAMERA");
-                intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-                intent.addCategory("android.intent.category.DEFAULT");
-                startActivity(intent);*/
+                unlockScreen();
+                Intent intent = new Intent();
+                // 指定开启系统相机的Action
+                intent.setAction(MediaStore.ACTION_IMAGE_CAPTURE);
+                intent.addCategory(Intent.CATEGORY_DEFAULT);
+                startActivity(intent);
                 break;
             case R.id.flash_light:
                 if(flashLightUtil == null){
@@ -814,6 +875,12 @@ public class LockScreenActivity extends BaseActivity implements CustomTimeDown.O
             flashLightUtil.onDestory();
         }
         super.onDestroy();
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        hideNav(true);
     }
 
     private MyHandler mHandler = new MyHandler(this);

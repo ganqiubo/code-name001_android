@@ -3,7 +3,7 @@
     <item
         android:state_pressed="false">
         <bitmap android:src="@drawable/back_mormal"
-            android:tint="#666666"/>
+            android:tint="#ffffff"/>
 
     </item>
     <item android:state_pressed="true">

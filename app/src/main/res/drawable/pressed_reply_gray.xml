@@ -3,7 +3,7 @@
     <item
         android:state_pressed="false">
         <bitmap android:src="@drawable/reply"
-            android:tint="#999999"
+            android:tint="#aaaaaa"
         />
 
     </item>

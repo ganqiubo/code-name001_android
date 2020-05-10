@@ -9,7 +9,7 @@ public class PicFilter {
     private double lan;
     private double lon;
     private List<String> labels;
-    private String gallery = "脚步";
+    private String gallery = "pixabay";
     private int sex = -1;
     private String other;
     private int page;

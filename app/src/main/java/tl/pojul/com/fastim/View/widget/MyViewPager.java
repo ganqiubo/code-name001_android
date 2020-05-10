@@ -8,6 +8,7 @@ import android.view.View;
 
 public class MyViewPager extends ViewPager {
 
+    private boolean canSlide = true;
 
     public MyViewPager(Context context) {
         super(context);
@@ -21,21 +22,24 @@ public class MyViewPager extends ViewPager {
         return canSlide;
     }
 
-    @Override public boolean onTouchEvent(MotionEvent ev) { return canSlide; }
-    }*/
+    @Override public boolean onTouchEvent(MotionEvent ev) { return canSlide; }*/
 
     @Override
     protected boolean canScroll(View v, boolean checkV, int dx, int x, int y) {
-        if (v != this && v instanceof ViewPager) {
+        /*if (v != this && v instanceof ViewPager) {
             ViewPager viewPager = (ViewPager) v;
-            if(viewPager.getCurrentItem() != 0 || viewPager.getCurrentItem() != (viewPager.getAdapter().getCount() - 1)){
+            if(viewPager.getCurrentItem() != 1 || viewPager.getCurrentItem() != (viewPager.getAdapter().getCount() - 1)){
                 return true;
             }
         }
-        if(this.getCurrentItem() == 3){
+        if(this.getCurrentItem() == 4){
             return true;
         }
-        return super.canScroll(v, checkV, dx, x, y);
+        return super.canScroll(v, checkV, dx, x, y);*/
+        return !canSlide;
     }
 
+    public void setCanSlide(boolean canSlide) {
+        this.canSlide = canSlide;
+    }
 }

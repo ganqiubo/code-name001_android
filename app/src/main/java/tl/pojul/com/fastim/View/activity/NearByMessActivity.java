@@ -9,6 +9,7 @@ import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.View;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 import com.baidu.location.BDLocation;
@@ -53,6 +54,8 @@ public class NearByMessActivity extends BaseActivity {
     RecyclerView messList;
     @BindView(R.id.smart_refresh)
     SmartRefreshLayout smartRefresh;
+    @BindView(R.id.empty_ll)
+    LinearLayout emptyLl;
 
     private static final int INIT = 182;
     private User user;
@@ -121,9 +124,13 @@ public class NearByMessActivity extends BaseActivity {
                         tagMessAdapter.addDatas(recomdTagMesses);
                         MyApplication.hasRecomdMess = false;
                         isInit = false;
-                        if(MyApplication.getApplication().getMainActivity() != null || MyApplication.getApplication().getMainActivity().moreFragment != null){
-                            MyApplication.getApplication().getMainActivity().moreFragment.notifyHasRecomds();
-                        }
+                        /**
+                         * 暂时弃用
+                         * */
+                        /*if(MyApplication.getApplication().getMainActivity() != null && MyApplication.getApplication().getMainActivity().homeFragment != null
+                                && MyApplication.getApplication().getMainActivity().homeFragment.homeChoiceFragment != null){
+                            MyApplication.getApplication().getMainActivity().homeFragment.homeChoiceFragment.notifyHasRecomds();
+                        }*/
                     }
                     reqTagMess();
                 });
@@ -159,6 +166,13 @@ public class NearByMessActivity extends BaseActivity {
                     DialogUtil.getInstance().dimissLoadingDialog();
                     smartRefresh.finishLoadmore();
                     showShortToas(msg);
+                    if(mList.size() <= 0){
+                        emptyLl.setVisibility(View.VISIBLE);
+                        messList.setVisibility(View.GONE);
+                    }else{
+                        emptyLl.setVisibility(View.GONE);
+                        messList.setVisibility(View.VISIBLE);
+                    }
                 });
             }
 
@@ -174,10 +188,17 @@ public class NearByMessActivity extends BaseActivity {
                         tagMessAdapter.addDatas(tagMesses);
                         page = page + 1;
                     } else {
-                        showShortToas(mResponse.getMessage());
+                        //showShortToas(mResponse.getMessage());
                     }
                     DialogUtil.getInstance().dimissLoadingDialog();
                     smartRefresh.finishLoadmore();
+                    if(mList.size() <= 0){
+                        emptyLl.setVisibility(View.VISIBLE);
+                        messList.setVisibility(View.GONE);
+                    }else{
+                        emptyLl.setVisibility(View.GONE);
+                        messList.setVisibility(View.VISIBLE);
+                    }
                 });
             }
         });

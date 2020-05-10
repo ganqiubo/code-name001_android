@@ -1,0 +1,93 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical">
+
+    <ImageView
+        android:layout_width="20dp"
+        android:layout_height="12dp"
+        android:rotation="180"
+        android:tint="#303030"
+        android:layout_gravity="end"
+        android:layout_marginRight="25dp"
+        android:src="@drawable/indicate"/>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="5dp"
+        android:layout_marginRight="5dp"
+        android:orientation="vertical"
+        android:background="@drawable/corners_gallery_more"
+        android:layout_marginTop="-2dp">
+
+        <TextView
+            android:id="@+id/save"
+            android:clickable="true"
+            android:gravity="center"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:padding="5dp"
+            android:textColor="@color/press_text_white_yellow"
+            android:textSize="13sp"
+            android:layout_marginTop="3dp"
+            android:layout_marginBottom="3dp"
+            android:text="保存至本地"/>
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1px"
+            android:background="#202020"/>
+        
+        <TextView
+            android:id="@+id/share"
+            android:clickable="true"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:padding="5dp"
+            android:textSize="13sp"
+            android:gravity="center"
+            android:textColor="@color/press_text_white_yellow"
+            android:layout_marginTop="3dp"
+            android:layout_marginBottom="3dp"
+            android:text="分享"/>
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1px"
+            android:background="#202020"/>
+
+        <!--<TextView-->
+            <!--android:id="@+id/lock_wallper"-->
+            <!--android:clickable="true"-->
+            <!--android:layout_width="match_parent"-->
+            <!--android:layout_height="wrap_content"-->
+            <!--android:padding="5dp"-->
+            <!--android:textSize="13sp"-->
+            <!--android:textColor="@color/press_text_white_yellow"-->
+            <!--android:gravity="center"-->
+            <!--android:layout_marginTop="3dp"-->
+            <!--android:layout_marginBottom="3dp"-->
+            <!--android:text="设置为锁屏壁纸"/>-->
+
+        <!--<View-->
+            <!--android:layout_width="match_parent"-->
+            <!--android:layout_height="1px"-->
+            <!--android:background="#202020"/>-->
+
+        <!--<TextView-->
+            <!--android:id="@+id/desktop_wallper"-->
+            <!--android:clickable="true"-->
+            <!--android:layout_width="match_parent"-->
+            <!--android:layout_height="wrap_content"-->
+            <!--android:padding="5dp"-->
+            <!--android:textSize="13sp"-->
+            <!--android:textColor="@color/press_text_white_yellow"-->
+            <!--android:gravity="center"-->
+            <!--android:layout_marginTop="3dp"-->
+            <!--android:layout_marginBottom="3dp"-->
+            <!--android:text="设置为桌面壁纸"/>-->
+
+    </LinearLayout>
+</LinearLayout>

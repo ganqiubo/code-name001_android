@@ -8,6 +8,7 @@ import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.StaggeredGridLayoutManager;
 import android.view.View;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
@@ -66,6 +67,8 @@ public class UserPicsActivity extends BaseActivity {
     private int page;
     private List<UploadPic> uploadPics = new ArrayList<>();
     private UserPicsAdapter userPicsAdapter;
+    @BindView(R.id.empty_ll)
+    LinearLayout emptyLl;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -126,6 +129,7 @@ public class UserPicsActivity extends BaseActivity {
                 runOnUiThread(() -> {
                     DialogUtil.getInstance().dimissLoadingDialog();
                     showShortToas(msg);
+                    updateView();
                 });
             }
 
@@ -141,11 +145,22 @@ public class UserPicsActivity extends BaseActivity {
                             smartRefresh.setEnableLoadmore(false);
                         }
                     } else {
-                        showShortToas(mResponse.getMessage());
+                        //showShortToas(mResponse.getMessage());
                     }
+                    updateView();
                 });
             }
         });
+    }
+
+    private void updateView() {
+        if(uploadPics.size()<=0){
+            uploadPicList.setVisibility(View.GONE);
+            emptyLl.setVisibility(View.VISIBLE);
+        }else{
+            uploadPicList.setVisibility(View.VISIBLE);
+            emptyLl.setVisibility(View.GONE);
+        }
     }
 
 

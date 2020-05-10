@@ -1,19 +1,25 @@
 package tl.pojul.com.fastim.socket.Converter;
 
+import android.util.Log;
+
 import com.baidu.location.BDLocation;
 import com.baidu.mapapi.model.LatLng;
 import com.baidu.mapapi.utils.DistanceUtil;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.pojul.fastIM.entity.CommunityMessEntity;
+import com.pojul.fastIM.entity.Pic;
 import com.pojul.fastIM.entity.User;
 import com.pojul.fastIM.entity.UserFilter;
 import com.pojul.fastIM.message.chat.ReplyMessage;
 import com.pojul.fastIM.message.chat.TagCommuMessage;
+import com.pojul.objectsocket.utils.Constant;
 import com.pojul.objectsocket.utils.LogUtil;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import tl.pojul.com.fastim.util.ArrayUtil;
 import tl.pojul.com.fastim.util.SPUtil;
@@ -138,6 +144,18 @@ public class TagMessageConverter {
             tagCommuMessage.setHasReport(communityMessEntity.getHasReport());
             tagCommuMessage.setTimeMill(communityMessEntity.getTimeMill());
             tagCommuMessage.setReplysNum(communityMessEntity.getReplyNum());
+            if(tagCommuMessage.getPics() != null){
+                for (int i = 0; i < tagCommuMessage.getPics().size(); i++) {
+                    Pic pic = tagCommuMessage.getPics().get(i);
+                    String url = pic.getUploadPicUrl().getFilePath();
+                    Pattern pattern = Pattern.compile("http.*?resources/");
+                    Matcher matcher = pattern.matcher(url);
+                    if(matcher.find()){
+                        String str = url.substring(matcher.end(), url.length());
+                        pic.getUploadPicUrl().setFilePath(Constant.BASE_URL + str);
+                    }
+                }
+            }
             if(communityMessEntity.getLastReply() != null){
                 String[] strs = communityMessEntity.getLastReply().split(",");
                 if(strs.length == 3){
@@ -191,6 +209,18 @@ public class TagMessageConverter {
             tagCommuMessage.setHasReport(communityMessEntity.getHasReport());
             tagCommuMessage.setTimeMill(communityMessEntity.getTimeMill());
             tagCommuMessage.setReplysNum(communityMessEntity.getReplyNum());
+            if(tagCommuMessage.getPics() != null){
+                for (int i = 0; i < tagCommuMessage.getPics().size(); i++) {
+                    Pic pic = tagCommuMessage.getPics().get(i);
+                    String url = pic.getUploadPicUrl().getFilePath();
+                    Pattern pattern = Pattern.compile("http.*?resources/");
+                    Matcher matcher = pattern.matcher(url);
+                    if(matcher.find()){
+                        String str = url.substring(matcher.end(), url.length());
+                        pic.getUploadPicUrl().setFilePath(Constant.BASE_URL + str);
+                    }
+                }
+            }
             if(communityMessEntity.getLastReply() != null){
                 String[] strs = communityMessEntity.getLastReply().split(",");
                 if(strs.length == 3){

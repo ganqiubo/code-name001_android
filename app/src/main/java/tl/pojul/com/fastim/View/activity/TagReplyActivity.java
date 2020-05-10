@@ -191,6 +191,11 @@ public class TagReplyActivity extends BaseActivity implements CustomTimeDown.OnT
         replyList.setNestedScrollingEnabled(false);
 
         GlideUtil.setImageBitmap(tagCommuMessage.getPhoto().getFilePath(), ownPhoto);
+        ownPhoto.setOnClickListener(v->{
+            Bundle bundle = new Bundle();
+            bundle.putString("userName", tagCommuMessage.getFrom());
+            TagReplyActivity.this.startActivity(MyPageActivity.class, bundle);
+        });
         ownNickName.setText(tagCommuMessage.getNickName());
         if (tagCommuMessage.getCertificate() == 0) {
             ownerCertificate.setText("未实名认证");

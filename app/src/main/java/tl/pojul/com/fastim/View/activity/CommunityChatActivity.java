@@ -38,8 +38,11 @@ import com.pojul.fastIM.message.chat.CommunityMessage;
 import com.pojul.fastIM.message.chat.TagCommuMessage;
 import com.pojul.fastIM.message.chat.TextChatMessage;
 import com.pojul.fastIM.message.request.CommunityMessageReq;
+import com.pojul.fastIM.message.request.GetCommuDetailReq;
 import com.pojul.fastIM.message.request.GetTopMessReq;
 import com.pojul.fastIM.message.request.HistoryCommunReq;
+import com.pojul.fastIM.message.response.CommunityMessageResp;
+import com.pojul.fastIM.message.response.GetCommuDetailResp;
 import com.pojul.fastIM.message.response.GetTopMessResp;
 import com.pojul.fastIM.message.response.HistoryCommunResp;
 import com.pojul.objectsocket.message.BaseMessage;
@@ -128,7 +131,7 @@ public class CommunityChatActivity extends ChatRoomActivity implements CustomTim
     private String searchPicWord = "";
     private int chatRoomType = 3;
     private User user;
-    private CommunityRoom communityRoom;
+    public CommunityRoom communityRoom;
     private String chatRoomName;
     private String chatRoomUid;
     private List<ChatMessage> messages = new ArrayList<>();
@@ -144,6 +147,8 @@ public class CommunityChatActivity extends ChatRoomActivity implements CustomTim
     private long topMessInterval = 5 * 60 * 1000;
     private boolean isResume;
     private List<SpannableString> topMessSpan;
+    @BindView(R.id.empty_ll)
+    LinearLayout emptyLl;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -161,7 +166,6 @@ public class CommunityChatActivity extends ChatRoomActivity implements CustomTim
     }
 
     private void initData() {
-
         user = SPUtil.getInstance().getUser();
         try {
             communityRoom = new Gson().fromJson(getIntent().getStringExtra("CommunityRoom"), CommunityRoom.class);
@@ -219,14 +223,10 @@ public class CommunityChatActivity extends ChatRoomActivity implements CustomTim
             }
         });
 
+        getCommunitySeatail();
         reqCommunityMessage();
 
-        smartRefresh.setOnRefreshListener(new OnRefreshListener() {
-            @Override
-            public void onRefresh(RefreshLayout refreshlayout) {
-                getHistoryChat(20, false);
-            }
-        });
+        smartRefresh.setOnRefreshListener(refreshlayout -> getHistoryChat(20, false));
 
         customTimeDown = new CustomTimeDown(Long.MAX_VALUE, 30 * 1000);
         customTimeDown.setOnTimeDownListener(this);
@@ -254,6 +254,29 @@ public class CommunityChatActivity extends ChatRoomActivity implements CustomTim
             startActivity(intent);
         });
 
+    }
+
+    private void getCommunitySeatail() {
+        GetCommuDetailReq req = new GetCommuDetailReq();
+        if(communityRoom != null){
+            req.setCommuUid(communityRoom.getCommunityUid());
+        }
+        new SocketRequest().request(MyApplication.ClientSocket, req, new SocketRequest.IRequest() {
+            @Override
+            public void onError(String msg) {
+                runOnUiThread(()->{
+                });
+            }
+
+            @Override
+            public void onFinished(ResponseMessage mResponse) {
+                runOnUiThread(()->{
+                    if(mResponse.getCode() == 200 && communityRoom != null){
+                        communityRoom.setManager(((GetCommuDetailResp)mResponse).getRoom().getManager());
+                    }
+                });
+            }
+        });
     }
 
     @Override
@@ -317,7 +340,8 @@ public class CommunityChatActivity extends ChatRoomActivity implements CustomTim
                     isLoading = false;
                     DialogUtil.getInstance().dimissLoadingDialog();
                     smartRefresh.finishRefresh(false);
-                    showShortToas(msg);
+                    //showShortToas(msg);
+                    //updateView();
                 });
             }
 
@@ -334,13 +358,24 @@ public class CommunityChatActivity extends ChatRoomActivity implements CustomTim
                             lastMessageUid = reponses.get(0).getMessageUid();
                         }
                     } else {
-                        showShortToas(mResponse.getMessage());
+                        //showShortToas(mResponse.getMessage());
                     }
+                    //updateView();
                 });
             }
         });
 
     }
+
+    /*private void updateView() {
+        if(messages.size()<=0){
+            chatMessageList.setVisibility(View.GONE);
+            emptyLl.setVisibility(View.VISIBLE);
+        }else{
+            chatMessageList.setVisibility(View.VISIBLE);
+            emptyLl.setVisibility(View.GONE);
+        }
+    }*/
 
     private void reqCommunityMessage() {
         CommunityMessageReq request = new CommunityMessageReq();
@@ -539,6 +574,13 @@ public class CommunityChatActivity extends ChatRoomActivity implements CustomTim
             showShortToas("位置获取失败");
         }
     };
+
+    public boolean isManager(String userName){
+        if(userName != null && userName.equals(communityRoom.getManager())){
+            return true;
+        }
+        return false;
+    }
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {

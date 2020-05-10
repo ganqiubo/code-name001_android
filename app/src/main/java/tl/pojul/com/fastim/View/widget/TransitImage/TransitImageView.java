@@ -119,6 +119,14 @@ public class TransitImageView extends android.support.v7.widget.AppCompatImageVi
         startAnimator(0, 1);
     }
 
+    public void stopAni() {
+        if (animator != null) {
+            animator.cancel();
+            isAnimator = false;
+            progress = 0;
+        }
+    }
+
     private void startAnimator(float startProgress, float stopProgress){
         animator = ValueAnimator.ofFloat(startProgress, stopProgress);
         animator.setDuration(transit.getDuring());
@@ -233,7 +241,8 @@ public class TransitImageView extends android.support.v7.widget.AppCompatImageVi
 
         Bitmap cropBitmap;
         if(cropHeight < heightBitmap){
-            cropBitmap = Bitmap.createBitmap(bitmap, 0, /*(int)((heightBitmap - cropHeight) * 0.5f)*/0, widthBitmap, cropHeight);
+            //cropBitmap = Bitmap.createBitmap(bitmap, 0, /*(int)((heightBitmap - cropHeight) * 0.5f)*/0, widthBitmap, cropHeight);
+            cropBitmap = Bitmap.createBitmap(bitmap, 0, (int)((heightBitmap - cropHeight) * 0.5f), widthBitmap, cropHeight);
         }else{
             int cropWidth = (int) (heightBitmap / scale);
             cropBitmap = Bitmap.createBitmap(bitmap, (int)((widthBitmap - cropWidth) * 0.5f), 0, cropWidth, heightBitmap);
