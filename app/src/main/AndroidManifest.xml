@@ -228,6 +228,7 @@
             android:process=":process1"
             android:screenOrientation="portrait"
             android:taskAffinity="tl.pojul.com.fastim.lockscreen"
+            android:excludeFromRecents="true"
             android:theme="@style/Activity.Translucent" />
         <!-- android:theme="@style/Activity.Translucent" -->
         <activity
@@ -282,6 +283,12 @@
             android:name=".View.activity.WebviewActivity"
             android:process=":process1"
             android:theme="@style/AppTheme.NoActionBar"/>
+
+        <!--友盟统计配置Appkey与Channel-->
+        <!--value的值填写你在友盟后台申请的应用Appkey-->
+        <meta-data android:value="5c4c1a86f1f556b484000125" android:name="UMENG_APPKEY"/>
+        <!--value的值填写渠道名称，例如yingyongbao。这里设置动态渠道变量-->
+        <meta-data android:value="${UMENG_CHANNEL_VALUE}" android:name="UMENG_CHANNEL"/>
     </application>
 
 </manifest>

@@ -74,6 +74,7 @@ import tl.pojul.com.fastim.View.activity.LoginActivity;
 import tl.pojul.com.fastim.View.activity.MainActivity;
 import tl.pojul.com.fastim.View.activity.RegistActivity;
 import tl.pojul.com.fastim.View.activity.TagReplyActivity;
+import tl.pojul.com.fastim.View.activity.WebviewActivity;
 import tl.pojul.com.fastim.View.broadcast.MarsDaemonReceiver1;
 import tl.pojul.com.fastim.View.broadcast.MarsDaemonReceiver2;
 import tl.pojul.com.fastim.View.broadcast.NetWorkStateReceiver;
@@ -212,8 +213,10 @@ public class MyApplication extends DaemonApplication {
         /**
          *分享
          **/
-        UMConfigure.init(this,"5c4c1a86f1f556b484000125"
-                ,"umeng",UMConfigure.DEVICE_TYPE_PHONE,"");
+        /*UMConfigure.init(this,"5c4c1a86f1f556b484000125"
+                ,"umeng",UMConfigure.DEVICE_TYPE_PHONE,"");*/
+        UMConfigure.init(this,UMConfigure.DEVICE_TYPE_PHONE,"");
+        UMConfigure.setLogEnabled(true);
         PlatformConfig.setWeixin("wx4ebfa21ac55aa743", "5c017d2f6ec59c46620d82c044a1985a");
 
 
@@ -801,7 +804,7 @@ public class MyApplication extends DaemonApplication {
         }
         isUpdateApk = true;
         lastUpdateApkProgress = 0;
-        DownLoadManager.getInstance().downloadFile("http://47.93.31.206:8080/resources/app/detail/footstep_signed1.0.apk",
+        DownLoadManager.getInstance().downloadFile("http://"+Constant.HOST+":8080/resources/app/detail/footstep_signed1.0.apk",
                 (file.getAbsolutePath() + "/footstep.apk"),
                 new DownloadCallBack());
     }
@@ -876,7 +879,8 @@ public class MyApplication extends DaemonApplication {
         @Override
         public void onActivityStarted(Activity activity) {
             startActivityCount = startActivityCount + 1;
-            if(NetWorkUtil.isNetWorkable(getApplicationContext()) && !isConnected() && !(activity instanceof RegistActivity)){
+            if(NetWorkUtil.isNetWorkable(getApplicationContext()) && !isConnected() &&
+                    !(activity instanceof RegistActivity) && !(activity instanceof WebviewActivity)){
                 reConn(false);
             }
         }

@@ -2,6 +2,8 @@ package tl.pojul.com.fastim.View.widget.gallery;
 
 import android.content.Context;
 import android.graphics.Bitmap;
+import android.graphics.drawable.BitmapDrawable;
+import android.graphics.drawable.Drawable;
 import android.support.v4.view.ViewPager;
 import android.util.AttributeSet;
 import android.widget.RelativeLayout;
@@ -78,11 +80,13 @@ public class GalleryView extends RelativeLayout {
         return urls.get(viewPager.getCurrentItem());
     }
 
-    public Bitmap getCurrentBitmap(){
-        if(galleryAdapter != null && galleryAdapter.getCurrentPhoto() != null){
-            galleryAdapter.getCurrentPhoto().buildDrawingCache();
-            Bitmap bitmap = galleryAdapter.getCurrentPhoto().getDrawingCache();
-            return bitmap;
+    public String getCurrentBitmapUrl(){
+        if(galleryAdapter != null && galleryAdapter.getCurrentPhotoUrl() != null &&
+                !galleryAdapter.getCurrentPhotoUrl().equals("")){
+            /*galleryAdapter.getCurrentPhoto().buildDrawingCache();
+            //BitmapDrawable bmpDrawable = (BitmapDrawable) galleryAdapter.getCurrentPhoto().getDrawable();
+            Bitmap bitmap = galleryAdapter.getCurrentPhoto().getDrawingCache();*/
+            return galleryAdapter.getCurrentPhotoUrl();
         }
         return null;
     }

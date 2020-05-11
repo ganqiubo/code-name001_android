@@ -11,10 +11,15 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
 import android.provider.MediaStore;
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.support.v4.content.FileProvider;
 import android.view.View;
 import android.widget.ImageView;
 
+import com.bumptech.glide.Glide;
+import com.bumptech.glide.request.target.SimpleTarget;
+import com.bumptech.glide.request.transition.Transition;
 import com.umeng.socialize.ShareAction;
 import com.umeng.socialize.UMShareAPI;
 import com.umeng.socialize.UMShareListener;
@@ -94,7 +99,7 @@ public class GalleryActivity extends BaseActivity {
     private void onMorePopClick(String str) {
         switch (str){
             case "save":
-                savePic(true);
+                getSavePicBitmap();
                 break;
             case "share":
                 sharePic();
@@ -149,11 +154,24 @@ public class GalleryActivity extends BaseActivity {
         }
     };
 
-    private String savePic(boolean toast){
-        Bitmap bitmap = galleryView.getCurrentBitmap();
+    private void getSavePicBitmap(){
+        if(galleryView.getCurrentBitmapUrl()!=null){
+            Glide.with(this).asBitmap().load(galleryView.getCurrentBitmapUrl()).into(new SimpleTarget<Bitmap>() {
+                @Override
+                public void onResourceReady(@NonNull Bitmap resource, @Nullable Transition<? super Bitmap> transition) {
+                    //可以在此处调用保存图片到相册的方法
+                    savePic(resource, true);
+                }
+            });
+        }else{
+            showLongToas("数据错误");
+        }
+    }
+
+    private String savePic(Bitmap bitmap, boolean toast){
         if(bitmap == null){
             if(toast){
-                showShortToas("图片正在加载中");
+                showShortToas("图片加载失败");
             }
             return null;
         }else{
@@ -182,15 +200,6 @@ public class GalleryActivity extends BaseActivity {
                 }
                 return null;
             }
-        }
-    }
-
-    private void cropWallper(){
-        Bitmap bitmap = galleryView.getCurrentBitmap();
-        if(bitmap == null){
-            showShortToas("图片正在加载中");
-        } else {
-            cutoutPic();
         }
     }
 
@@ -235,7 +244,7 @@ public class GalleryActivity extends BaseActivity {
         }
     }
 
-    private void cutoutPic() {
+    /*private void cutoutPic() {
         String path = savePic(false);
         wallperPath = path;
         if(path == null){
@@ -282,6 +291,12 @@ public class GalleryActivity extends BaseActivity {
                 setDesktopWallper();
             }
         }
+    }*/
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        UMShareAPI.get(this).onActivityResult(requestCode,resultCode,data);
     }
 
     static class MyHandler extends Handler {

@@ -13,6 +13,8 @@ import android.view.Window;
 import android.view.WindowManager;
 import android.widget.Toast;
 
+import com.umeng.analytics.MobclickAgent;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -120,6 +122,7 @@ public class BaseActivity extends FragmentActivity {
                 pauseListener.onPause();
             }
         }
+        MobclickAgent.onPause(this);
     }
 
     @Override
@@ -131,6 +134,7 @@ public class BaseActivity extends FragmentActivity {
                 pauseListener.onResume();
             }
         }
+        MobclickAgent.onResume(this);
     }
 
     public void startActivityAndFinish(Class cls){

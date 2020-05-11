@@ -3,8 +3,8 @@ package com.pojul.objectsocket.utils;
 import java.io.File;
 
 public class Constant {
-	public final static String HOST = "192.168.86.122";
-	/*public final static String HOST = "47.93.31.206";*/
+	/*public final static String HOST = "192.168.86.122";*/
+	public final static String HOST = "106.53.108.91";
 
 	//public final static String BASE_LOCAL_PATH = "D:\\websource\\";
 	public final static String BASE_LOCAL_PATH = "/root/websource/";

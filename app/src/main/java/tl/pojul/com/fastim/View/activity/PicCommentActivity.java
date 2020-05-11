@@ -1,5 +1,6 @@
 package tl.pojul.com.fastim.View.activity;
 
+import android.content.Intent;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
@@ -23,6 +24,11 @@ import com.scwang.smartrefresh.layout.SmartRefreshLayout;
 import com.scwang.smartrefresh.layout.api.RefreshLayout;
 import com.scwang.smartrefresh.layout.listener.OnLoadmoreListener;
 import com.scwang.smartrefresh.layout.listener.OnRefreshListener;
+import com.umeng.socialize.ShareAction;
+import com.umeng.socialize.UMShareAPI;
+import com.umeng.socialize.UMShareListener;
+import com.umeng.socialize.bean.SHARE_MEDIA;
+import com.umeng.socialize.media.UMImage;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -239,8 +245,54 @@ public class PicCommentActivity extends BaseActivity {
                 comment(0, -1);
                 break;
             case R.id.forward_ll:
+                sharePic();
                 break;
         }
+    }
+
+    private void sharePic() {
+        String url = picUrls.get(0);
+        UMImage image1 = new UMImage(this, url);//网络图片
+        new ShareAction(this)
+                .withMedia(image1)
+                .setDisplayList(SHARE_MEDIA.WEIXIN, SHARE_MEDIA.WEIXIN_CIRCLE)
+                .setCallback(umShareListener)
+                .open();
+        /*UMWeb web = new UMWeb("http://a.hiphotos.baidu.com/image/pic/item/2f738bd4b31c8701e96739342a7f9e2f0608ff0b.jpg");
+        UMImage image = new UMImage(this, "http://a.hiphotos.baidu.com/image/pic/item/2f738bd4b31c8701e96739342a7f9e2f0608ff0b.jpg");
+        web.setTitle("来自脚步社区.每日一图");
+        web.setDescription("描述");
+        web.setThumb(image);
+        new ShareAction(this)
+                .withMedia(web)
+                .setDisplayList(SHARE_MEDIA.WEIXIN, SHARE_MEDIA.WEIXIN_CIRCLE)
+                .setCallback(umShareListener)
+                .open();*/
+    }
+
+    private UMShareListener umShareListener = new UMShareListener() {
+
+        @Override
+        public void onStart(SHARE_MEDIA share_media) {
+        }
+
+        @Override
+        public void onResult(SHARE_MEDIA share_media) {
+        }
+
+        @Override
+        public void onError(SHARE_MEDIA share_media, Throwable throwable) {
+        }
+
+        @Override
+        public void onCancel(SHARE_MEDIA share_media) {
+        }
+    };
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        UMShareAPI.get(this).onActivityResult(requestCode,resultCode,data);
     }
 
     public void comment(int level, long oneLevelId) {

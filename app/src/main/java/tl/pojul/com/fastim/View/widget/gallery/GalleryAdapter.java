@@ -36,6 +36,7 @@ public class GalleryAdapter extends PagerAdapter {
     private Context context;
     private TextView progressTv;
     private PhotoView currentPhoto;
+    private String currentPhotoUrl;
 
     public GalleryAdapter(ArrayList<String> urls, Context context) {
         this.urls = urls;
@@ -58,6 +59,7 @@ public class GalleryAdapter extends PagerAdapter {
         container.addView(v);
         PhotoView imge = v.findViewById(R.id.photo);
         currentPhoto = imge;
+        currentPhotoUrl = urls.get(position);
         ProgressBar progress = v.findViewById(R.id.progress);
         RelativeLayout progressLl = v.findViewById(R.id.progress_ll);
         TextView progressTv = v.findViewById(R.id.progress_tv);
@@ -110,7 +112,7 @@ public class GalleryAdapter extends PagerAdapter {
         container.removeView((View)object);
     }
 
-    public PhotoView getCurrentPhoto() {
-        return currentPhoto;
+    public String getCurrentPhotoUrl() {
+        return currentPhotoUrl;
     }
 }

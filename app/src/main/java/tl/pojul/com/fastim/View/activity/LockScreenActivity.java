@@ -65,6 +65,7 @@ import tl.pojul.com.fastim.util.DialogUtil;
 import tl.pojul.com.fastim.util.FlashLightUtil;
 import tl.pojul.com.fastim.util.GlideUtil;
 import tl.pojul.com.fastim.util.SPUtil;
+import tl.pojul.com.fastim.util.ShellUtils;
 
 public class LockScreenActivity extends BaseActivity implements CustomTimeDown.OnTimeDownListener {
 
@@ -235,7 +236,6 @@ public class LockScreenActivity extends BaseActivity implements CustomTimeDown.O
             }catch (Exception e){
                 LogUtil.e(e.getMessage());
             }
-
         }else{
             KeyguardManager km = (KeyguardManager) getSystemService(Context.KEYGUARD_SERVICE);
             KeyguardManager.KeyguardLock kl = km.newKeyguardLock("unLock");

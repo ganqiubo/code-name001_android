@@ -37,10 +37,10 @@
             android:layout_marginRight="45dp"
             android:layout_marginTop="20dp"
             android:background="@drawable/corners_bg_edittext"
-            android:inputType="number"
             android:hint="前输入账号"
             android:paddingLeft="15dp"
             android:textColor="#ffffff"
+            android:digits="abcdefghijklmnopqrstuvwxyz0123456789"
             android:textColorHint="#aeaeae"
             android:textSize="15dp" />-->
 
