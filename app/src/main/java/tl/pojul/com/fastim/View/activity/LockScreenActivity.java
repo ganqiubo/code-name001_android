@@ -77,6 +77,8 @@ public class LockScreenActivity extends BaseActivity implements CustomTimeDown.O
     RelativeLayout rootView;
     @BindView(R.id.time)
     TextView time;
+    @BindView(R.id.time_clock)
+    TextView timeClock;
     @BindView(R.id.pre_pics)
     ImageView prePics;
     @BindView(R.id.pre_pic)
@@ -144,8 +146,8 @@ public class LockScreenActivity extends BaseActivity implements CustomTimeDown.O
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         /*getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,
-                WindowManager.LayoutParams.FLAG_FULLSCREEN);
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+                WindowManager.LayoutParams.FLAG_FULLSCREEN);*/
+        /*if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
             getWindow().setStatusBarColor(Color.TRANSPARENT);
         }
         this.getWindow().addFlags(WindowManager.LayoutParams.FLAG_DISMISS_KEYGUARD | WindowManager.LayoutParams.FLAG_SHOW_WHEN_LOCKED);*/
@@ -846,8 +848,9 @@ public class LockScreenActivity extends BaseActivity implements CustomTimeDown.O
             }
             /*BatteryManager batteryManager = (BatteryManager)getSystemService(BATTERY_SERVICE);
             int battery = batteryManager.getIntProperty(BatteryManager.BATTERY_PROPERTY_CAPACITY);*/
-            String timeStr = month + "月" + day + "日" + "  星期" + weekDayStr + "  " + hourStr + ":" + minuteStr + "  " + battery + "%电量";
+            String timeStr = month + "月" + day + "日" + "  星期" + weekDayStr + "  " + battery + "%电量";
             time.setText(timeStr);
+            timeClock.setText((hourStr + ":" + minuteStr));
         }
     }
 

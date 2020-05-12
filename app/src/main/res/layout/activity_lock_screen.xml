@@ -65,10 +65,12 @@
             android:padding="9dp"
             android:rotation="180"
             android:layout_gravity="center"
+            android:layout_marginRight="5dp"
             android:clickable="true"
             android:src="@drawable/press_next_group"/>
 
         <ImageView
+            android:visibility="gone"
             android:id="@+id/pre_pics"
             android:layout_width="32dp"
             android:layout_height="32dp"
@@ -85,6 +87,7 @@
             android:padding="9dp"
             android:clickable="true"
             android:layout_gravity="center"
+            android:layout_marginRight="5dp"
             android:src="@drawable/press_refresh"/>
 
         <ImageView
@@ -92,6 +95,7 @@
             android:layout_width="32dp"
             android:layout_height="32dp"
             android:padding="9.5dp"
+            android:layout_marginRight="5dp"
             android:clickable="true"
             android:layout_gravity="center"
             android:src="@drawable/press_next_ten"/>
@@ -101,6 +105,7 @@
             android:layout_width="32dp"
             android:layout_height="32dp"
             android:padding="9.5dp"
+            android:layout_marginRight="5dp"
             android:clickable="true"
             android:layout_gravity="center"
             android:src="@drawable/press_thumbup_white"/>
@@ -110,6 +115,7 @@
             android:id="@+id/like"
             android:layout_width="32dp"
             android:layout_height="32dp"
+            android:layout_marginRight="5dp"
             android:padding="8.5dp"
             android:clickable="true"
             android:layout_gravity="center"
@@ -119,6 +125,7 @@
             android:id="@+id/collect"
             android:layout_width="32dp"
             android:layout_height="32dp"
+            android:layout_marginRight="5dp"
             android:padding="9dp"
             android:clickable="true"
             android:layout_gravity="center"
@@ -128,18 +135,21 @@
             android:id="@+id/filter"
             android:layout_width="32dp"
             android:layout_height="32dp"
+            android:layout_marginRight="5dp"
             android:padding="9dp"
             android:clickable="true"
             android:layout_gravity="center"
             android:src="@drawable/press_filter_white"/>
 
         <ImageView
+            android:visibility="gone"
             android:id="@+id/next_pics"
             android:layout_width="32dp"
             android:layout_height="32dp"
             android:padding="9dp"
             android:clickable="true"
             android:layout_gravity="center"
+            android:layout_marginRight="5dp"
             android:src="@drawable/pressed_back_white"/>
 
         <ImageView
@@ -149,6 +159,7 @@
             android:padding="9dp"
             android:clickable="true"
             android:layout_gravity="center"
+            android:layout_marginRight="5dp"
             android:src="@drawable/press_next_group"/>
     </LinearLayout>
 
@@ -180,10 +191,10 @@
             android:paddingBottom="12dp"
             android:layout_height="wrap_content"
             android:gravity="center"
-            android:textSize="13sp"
+            android:textSize="14sp"
             android:clickable="true"
             android:layout_centerInParent="true"
-            android:textColor="#565656"
+            android:textColor="#ababab"
             android:layout_toRightOf="@+id/camera"
             android:layout_toLeftOf="@+id/flash_light"
             android:text="〉 〉 〉 〉 〉滑动解锁"/>
@@ -210,5 +221,18 @@
         android:layout_height="1px"
         android:layout_centerInParent="true"
         android:background="#00000000"/>
+
+    <TextView
+        android:id="@+id/time_clock"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="19:20"
+        android:textColor="#f1f1f1"
+        android:layout_gravity="center"
+        android:gravity="center"
+        android:fontFamily="sans-serif-thin"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="70dp"
+        android:textSize="72sp" />
 
 </RelativeLayout>

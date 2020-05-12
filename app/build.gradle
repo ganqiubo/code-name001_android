@@ -6,8 +6,8 @@ android {
         applicationId "tl.pojul.com.fastim"
         minSdkVersion 16
         targetSdkVersion 26
-        versionCode 3
-        versionName "1.22"
+        versionCode 4
+        versionName "1.23"
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
         multiDexEnabled true
         flavorDimensions "default"
@@ -20,7 +20,7 @@ android {
 
         signingConfigs {
             debug {
-                storeFile file('D:\\gitPro\\code-name001_android\\code-name001_android\\keystore.jks')
+                storeFile file('./keystore.jks')
                 //storeFile file('F:\\gitPro\\code-name001_android\\debug.jks')
                 storePassword "123456"
                 keyAlias "key0"
@@ -40,6 +40,12 @@ android {
         }
         xiaomi {
             manifestPlaceholders = [UMENG_CHANNEL_VALUE: "xiaomi"]
+        }
+        huawei {
+            manifestPlaceholders = [UMENG_CHANNEL_VALUE: "huawei"]
+        }
+        baidu {
+            manifestPlaceholders = [UMENG_CHANNEL_VALUE: "baidu"]
         }
     }
 

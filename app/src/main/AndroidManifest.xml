@@ -82,6 +82,7 @@
             android:windowSoftInputMode="adjustPan" />
         <activity
             android:name=".View.activity.MultipleChatRoomActivity"
+            android:theme="@style/AppTheme.NoActionBar"
             android:process=":process1" />
         <!-- <activity -->
         <!-- android:name=".View.activity.ChatRoomActivity" -->
@@ -97,44 +98,55 @@
             android:theme="@style/AppTheme.NoActionBar" />
         <activity
             android:name=".View.activity.UploadPicActivity"
+            android:theme="@style/AppTheme.NoActionBar"
             android:process=":process1" />
         <activity
             android:name=".View.activity.SavedPicActivity"
+            android:theme="@style/AppTheme.NoActionBar"
             android:process=":process1" />
         <activity
             android:name=".View.activity.UploadingPicActivity"
+            android:theme="@style/AppTheme.NoActionBar"
             android:process=":process1" />
         <activity
             android:name=".View.activity.CommunitySetActivity"
+            android:theme="@style/AppTheme.NoActionBar"
             android:process=":process1" />
         <activity
             android:name=".View.activity.CommunityChatActivity"
+            android:theme="@style/AppTheme.NoActionBar"
             android:process=":process1"
             android:windowSoftInputMode="adjustPan" />
         <activity
             android:name=".View.activity.CommunityMapActivity"
+            android:theme="@style/AppTheme.NoActionBar"
             android:process=":process1" />
         <activity
             android:name=".View.activity.TagMessageActivity"
+            android:theme="@style/AppTheme.NoActionBar"
             android:process=":process1" />
         <activity
             android:name=".View.activity.WhiteBlackActivity"
+            android:theme="@style/AppTheme.NoActionBar"
             android:process=":process1" />
         <activity
             android:name=".View.activity.UserSelectActivity"
+            android:theme="@style/AppTheme.NoActionBar"
             android:process=":process1" />
         <activity
             android:name=".View.activity.WhiteBlackListActivity"
-            
+            android:theme="@style/AppTheme.NoActionBar"
             android:process=":process1" />
         <activity
             android:name=".View.activity.UserSearchActivity"
+            android:theme="@style/AppTheme.NoActionBar"
             android:process=":process1" />
         <activity
             android:name=".View.activity.TagReplyActivity"
             android:process=":process1" />
         <activity
             android:name=".View.activity.MoreSubReplyActivity"
+            android:theme="@style/AppTheme.NoActionBar"
             android:process=":process1" />
 
         <service

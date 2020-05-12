@@ -14,6 +14,7 @@ import android.text.method.LinkMovementMethod;
 import android.text.style.CharacterStyle;
 import android.text.style.ClickableSpan;
 import android.view.View;
+import android.view.WindowManager;
 import android.widget.ImageView;
 import android.widget.TextView;
 
@@ -40,6 +41,8 @@ public class StartActivity extends BaseActivity implements CustomTimeDown.OnTime
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        /*getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,
+                WindowManager.LayoutParams.FLAG_FULLSCREEN);*/
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
             getWindow().setStatusBarColor(Color.TRANSPARENT);
         }
@@ -175,6 +178,12 @@ public class StartActivity extends BaseActivity implements CustomTimeDown.OnTime
         }else{
             next();
         }
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        hideNav(true);
     }
 
     @Override

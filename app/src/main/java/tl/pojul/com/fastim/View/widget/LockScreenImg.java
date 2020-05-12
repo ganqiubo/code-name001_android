@@ -53,7 +53,7 @@ public class LockScreenImg extends android.support.v7.widget.AppCompatImageView{
     private float rawTouchY;
     private float maxUnlockRate = 0.7f;
     private float unlockScaleRate = 1.7f;
-    private float maxUnlockScale = 1.55f;
+    private float maxUnlockScale = 1.54f;
 
     public LockScreenImg(Context context) {
         super(context);

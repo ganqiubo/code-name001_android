@@ -362,7 +362,7 @@ public class MainActivity extends BaseActivity {
     @Override
     protected void onResume() {
         super.onResume();
-        hideNav(true);
+        //hideNav(true);
     }
 
     public void unreadUnmChanged(int total){

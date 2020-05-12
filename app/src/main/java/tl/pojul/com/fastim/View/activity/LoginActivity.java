@@ -206,6 +206,12 @@ public class LoginActivity extends BaseActivity {
     }
 
     @Override
+    protected void onResume() {
+        super.onResume();
+        hideNav(true);
+    }
+
+    @Override
     public boolean onKeyUp(int keyCode, KeyEvent event) {
         /*if (keyCode == KeyEvent.KEYCODE_BACK && event.getAction() == KeyEvent.ACTION_UP && MyApplication.isConnecting) {
             Intent home = new Intent(Intent.ACTION_MAIN);
